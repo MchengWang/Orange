@@ -1,0 +1,3 @@
+[submodule "Orange/vendor/spdlog"]
+	path = Orange/vendor/spdlog
+	url = https://github.com/gabime/spdlog
