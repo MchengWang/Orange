@@ -1,0 +1,7 @@
+# 文件夹
+.vs/
+bin/
+bin-obj/
+
+# 文件
+*.user
