@@ -9,3 +9,6 @@
 #else 
 	#error Orange 仅支持 windows 系统！
 #endif // OG_PLATFORM_WINDOWS
+
+
+#define BIT(x) (1 << x)

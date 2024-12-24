@@ -1,5 +1,6 @@
 workspace "Orange"
 	architecture "x64"
+	startproject "Sandbox"
 
 	configurations
 	{
@@ -14,6 +15,8 @@ project "Orange"
 	location "Orange"
 	kind "SharedLib"
 	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outdir .. "/%{prj.name}")
@@ -26,24 +29,24 @@ project "Orange"
 
 	includedirs
 	{
+		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include"
 	}
 
-filter "system:windows"
-	cppdialect "C++17"
-	staticruntime "On"
-	systemversion "latest"
+	filter "system:windows"
+		cppdialect "C++17"
+		systemversion "latest"
 
-	defines
-	{
-		"OG_PLATFORM_WINDOWS",
-		"OG_BUILD_DLL"
-	}
+		defines
+		{
+			"OG_PLATFORM_WINDOWS",
+			"OG_BUILD_DLL"
+		}
 
-	postbuildcommands
-	{
-		("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outdir .. "/Sandbox")
-	}
+		postbuildcommands
+		{
+			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outdir .. "/Sandbox/\"")
+		}
 
 	filter "configurations:Debug"
 		defines "OG_DEBUG"
@@ -61,6 +64,8 @@ project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outdir .. "/%{prj.name}")
@@ -82,20 +87,14 @@ project "Sandbox"
 		"Orange"
 	}
 
-filter "system:windows"
-	cppdialect "C++17"
-	staticruntime "On"
-	systemversion "latest"
+	filter "system:windows"
+		cppdialect "C++17"
+		systemversion "latest"
 
-	defines
-	{
-		"OG_PLATFORM_WINDOWS"
-	}
-
-	postbuildcommands
-	{
-		("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outdir .. "/Sandbox")
-	}
+		defines
+		{
+			"OG_PLATFORM_WINDOWS"
+		}
 
 	filter "configurations:Debug"
 		defines "OG_DEBUG"

@@ -2,6 +2,8 @@
 
 #include "Core.h"
 
+#include "Events/Event.h"
+
 namespace Orange
 {
 	class ORANGE_API Application 
