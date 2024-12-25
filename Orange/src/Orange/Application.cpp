@@ -1,12 +1,17 @@
+#include "ogpch.h"
+
 #include "Application.h"
 
 #include "Orange/Events/ApplicationEvent.h"
 #include "Orange/Log.h"
 
+#include <GLFW/glfw3.h>
+
 namespace Orange
 {
 	Application::Application()
 	{
+		o_Window = std::unique_ptr<Window>(Window::Create());
 	}
 
 	Application::~Application()
@@ -15,16 +20,12 @@ namespace Orange
 
 	void Application::Run()
 	{
-		WindowResizeEvent e(1280, 720);
-		if (e.IsInCategory(EventCategoryApplication))
+		while (o_Running)
 		{
-			OG_CLIENT_TRACE(e.ToString());
-		}
-		if (e.IsInCategory(EventCategoryInput))
-		{
-			OG_CLIENT_TRACE(e.ToString());
-		}
+			glClearColor(1, 0, 1, 1);
+			glClear(GL_COLOR_BUFFER_BIT);
 
-		while (true);
+			o_Window->OnUpdate();
+		}
 	}
 }

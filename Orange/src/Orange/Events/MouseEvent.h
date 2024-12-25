@@ -2,8 +2,6 @@
 
 #include "Event.h"
 
-#include <sstream>
-
 namespace Orange
 {
 	class ORANGE_API MouseMovedEvent : public Event

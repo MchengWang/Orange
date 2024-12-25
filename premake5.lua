@@ -11,6 +11,12 @@ workspace "Orange"
 
 outdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+-- 包括相对于根文件夹（解决方案目录）的目录
+IncludeDir = {}
+IncludeDir["GLFW"] = "Orange/vendor/GLFW/include"
+
+include "Orange/vendor/GLFW"
+
 project "Orange"
 	location "Orange"
 	kind "SharedLib"
@@ -21,6 +27,9 @@ project "Orange"
 	targetdir ("bin/" .. outdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outdir .. "/%{prj.name}")
 
+	pchheader "ogpch.h"
+	pchsource "Orange/src/ogpch.cpp"
+
 	files
 	{
 		"%{prj.name}/src/**.h",
@@ -30,7 +39,14 @@ project "Orange"
 	includedirs
 	{
 		"%{prj.name}/src",
-		"%{prj.name}/vendor/spdlog/include"
+		"%{prj.name}/vendor/spdlog/include",
+		"%{IncludeDir.GLFW}"
+	}
+
+	links
+	{
+		"GLFW",
+		"opengl32.lib"
 	}
 
 	filter "system:windows"

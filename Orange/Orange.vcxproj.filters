@@ -34,6 +34,11 @@
     <ClInclude Include="src\Orange\Log.h">
       <Filter>Orange</Filter>
     </ClInclude>
+    <ClInclude Include="src\Orange\Window.h">
+      <Filter>Orange</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ogpch.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Orange\Application.cpp">
@@ -42,5 +47,7 @@
     <ClCompile Include="src\Orange\Log.cpp">
       <Filter>Orange</Filter>
     </ClCompile>
+    <ClCompile Include="src\ogpch.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
   </ItemGroup>
 </Project>
