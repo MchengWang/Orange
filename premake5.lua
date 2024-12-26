@@ -14,8 +14,10 @@ outdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 -- 包括相对于根文件夹（解决方案目录）的目录
 IncludeDir = {}
 IncludeDir["GLFW"] = "Orange/vendor/GLFW/include"
+IncludeDir["Glad"] = "Orange/vendor/Glad/include"
 
 include "Orange/vendor/GLFW"
+include "Orange/vendor/Glad"
 
 project "Orange"
 	location "Orange"
@@ -40,12 +42,14 @@ project "Orange"
 	{
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.Glad}"
 	}
 
 	links
 	{
 		"GLFW",
+		"Glad",
 		"opengl32.lib"
 	}
 
@@ -56,7 +60,8 @@ project "Orange"
 		defines
 		{
 			"OG_PLATFORM_WINDOWS",
-			"OG_BUILD_DLL"
+			"OG_BUILD_DLL",
+			"GLFW_INCLUDE_NONE"
 		}
 
 		postbuildcommands

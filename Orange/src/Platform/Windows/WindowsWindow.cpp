@@ -5,6 +5,8 @@
 #include "Orange/Events/MouseEvent.h"
 #include "Orange/Events/KeyEvent.h"
 
+#include <glad/glad.h>
+
 namespace Orange
 {
 	static bool o_GLFWInitialized = false;
@@ -49,6 +51,10 @@ namespace Orange
 
 		o_Window = glfwCreateWindow((int)props.Width, (int)props.Height, o_Data.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(o_Window);
+
+		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		OG_CORE_ASSERT(status, "Glad ≥ı ºªØ ß∞‹£°");
+
 		glfwSetWindowUserPointer(o_Window, &o_Data);
 		SetVSync(true);
 
