@@ -11,8 +11,13 @@ namespace Orange
 {
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
+	Application* Application::o_Instance = nullptr;
+
 	Application::Application()
 	{
+		OG_CORE_ASSERT(!o_Instance, "Application 实例已经存在！")
+		o_Instance = this;
+
 		o_Window = std::unique_ptr<Window>(Window::Create());
 		o_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 	}
@@ -24,11 +29,13 @@ namespace Orange
 	void Application::PushLayer(Layer* layer)
 	{
 		o_layerStack.PushLayer(layer);
+		layer->OnAttach();
 	}
 
 	void Application::PushOverLayer(Layer* overLayer)
 	{
 		o_layerStack.PushOverLayer(overLayer);
+		overLayer->OnAttach();
 	}
 
 	void Application::OnEvent(Event& e)
