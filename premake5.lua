@@ -66,14 +66,17 @@ project "Orange"
 
 	filter "configurations:Debug"
 		defines "OG_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Release"
-		defines "OG_DEBUG"
+		defines "OG_RELEASE"
+		buildoptions "/MD"
 		optimize "On"
 
 	filter "configurations:Dist"
-		defines "OG_DEBUG"
+		defines "OG_DIST"
+		buildoptions "/MD"
 		optimize "On"
 
 project "Sandbox"
@@ -114,12 +117,15 @@ project "Sandbox"
 
 	filter "configurations:Debug"
 		defines "OG_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Release"
-		defines "OG_DEBUG"
+		defines "OG_RELEASE"
+		buildoptions "/MD"
 		optimize "On"
 
 	filter "configurations:Dist"
-		defines "OG_DEBUG"
+		defines "OG_DIST"
+		buildoptions "/MD"
 		optimize "On"

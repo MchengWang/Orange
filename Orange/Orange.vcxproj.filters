@@ -7,6 +7,12 @@
     <Filter Include="Orange\Events">
       <UniqueIdentifier>{0503DADB-71C3-5512-3AFE-9E8FA67D9AEE}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\Windows">
+      <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Orange.h" />
@@ -31,23 +37,39 @@
     <ClInclude Include="src\Orange\Events\MouseEvent.h">
       <Filter>Orange\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\Orange\Layer.h">
+      <Filter>Orange</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\LayerStack.h">
+      <Filter>Orange</Filter>
+    </ClInclude>
     <ClInclude Include="src\Orange\Log.h">
       <Filter>Orange</Filter>
     </ClInclude>
     <ClInclude Include="src\Orange\Window.h">
       <Filter>Orange</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
+      <Filter>Platform\Windows</Filter>
+    </ClInclude>
     <ClInclude Include="src\ogpch.h" />
-    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Orange\Application.cpp">
       <Filter>Orange</Filter>
     </ClCompile>
+    <ClCompile Include="src\Orange\Layer.cpp">
+      <Filter>Orange</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orange\LayerStack.cpp">
+      <Filter>Orange</Filter>
+    </ClCompile>
     <ClCompile Include="src\Orange\Log.cpp">
       <Filter>Orange</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
+      <Filter>Platform\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="src\ogpch.cpp" />
-    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
   </ItemGroup>
 </Project>

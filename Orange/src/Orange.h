@@ -2,6 +2,7 @@
 
 // 供 Orange 应用使用
 #include "Orange/Application.h"
+#include "Orange/Layer.h"
 #include "Orange/Log.h"
 
 // ---------入口点----------

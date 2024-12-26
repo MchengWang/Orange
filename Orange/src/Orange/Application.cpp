@@ -21,12 +21,27 @@ namespace Orange
 	{
 	}
 
+	void Application::PushLayer(Layer* layer)
+	{
+		o_layerStack.PushLayer(layer);
+	}
+
+	void Application::PushOverLayer(Layer* overLayer)
+	{
+		o_layerStack.PushOverLayer(overLayer);
+	}
+
 	void Application::OnEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
 
-		OG_CORE_TRACE("{0}", e.ToString());
+		for (auto it = o_layerStack.end(); it != o_layerStack.begin(); )
+		{
+			(*--it)->OnEvent(e);
+			if (e.Handled)
+				break;
+		}
 	}
 
 	void Application::Run()
@@ -35,6 +50,9 @@ namespace Orange
 		{
 			glClearColor(1, 0, 1, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
+
+			for (Layer* layer : o_layerStack)
+				layer->OnUpdate();
 
 			o_Window->OnUpdate();
 		}

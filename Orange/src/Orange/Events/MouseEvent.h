@@ -73,7 +73,7 @@ namespace Orange
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "鼠标按下事件: 已按下" << o_Button;
+			ss << "鼠标按下事件: 已按下 " << o_Button;
 			return ss.str();
 		}
 
@@ -89,7 +89,7 @@ namespace Orange
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "鼠标释放事件: 释放" << o_Button;
+			ss << "鼠标释放事件: 释放 " << o_Button;
 			return ss.str();
 		}
 		
