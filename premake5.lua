@@ -26,7 +26,7 @@ project "Orange"
 	kind "SharedLib"
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "on"
+	staticruntime "off"
 
 	targetdir ("bin/" .. outdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outdir .. "/%{prj.name}")
@@ -75,17 +75,17 @@ project "Orange"
 
 	filter "configurations:Debug"
 		defines "OG_DEBUG"
-		buildoptions "/MDd"
+		runtime "Debug"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "OG_RELEASE"
-		buildoptions "/MD"
+		runtime "Release"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "OG_DIST"
-		buildoptions "/MD"
+		runtime "Release"
 		optimize "On"
 
 project "Sandbox"
@@ -93,7 +93,7 @@ project "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "on"
+	staticruntime "off"
 
 	targetdir ("bin/" .. outdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outdir .. "/%{prj.name}")
@@ -126,15 +126,15 @@ project "Sandbox"
 
 	filter "configurations:Debug"
 		defines "OG_DEBUG"
-		buildoptions "/MDd"
+		runtime "Debug"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "OG_RELEASE"
-		buildoptions "/MD"
+		runtime "Release"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "OG_DIST"
-		buildoptions "/MD"
+		runtime "Release"
 		optimize "On"

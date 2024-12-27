@@ -83,8 +83,7 @@
       <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalOptions>/MDd %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -110,8 +109,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalOptions>/MD %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -138,8 +136,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalOptions>/MD %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -155,7 +152,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Orange\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Orange.h" />
     <ClInclude Include="src\Orange\Application.h" />
     <ClInclude Include="src\Orange\Core.h" />
@@ -164,6 +160,7 @@
     <ClInclude Include="src\Orange\Events\Event.h" />
     <ClInclude Include="src\Orange\Events\KeyEvent.h" />
     <ClInclude Include="src\Orange\Events\MouseEvent.h" />
+    <ClInclude Include="src\Orange\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Orange\Layer.h" />
     <ClInclude Include="src\Orange\LayerStack.h" />
     <ClInclude Include="src\Orange\Log.h" />
@@ -174,8 +171,8 @@
     <ClInclude Include="src\ogpch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Orange\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Orange\Application.cpp" />
+    <ClCompile Include="src\Orange\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Orange\Layer.cpp" />
     <ClCompile Include="src\Orange\LayerStack.cpp" />
     <ClCompile Include="src\Orange\Log.cpp" />
