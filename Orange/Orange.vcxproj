@@ -162,9 +162,11 @@
     <ClInclude Include="src\Orange\Events\MouseEvent.h" />
     <ClInclude Include="src\Orange\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Orange\Input.h" />
+    <ClInclude Include="src\Orange\KeyCodes.h" />
     <ClInclude Include="src\Orange\Layer.h" />
     <ClInclude Include="src\Orange\LayerStack.h" />
     <ClInclude Include="src\Orange\Log.h" />
+    <ClInclude Include="src\Orange\MouseButtonCodes.h" />
     <ClInclude Include="src\Orange\Window.h" />
     <ClInclude Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.h" />
     <ClInclude Include="src\Platform\OpenGL\ImGuiOpenGLRendererLoader.h" />
