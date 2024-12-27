@@ -161,6 +161,7 @@
     <ClInclude Include="src\Orange\Events\KeyEvent.h" />
     <ClInclude Include="src\Orange\Events\MouseEvent.h" />
     <ClInclude Include="src\Orange\ImGui\ImGuiLayer.h" />
+    <ClInclude Include="src\Orange\Input.h" />
     <ClInclude Include="src\Orange\Layer.h" />
     <ClInclude Include="src\Orange\LayerStack.h" />
     <ClInclude Include="src\Orange\Log.h" />
@@ -169,6 +170,7 @@
     <ClInclude Include="src\Platform\OpenGL\ImGuiOpenGLRendererLoader.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\ogpch.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Orange\Application.cpp" />
@@ -181,6 +183,7 @@
     <ClCompile Include="src\ogpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="vendor\GLFW\GLFW.vcxproj">
