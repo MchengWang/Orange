@@ -7,3 +7,6 @@
 [submodule "Orange/vendor/imgui"]
 	path = Orange/vendor/imgui
 	url = https://github.com/TheCherno/imgui
+[submodule "Orange/vendor/glm"]
+	path = Orange/vendor/glm
+	url = https://github.com/g-truc/glm
