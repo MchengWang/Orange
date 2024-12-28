@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Orange/Window.h"
+#include "Orange/Renderer/GraphicsContext.h"
 
 #include <GLFW/glfw3.h>
 
@@ -30,6 +31,7 @@ namespace Orange
 
 	private:
 		GLFWwindow* o_Window;
+		GraphicsContext* o_Context;
 
 		struct WindowData
 		{

@@ -5,7 +5,7 @@
 #include "Orange/Events/MouseEvent.h"
 #include "Orange/Events/KeyEvent.h"
 
-#include <glad/glad.h>
+#include "Platform/OpenGL/OpenGLContext.h"
 
 namespace Orange
 {
@@ -50,10 +50,9 @@ namespace Orange
 		}
 
 		o_Window = glfwCreateWindow((int)props.Width, (int)props.Height, o_Data.Title.c_str(), nullptr, nullptr);
-		glfwMakeContextCurrent(o_Window);
-
-		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		OG_CORE_ASSERT(status, "Glad ³õÊ¼»¯Ê§°Ü£¡");
+		
+		o_Context = new OpenGLContext(o_Window);
+		o_Context->Init();
 
 		glfwSetWindowUserPointer(o_Window, &o_Data);
 		SetVSync(true);
@@ -158,7 +157,7 @@ namespace Orange
 	void WindowsWindow::OnUpdate()
 	{
 		glfwPollEvents();
-		glfwSwapBuffers(o_Window);
+		o_Context->SwapBuffers();
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)
