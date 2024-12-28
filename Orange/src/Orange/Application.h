@@ -37,6 +37,8 @@ namespace Orange
 		bool o_Running = true;
 		LayerStack o_LayerStack;
 
+		unsigned int o_VertexArray, o_VertexBuffer, o_IndexBuffer;
+
 	private:
 		static Application* o_Instance;
 	};

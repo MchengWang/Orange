@@ -19,6 +19,11 @@ namespace Orange
 		glfwMakeContextCurrent(o_WindowHandle);
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		OG_CORE_ASSERT(status, "glad 初始化失败！");
+
+		OG_CORE_INFO("OpenGL 属性: ");
+		OG_CORE_INFO("  出厂商: {0}", (char*)glGetString(GL_VENDOR));
+		OG_CORE_INFO("  型  号: {0}", (char*)glGetString(GL_RENDERER));
+		OG_CORE_INFO("  版  本: {0}", (char*)glGetString(GL_VERSION));
 	}
 
 	void OpenGLContext::SwapBuffers()
