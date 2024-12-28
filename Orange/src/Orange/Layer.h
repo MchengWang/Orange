@@ -3,8 +3,8 @@
 #include "Orange/Core.h"
 #include "Orange/Events/Event.h"
 
-namespace Orange
-{
+namespace Orange {
+
 	class ORANGE_API Layer
 	{
 	public:
@@ -14,11 +14,12 @@ namespace Orange
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
 		virtual void OnUpdate() {}
-		virtual void OnEvent(Event& evnet) {}
+		virtual void OnImGuiRender() {}
+		virtual void OnEvent(Event& event) {}
 
-		inline const std::string& GetName() { return o_DebugName; }
-
+		inline const std::string& GetName() const { return o_DebugName; }
 	protected:
 		std::string o_DebugName;
 	};
+
 }

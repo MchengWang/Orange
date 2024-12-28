@@ -8,6 +8,8 @@
 #include "Orange/Events/Event.h"
 #include "Orange/Events/ApplicationEvent.h"
 
+#include "Orange/ImGui/ImGuiLayer.h"
+
 namespace Orange
 {
 	class ORANGE_API Application 
@@ -31,8 +33,9 @@ namespace Orange
 		bool OnWindowClose(WindowCloseEvent& e);
 
 		std::unique_ptr<Window> o_Window;
+		ImGuiLayer* o_ImGuiLayer;
 		bool o_Running = true;
-		LayerStack o_layerStack;
+		LayerStack o_LayerStack;
 
 	private:
 		static Application* o_Instance;

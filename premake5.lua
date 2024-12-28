@@ -24,10 +24,10 @@ include "Orange/vendor/imgui"
 
 project "Orange"
 	location "Orange"
-	kind "SharedLib"
+	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "off"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outdir .. "/%{prj.name}")
@@ -41,6 +41,11 @@ project "Orange"
 		"%{prj.name}/src/**.cpp",
 		"%{prj.name}/vendor/glm/glm/**.hpp",
 		"%{prj.name}/vendor/glm/glm/**.inl"
+	}
+	
+	defines
+	{
+		"_CRT_SECURE_NO_WARNINGS"
 	}
 
 	includedirs
@@ -72,32 +77,32 @@ project "Orange"
 			"GLFW_INCLUDE_NONE"
 		}
 
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outdir .. "/Sandbox/\"")
-		}
+		--postbuildcommands
+		--{
+		--	("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outdir .. "/Sandbox/\"")
+		--}
 
 	filter "configurations:Debug"
 		defines "OG_DEBUG"
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "OG_RELEASE"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "OG_DIST"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "off"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outdir .. "/%{prj.name}")
@@ -112,6 +117,7 @@ project "Sandbox"
 	{
 		"Orange/vendor/spdlog/include",
 		"Orange/src",
+		"Orange/vendor",
 		"%{IncludeDir.glm}"
 	}
 
@@ -132,14 +138,14 @@ project "Sandbox"
 	filter "configurations:Debug"
 		defines "OG_DEBUG"
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "OG_RELEASE"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "OG_DIST"
 		runtime "Release"
-		optimize "On"
+		optimize "on"

@@ -1,11 +1,10 @@
 #include "ogpch.h"
 #include "LayerStack.h"
 
-namespace Orange
-{
+namespace Orange {
+
 	LayerStack::LayerStack()
 	{
-		o_LayerInsert = o_Layers.begin();
 	}
 
 	LayerStack::~LayerStack()
@@ -16,30 +15,30 @@ namespace Orange
 
 	void LayerStack::PushLayer(Layer* layer)
 	{
-		o_LayerInsert = o_Layers.emplace(o_LayerInsert, layer);
+		o_Layers.emplace(o_Layers.begin() + o_LayerInsertIndex, layer);
+		o_LayerInsertIndex++;
 	}
 
-	void LayerStack::PushOverLayer(Layer* overLayer)
+	void LayerStack::PushOverlay(Layer* overlay)
 	{
-		o_Layers.emplace_back(overLayer);
+		o_Layers.emplace_back(overlay);
 	}
 
 	void LayerStack::PopLayer(Layer* layer)
 	{
 		auto it = std::find(o_Layers.begin(), o_Layers.end(), layer);
-
 		if (it != o_Layers.end())
 		{
 			o_Layers.erase(it);
-			o_LayerInsert--;
+			o_LayerInsertIndex--;
 		}
 	}
 
-	void LayerStack::PopOverLayer(Layer* overLayer)
+	void LayerStack::PopOverlay(Layer* overlay)
 	{
-		auto it = std::find(o_Layers.begin(), o_Layers.end(), overLayer);
-		
+		auto it = std::find(o_Layers.begin(), o_Layers.end(), overlay);
 		if (it != o_Layers.end())
 			o_Layers.erase(it);
 	}
+
 }

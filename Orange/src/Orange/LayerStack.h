@@ -5,8 +5,8 @@
 
 #include <vector>
 
-namespace Orange
-{
+namespace Orange {
+
 	class ORANGE_API LayerStack
 	{
 	public:
@@ -14,15 +14,15 @@ namespace Orange
 		~LayerStack();
 
 		void PushLayer(Layer* layer);
-		void PushOverLayer(Layer* overLayer);
+		void PushOverlay(Layer* overlay);
 		void PopLayer(Layer* layer);
-		void PopOverLayer(Layer* overLayer);
+		void PopOverlay(Layer* overlay);
 
 		std::vector<Layer*>::iterator begin() { return o_Layers.begin(); }
 		std::vector<Layer*>::iterator end() { return o_Layers.end(); }
-
 	private:
 		std::vector<Layer*> o_Layers;
-		std::vector<Layer*>::iterator o_LayerInsert;
+		unsigned int o_LayerInsertIndex = 0;
 	};
+
 }

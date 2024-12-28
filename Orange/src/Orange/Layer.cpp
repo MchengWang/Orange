@@ -1,14 +1,16 @@
 #include "ogpch.h"
 #include "Layer.h"
 
-namespace Orange
-{
+namespace Orange {
+
 	Layer::Layer(const std::string& debugName)
-		:o_DebugName(debugName) 
+		: o_DebugName(debugName)
 	{
 	}
 
 	Layer::~Layer()
 	{
+
 	}
+
 }
