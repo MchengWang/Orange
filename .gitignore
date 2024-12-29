@@ -1,6 +1,6 @@
 # 文件夹
 .vs/
-bin/
+/bin/
 bin-obj/
 
 # 文件
