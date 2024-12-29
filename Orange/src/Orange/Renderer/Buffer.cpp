@@ -12,8 +12,8 @@ namespace Orange
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::None: OG_CORE_ASSERT(false, "当前并不支持渲染接口：None!"); return nullptr;
-		case RendererAPI::OpenGL: return new OpenGLVertexBuffer(vertices, size);
+		case RendererAPI::API::None: OG_CORE_ASSERT(false, "当前并不支持渲染接口：None!"); return nullptr;
+		case RendererAPI::API::OpenGL: return new OpenGLVertexBuffer(vertices, size);
 		}
 
 		OG_CORE_ASSERT(false, "未知的渲染接口！");
@@ -24,8 +24,8 @@ namespace Orange
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::None: OG_CORE_ASSERT(false, "当前并不支持渲染接口：None!"); return nullptr;
-		case RendererAPI::OpenGL: return new OpenGLIndexBuffer(indices, size);
+		case RendererAPI::API::None: OG_CORE_ASSERT(false, "当前并不支持渲染接口：None!"); return nullptr;
+		case RendererAPI::API::OpenGL: return new OpenGLIndexBuffer(indices, size);
 		}
 
 		OG_CORE_ASSERT(false, "未知的渲染接口！");

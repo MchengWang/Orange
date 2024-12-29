@@ -5,7 +5,7 @@
 #include "Orange/Events/ApplicationEvent.h"
 #include "Orange/Log.h"
 
-#include <glad/glad.h>
+#include "Orange/Renderer/Renderer.h"
 
 #include "Input.h"
 
@@ -174,16 +174,18 @@ namespace Orange
 	{
 		while (o_Running)
 		{
-			glClearColor(0.1f, 0.1f, 0.1f, 1);
-			glClear(GL_COLOR_BUFFER_BIT);
+			RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+			RenderCommand::Clear();
+
+			Renderer::BeginScene();
 
 			o_BlueShader->Bind();
-			o_SquareVA->Bind();
-			glDrawElements(GL_TRIANGLES, o_SquareVA->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+			Renderer::Submit(o_SquareVA);
 
 			o_Shader->Bind();
-			o_VertexArray->Bind();
-			glDrawElements(GL_TRIANGLES, o_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+			Renderer::Submit(o_VertexArray);
+
+			Renderer::EndScene();
 
 			for (Layer* layer : o_LayerStack)
 				layer->OnUpdate();
