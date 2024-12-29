@@ -29,25 +29,19 @@ namespace Orange
 		glGenVertexArrays(1, &o_VertexArray);
 		glBindVertexArray(o_VertexArray);
 
-		glGenBuffers(1, &o_VertexBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, o_VertexBuffer);
-
 		float vertices[3 * 3] = {
 			-0.5f, -0.5f, 0.0f,
 			 0.5f, -0.5f, 0.0f,
 			 0.0f,  0.5f, 0.0f
 		};
 
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		o_VertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
 
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 
-		glGenBuffers(1, &o_IndexBuffer);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o_IndexBuffer);
-
-		unsigned int indices[3] = { 0, 1, 2 };
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+		uint32_t indices[3] = { 0, 1, 2 };
+		o_IndexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 
 		std::string vertSrc = R"(
 		
@@ -120,7 +114,7 @@ namespace Orange
 
 			o_Shader->Bind();
 			glBindVertexArray(o_VertexArray);
-			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
+			glDrawElements(GL_TRIANGLES, o_IndexBuffer->GetCount(), GL_UNSIGNED_INT, nullptr);
 
 			for (Layer* layer : o_LayerStack)
 				layer->OnUpdate();

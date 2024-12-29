@@ -143,6 +143,9 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
+    <ClInclude Include="src\Orange\Renderer\Renderer.h" />
+    <ClInclude Include="src\Orange\Renderer\Buffer.h" />
     <ClInclude Include="src\Orange\Renderer\Shader.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
     <ClInclude Include="src\Orange.h" />
@@ -583,6 +586,9 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
+    <ClCompile Include="src\Orange\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Orange\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Orange\Renderer\Shader.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
     <ClCompile Include="src\Orange\Application.cpp" />

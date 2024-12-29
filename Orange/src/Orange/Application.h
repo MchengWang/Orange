@@ -11,6 +11,7 @@
 #include "Orange/ImGui/ImGuiLayer.h"
 
 #include "Orange/Renderer/Shader.h"
+#include "Orange/Renderer/Buffer.h"
 
 namespace Orange
 {
@@ -39,9 +40,11 @@ namespace Orange
 		bool o_Running = true;
 		LayerStack o_LayerStack;
 
-		unsigned int o_VertexArray, o_VertexBuffer, o_IndexBuffer;
+		unsigned int o_VertexArray;
 
 		std::unique_ptr<Shader> o_Shader;
+		std::unique_ptr<VertexBuffer> o_VertexBuffer;
+		std::unique_ptr<IndexBuffer> o_IndexBuffer;
 
 	private:
 		static Application* o_Instance;
