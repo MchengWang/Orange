@@ -12,6 +12,7 @@
 
 #include "Orange/Renderer/Shader.h"
 #include "Orange/Renderer/Buffer.h"
+#include "Orange/Renderer/VertexArray.h"
 
 namespace Orange
 {
@@ -40,11 +41,11 @@ namespace Orange
 		bool o_Running = true;
 		LayerStack o_LayerStack;
 
-		unsigned int o_VertexArray;
-
-		std::unique_ptr<Shader> o_Shader;
-		std::unique_ptr<VertexBuffer> o_VertexBuffer;
-		std::unique_ptr<IndexBuffer> o_IndexBuffer;
+		std::shared_ptr<Shader> o_Shader;
+		std::shared_ptr<VertexArray> o_VertexArray;
+		
+		std::shared_ptr<Shader> o_BlueShader;
+		std::shared_ptr<VertexArray> o_SquareVA;
 
 	private:
 		static Application* o_Instance;
