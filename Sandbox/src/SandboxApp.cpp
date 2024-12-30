@@ -1,8 +1,11 @@
 #include <Orange.h>
 
+#include "Platform/OpenGL/OpenGLShader.h"
+
 #include "imgui/imgui.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class ExampleLayer : public Orange::Layer
 {
@@ -81,7 +84,7 @@ public:
 			#version 430 core
 			
 			layout(location = 0) out vec4 color;
-		
+
 			in vec3 v_Position;
 			in vec4 v_Color;
 
@@ -93,9 +96,9 @@ public:
 
 		)";
 
-		o_Shader.reset(new Orange::Shader(vertSrc, fragSrc));
+		o_Shader.reset(Orange::Shader::Create(vertSrc, fragSrc));
 
-		std::string blueShaderVertexSrc = R"(
+		std::string flatColorShaderVertexSrc = R"(
 	
 			#version 430 core
 			
@@ -114,22 +117,24 @@ public:
 
 		)";
 
-		std::string blueShaderFragmentSrc = R"(
+		std::string flatColorShaderFragmentSrc = R"(
 	
 			#version 430 core
 			
 			layout(location = 0) out vec4 color;
 
 			in vec3 v_Position;
+			
+			uniform vec3 u_Color;
 
 			void main()
 			{
-				color = vec4(0.2, 0.3, 0.8, 1.0);
+				color = vec4(u_Color, 1.0);
 			}
 
 		)";
 
-		o_BlueShader.reset(new Orange::Shader(blueShaderVertexSrc, blueShaderFragmentSrc));
+		o_FlatColorShader.reset(Orange::Shader::Create(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
 	}
 
 	void OnUpdate(Orange::Timestep timestep) override
@@ -159,13 +164,16 @@ public:
 
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 
+		std::dynamic_pointer_cast<Orange::OpenGLShader>(o_FlatColorShader)->Bind();
+		std::dynamic_pointer_cast<Orange::OpenGLShader>(o_FlatColorShader)->UploadUniformFloat3("u_Color", o_SquareColor);
+
 		for (int i = 0; i < 20; i++)
 		{
 			for (int j = 0; j < 20; j++)
 			{
 				glm::vec3 pos(j * 0.11f, i * 0.11f, 0.0f);
 				glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
-				Orange::Renderer::Submit(o_BlueShader, o_SquareVA, transform);
+				Orange::Renderer::Submit(o_FlatColorShader, o_SquareVA, transform);
 			}
 		}
 		
@@ -176,7 +184,9 @@ public:
 
 	virtual void OnImGuiRender() override
 	{
-		
+		ImGui::Begin("Settings");
+		ImGui::ColorEdit3("Square Color:", glm::value_ptr(o_SquareColor));
+		ImGui::End();
 	}
 
 	void OnEvent(Orange::Event& event) override
@@ -188,7 +198,7 @@ private:
 	std::shared_ptr<Orange::Shader> o_Shader;
 	std::shared_ptr<Orange::VertexArray> o_VertexArray;
 
-	std::shared_ptr<Orange::Shader> o_BlueShader;
+	std::shared_ptr<Orange::Shader> o_FlatColorShader;
 	std::shared_ptr<Orange::VertexArray> o_SquareVA;
 
 	Orange::OrthographicCamera o_Camera;
@@ -197,6 +207,8 @@ private:
 
 	float o_CameraRotation = 0.0f;
 	float o_CameraRotationSpeed = 180.0f;
+
+	glm::vec3 o_SquareColor = { 0.2f, 0.3f, 0.8f };
 
 };
 

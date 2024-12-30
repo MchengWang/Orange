@@ -1360,6 +1360,7 @@
     <ClInclude Include="src\Orange\Renderer\RendererAPI.h" />
     <ClInclude Include="src\Orange\Renderer\OrthographicCamera.h" />
     <ClInclude Include="src\Orange\Core\Timestep.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Orange\Application.cpp">
@@ -1400,5 +1401,6 @@
     <ClCompile Include="src\Orange\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Orange\Renderer\RendererAPI.cpp" />
     <ClCompile Include="src\Orange\Renderer\OrthographicCamera.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp" />
   </ItemGroup>
 </Project>
