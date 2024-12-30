@@ -1355,6 +1355,10 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Orange\Renderer\VertexArray.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
+    <ClInclude Include="src\Orange\Renderer\RenderCommand.h" />
+    <ClInclude Include="src\Orange\Renderer\RendererAPI.h" />
+    <ClInclude Include="src\Orange\Renderer\OrthographicCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Orange\Application.cpp">
@@ -1391,5 +1395,9 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Orange\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />
+    <ClCompile Include="src\Orange\Renderer\RenderCommand.cpp" />
+    <ClCompile Include="src\Orange\Renderer\RendererAPI.cpp" />
+    <ClCompile Include="src\Orange\Renderer\OrthographicCamera.cpp" />
   </ItemGroup>
 </Project>
