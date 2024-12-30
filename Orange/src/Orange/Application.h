@@ -35,7 +35,7 @@ namespace Orange
 		bool OnWindowClose(WindowCloseEvent& e);
 
 	private:
-		std::unique_ptr<Window> o_Window;
+		Scope<Window> o_Window;
 		ImGuiLayer* o_ImGuiLayer;
 		bool o_Running = true;
 		LayerStack o_LayerStack;

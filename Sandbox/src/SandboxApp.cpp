@@ -21,7 +21,7 @@ public:
 			 0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
 		};
 
-		std::shared_ptr<Orange::VertexBuffer> vertexBuffer;
+		Orange::Ref<Orange::VertexBuffer> vertexBuffer;
 		vertexBuffer.reset(Orange::VertexBuffer::Create(vertices, sizeof(vertices)));
 		Orange::BufferLayout layout = {
 			{ Orange::ShaderDataType::Float3, "a_Position"},
@@ -32,7 +32,7 @@ public:
 		o_VertexArray->AddVertexBuffer(vertexBuffer);
 
 		uint32_t indices[3] = { 0, 1, 2 };
-		std::shared_ptr<Orange::IndexBuffer> indexBuffer;
+		Orange::Ref<Orange::IndexBuffer> indexBuffer;
 		indexBuffer.reset(Orange::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 		o_VertexArray->SetIndexBuffer(indexBuffer);
 
@@ -45,7 +45,7 @@ public:
 			-0.5f,  0.5f, 0.0f
 		};
 
-		std::shared_ptr<Orange::VertexBuffer> squareVB;
+		Orange::Ref<Orange::VertexBuffer> squareVB;
 		squareVB.reset(Orange::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
 		squareVB->SetLayout({
 			{ Orange::ShaderDataType::Float3, "a_Position"}
@@ -53,7 +53,7 @@ public:
 		o_SquareVA->AddVertexBuffer(squareVB);
 
 		uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
-		std::shared_ptr<Orange::IndexBuffer> squareIB;
+		Orange::Ref<Orange::IndexBuffer> squareIB;
 		squareIB.reset(Orange::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
 		o_SquareVA->SetIndexBuffer(squareIB);
 
@@ -195,11 +195,11 @@ public:
 	}
 
 private:
-	std::shared_ptr<Orange::Shader> o_Shader;
-	std::shared_ptr<Orange::VertexArray> o_VertexArray;
+	Orange::Ref<Orange::Shader> o_Shader;
+	Orange::Ref<Orange::VertexArray> o_VertexArray;
 
-	std::shared_ptr<Orange::Shader> o_FlatColorShader;
-	std::shared_ptr<Orange::VertexArray> o_SquareVA;
+	Orange::Ref<Orange::Shader> o_FlatColorShader;
+	Orange::Ref<Orange::VertexArray> o_SquareVA;
 
 	Orange::OrthographicCamera o_Camera;
 	glm::vec3 o_CameraPosition;
