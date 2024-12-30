@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Orange/Core.h"
+#include "Orange/Core/Timestep.h"
 #include "Orange/Events/Event.h"
 
 namespace Orange {
@@ -13,7 +14,7 @@ namespace Orange {
 
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnUpdate() {}
+		virtual void OnUpdate(Timestep timestep) {}
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(Event& event) {}
 

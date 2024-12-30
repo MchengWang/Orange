@@ -8,17 +8,13 @@
 #include "Orange/Events/Event.h"
 #include "Orange/Events/ApplicationEvent.h"
 
+#include "Orange/Core/Timestep.h"
+
 #include "Orange/ImGui/ImGuiLayer.h"
-
-#include "Orange/Renderer/Shader.h"
-#include "Orange/Renderer/Buffer.h"
-#include "Orange/Renderer/VertexArray.h"
-
-#include "Orange/Renderer/OrthographicCamera.h"
 
 namespace Orange
 {
-	class ORANGE_API Application 
+	class Application 
 	{
 	public:
 		Application();
@@ -38,18 +34,13 @@ namespace Orange
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 
+	private:
 		std::unique_ptr<Window> o_Window;
 		ImGuiLayer* o_ImGuiLayer;
 		bool o_Running = true;
 		LayerStack o_LayerStack;
 
-		std::shared_ptr<Shader> o_Shader;
-		std::shared_ptr<VertexArray> o_VertexArray;
-		
-		std::shared_ptr<Shader> o_BlueShader;
-		std::shared_ptr<VertexArray> o_SquareVA;
-
-		OrthographicCamera o_Camera;
+		float o_LastFrameTime = 0.0f;
 
 	private:
 		static Application* o_Instance;
