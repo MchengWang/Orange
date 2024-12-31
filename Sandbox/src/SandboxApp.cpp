@@ -99,7 +99,7 @@ public:
 
 		)";
 
-		o_Shader.reset(Orange::Shader::Create(vertSrc, fragSrc));
+		o_Shader = Orange::Shader::Create("VertexPosColor", vertSrc, fragSrc);
 
 		std::string flatColorShaderVertexSrc = R"(
 	
@@ -137,47 +137,15 @@ public:
 
 		)";
 
-		o_FlatColorShader.reset(Orange::Shader::Create(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
+		o_FlatColorShader = Orange::Shader::Create("FlatColor", flatColorShaderVertexSrc, flatColorShaderFragmentSrc);
 
-		std::string textureShaderVertexSrc = R"(
-			#version 430 core
-			
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec2 a_TexCoord;
-
-			uniform mat4 u_ViewProjection;
-			uniform mat4 u_Transform;
-
-			out vec2 v_TexCoord;
-
-			void main()
-			{
-				v_TexCoord = a_TexCoord;
-				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);	
-			}
-		)";
-		std::string textureShaderFragmentSrc = R"(
-			#version 430 core
-			
-			layout(location = 0) out vec4 color;
-
-			in vec2 v_TexCoord;
-			
-			uniform sampler2D u_Texture;
-
-			void main()
-			{
-				color = texture(u_Texture, v_TexCoord);
-			}
-		)";
-
-		o_TextureShader.reset(Orange::Shader::Create(textureShaderVertexSrc, textureShaderFragmentSrc));
+		auto textureShader = o_ShaderLibrary.Load("assets/shaders/Texture.gsc");
 
 		o_Texture = Orange::Texture2D::Create("assets/textures/Checkerboard.png");
 		o_OrangeLogoTexture = Orange::Texture2D::Create("assets/textures/LogoO.png");
 
-		std::dynamic_pointer_cast<Orange::OpenGLShader>(o_TextureShader)->Bind();
-		std::dynamic_pointer_cast<Orange::OpenGLShader>(o_TextureShader)->UploadUniformInt("u_Texture", 0);
+		std::dynamic_pointer_cast<Orange::OpenGLShader>(textureShader)->Bind();
+		std::dynamic_pointer_cast<Orange::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
 	}
 
 	void OnUpdate(Orange::Timestep timestep) override
@@ -219,12 +187,13 @@ public:
 				Orange::Renderer::Submit(o_FlatColorShader, o_SquareVA, transform);
 			}
 		}
+		auto textureShader = o_ShaderLibrary.Get("Texture");
 		
 		o_Texture->Bind();
-		Orange::Renderer::Submit(o_TextureShader, o_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		Orange::Renderer::Submit(textureShader, o_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
 		o_OrangeLogoTexture->Bind();
-		Orange::Renderer::Submit(o_TextureShader, o_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		Orange::Renderer::Submit(textureShader, o_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
 		// Trigngle 
 		//Orange::Renderer::Submit(o_Shader, o_VertexArray);
@@ -245,10 +214,11 @@ public:
 	}
 
 private:
+	Orange::ShaderLibrary o_ShaderLibrary;
 	Orange::Ref<Orange::Shader> o_Shader;
 	Orange::Ref<Orange::VertexArray> o_VertexArray;
 
-	Orange::Ref<Orange::Shader> o_FlatColorShader, o_TextureShader;
+	Orange::Ref<Orange::Shader> o_FlatColorShader;
 	Orange::Ref<Orange::VertexArray> o_SquareVA;
 
 	Orange::Ref<Orange::Texture2D> o_Texture, o_OrangeLogoTexture;
