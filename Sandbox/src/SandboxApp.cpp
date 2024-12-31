@@ -38,18 +38,21 @@ public:
 
 		o_SquareVA.reset(Orange::VertexArray::Create());
 
-		float squareVertices[3 * 4] = {
-			-0.5f, -0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-			 0.5f,  0.5f, 0.0f,
-			-0.5f,  0.5f, 0.0f
+		float squareVertices[5 * 4] = {
+			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+			 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+			 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 		};
 
 		Orange::Ref<Orange::VertexBuffer> squareVB;
 		squareVB.reset(Orange::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+
 		squareVB->SetLayout({
-			{ Orange::ShaderDataType::Float3, "a_Position"}
+			{ Orange::ShaderDataType::Float3, "a_Position" },
+			{ Orange::ShaderDataType::Float2, "a_TexCoord" }
 			});
+
 		o_SquareVA->AddVertexBuffer(squareVB);
 
 		uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
@@ -135,6 +138,45 @@ public:
 		)";
 
 		o_FlatColorShader.reset(Orange::Shader::Create(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
+
+		std::string textureShaderVertexSrc = R"(
+			#version 430 core
+			
+			layout(location = 0) in vec3 a_Position;
+			layout(location = 1) in vec2 a_TexCoord;
+
+			uniform mat4 u_ViewProjection;
+			uniform mat4 u_Transform;
+
+			out vec2 v_TexCoord;
+
+			void main()
+			{
+				v_TexCoord = a_TexCoord;
+				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);	
+			}
+		)";
+		std::string textureShaderFragmentSrc = R"(
+			#version 430 core
+			
+			layout(location = 0) out vec4 color;
+
+			in vec2 v_TexCoord;
+			
+			uniform sampler2D u_Texture;
+
+			void main()
+			{
+				color = texture(u_Texture, v_TexCoord);
+			}
+		)";
+
+		o_TextureShader.reset(Orange::Shader::Create(textureShaderVertexSrc, textureShaderFragmentSrc));
+
+		o_Texture = Orange::Texture2D::Create("assets/textures/Checkerboard.png");
+
+		std::dynamic_pointer_cast<Orange::OpenGLShader>(o_TextureShader)->Bind();
+		std::dynamic_pointer_cast<Orange::OpenGLShader>(o_TextureShader)->UploadUniformInt("u_Texture", 0);
 	}
 
 	void OnUpdate(Orange::Timestep timestep) override
@@ -177,7 +219,11 @@ public:
 			}
 		}
 		
-		Orange::Renderer::Submit(o_Shader, o_VertexArray);
+		o_Texture->Bind();
+		Orange::Renderer::Submit(o_TextureShader, o_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+
+		// Trigngle 
+		//Orange::Renderer::Submit(o_Shader, o_VertexArray);
 
 		Orange::Renderer::EndScene();
 	}
@@ -198,8 +244,10 @@ private:
 	Orange::Ref<Orange::Shader> o_Shader;
 	Orange::Ref<Orange::VertexArray> o_VertexArray;
 
-	Orange::Ref<Orange::Shader> o_FlatColorShader;
+	Orange::Ref<Orange::Shader> o_FlatColorShader, o_TextureShader;
 	Orange::Ref<Orange::VertexArray> o_SquareVA;
+
+	Orange::Ref<Orange::Texture2D> o_Texture;
 
 	Orange::OrthographicCamera o_Camera;
 	glm::vec3 o_CameraPosition;

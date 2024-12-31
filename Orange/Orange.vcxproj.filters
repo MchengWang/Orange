@@ -7,14 +7,23 @@
     <Filter Include="src\Orange">
       <UniqueIdentifier>{7863CB25-641B-0D73-CD22-E6CEB9F9A763}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Orange\Core">
+      <UniqueIdentifier>{D072C586-3CFE-324B-450F-B63FB1198F4B}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Orange\Events">
       <UniqueIdentifier>{5C780F53-C88E-0DE9-1106-990A7D5BDE70}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Orange\ImGui">
       <UniqueIdentifier>{A292DE5F-8E8B-FDB1-B7BD-E236A315DDBD}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Orange\Renderer">
+      <UniqueIdentifier>{1E0ECA4B-8A6F-A759-13DD-ED0B7F3DDE18}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Platform">
       <UniqueIdentifier>{21CA02E5-0D2D-9289-B6B2-CA3FA2F45D0C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Platform\OpenGL">
+      <UniqueIdentifier>{35A49437-A105-7245-2A73-B8F796D3A804}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Platform\Windows">
       <UniqueIdentifier>{5B054582-4794-CE4B-F0B2-E246DC20DFF1}</UniqueIdentifier>
@@ -40,6 +49,9 @@
     <Filter Include="vendor\glm\glm\gtx">
       <UniqueIdentifier>{B3A6A76B-9F8A-68C1-08EB-6214F4ED5243}</UniqueIdentifier>
     </Filter>
+    <Filter Include="vendor\stb_image">
+      <UniqueIdentifier>{0DA0BA59-F998-D9AB-22CB-BE300E23B9B7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Orange.h">
@@ -50,6 +62,9 @@
     </ClInclude>
     <ClInclude Include="src\Orange\Core.h">
       <Filter>src\Orange</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Core\Timestep.h">
+      <Filter>src\Orange\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Orange\EntryPoint.h">
       <Filter>src\Orange</Filter>
@@ -87,8 +102,47 @@
     <ClInclude Include="src\Orange\MouseButtonCodes.h">
       <Filter>src\Orange</Filter>
     </ClInclude>
+    <ClInclude Include="src\Orange\Renderer\Buffer.h">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Renderer\GraphicsContext.h">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Renderer\OrthographicCamera.h">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Renderer\RenderCommand.h">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Renderer\Renderer.h">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Renderer\RendererAPI.h">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Renderer\Shader.h">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Renderer\VertexArray.h">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Orange\Window.h">
       <Filter>src\Orange</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h">
+      <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsInput.h">
       <Filter>src\Platform\Windows</Filter>
@@ -1347,20 +1401,11 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp">
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
-    <ClInclude Include="src\Orange\Renderer\GraphicsContext.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
-    <ClInclude Include="src\Orange\Renderer\Shader.h" />
-    <ClInclude Include="src\Orange\Renderer\Buffer.h" />
-    <ClInclude Include="src\Orange\Renderer\Renderer.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
-    <ClInclude Include="src\Orange\Renderer\VertexArray.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
-    <ClInclude Include="src\Orange\Renderer\RenderCommand.h" />
-    <ClInclude Include="src\Orange\Renderer\RendererAPI.h" />
-    <ClInclude Include="src\Orange\Renderer\OrthographicCamera.h" />
-    <ClInclude Include="src\Orange\Core\Timestep.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
+    <ClInclude Include="vendor\stb_image\stb_image.h">
+      <Filter>vendor\stb_image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Renderer\Texture.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Orange\Application.cpp">
@@ -1381,6 +1426,42 @@
     <ClCompile Include="src\Orange\Log.cpp">
       <Filter>src\Orange</Filter>
     </ClCompile>
+    <ClCompile Include="src\Orange\Renderer\Buffer.cpp">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orange\Renderer\OrthographicCamera.cpp">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orange\Renderer\RenderCommand.cpp">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orange\Renderer\Renderer.cpp">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orange\Renderer\RendererAPI.cpp">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orange\Renderer\Shader.cpp">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orange\Renderer\VertexArray.cpp">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
@@ -1390,17 +1471,10 @@
     <ClCompile Include="src\ogpch.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
-    <ClCompile Include="src\Orange\Renderer\Shader.cpp" />
-    <ClCompile Include="src\Orange\Renderer\Buffer.cpp" />
-    <ClCompile Include="src\Orange\Renderer\Renderer.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
-    <ClCompile Include="src\Orange\Renderer\VertexArray.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />
-    <ClCompile Include="src\Orange\Renderer\RenderCommand.cpp" />
-    <ClCompile Include="src\Orange\Renderer\RendererAPI.cpp" />
-    <ClCompile Include="src\Orange\Renderer\OrthographicCamera.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp" />
+    <ClCompile Include="vendor\stb_image\stb_image.cpp">
+      <Filter>vendor\stb_image</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orange\Renderer\Texture.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
   </ItemGroup>
 </Project>
