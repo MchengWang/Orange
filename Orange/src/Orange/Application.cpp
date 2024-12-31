@@ -25,6 +25,8 @@ namespace Orange
 		o_Window = std::unique_ptr<Window>(Window::Create());
 		o_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 
+		Renderer::Init();
+
 		o_ImGuiLayer = new ImGuiLayer();
 		PushOverLayer(o_ImGuiLayer);
 	}

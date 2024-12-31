@@ -8,6 +8,11 @@ namespace Orange
 
 	Renderer::SceneData* Renderer::o_SceneData = new Renderer::SceneData;
 
+	void Renderer::Init()
+	{
+		RenderCommand::Init();
+	}
+
 	void Renderer::BeginScene(OrthographicCamera& camera)
 	{
 		o_SceneData->ViewProjMatrix = camera.GetViewProjMatrix();

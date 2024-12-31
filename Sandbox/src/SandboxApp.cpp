@@ -174,6 +174,7 @@ public:
 		o_TextureShader.reset(Orange::Shader::Create(textureShaderVertexSrc, textureShaderFragmentSrc));
 
 		o_Texture = Orange::Texture2D::Create("assets/textures/Checkerboard.png");
+		o_OrangeLogoTexture = Orange::Texture2D::Create("assets/textures/LogoO.png");
 
 		std::dynamic_pointer_cast<Orange::OpenGLShader>(o_TextureShader)->Bind();
 		std::dynamic_pointer_cast<Orange::OpenGLShader>(o_TextureShader)->UploadUniformInt("u_Texture", 0);
@@ -222,6 +223,9 @@ public:
 		o_Texture->Bind();
 		Orange::Renderer::Submit(o_TextureShader, o_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
+		o_OrangeLogoTexture->Bind();
+		Orange::Renderer::Submit(o_TextureShader, o_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+
 		// Trigngle 
 		//Orange::Renderer::Submit(o_Shader, o_VertexArray);
 
@@ -247,7 +251,7 @@ private:
 	Orange::Ref<Orange::Shader> o_FlatColorShader, o_TextureShader;
 	Orange::Ref<Orange::VertexArray> o_SquareVA;
 
-	Orange::Ref<Orange::Texture2D> o_Texture;
+	Orange::Ref<Orange::Texture2D> o_Texture, o_OrangeLogoTexture;
 
 	Orange::OrthographicCamera o_Camera;
 	glm::vec3 o_CameraPosition;

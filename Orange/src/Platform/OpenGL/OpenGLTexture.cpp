@@ -19,13 +19,27 @@ namespace Orange
 		o_Width = width;
 		o_Height = height;
 
+		GLenum internalFormat = 0, dataFormat = 0;
+		if (channels == 4)
+		{
+			internalFormat = GL_RGBA8;
+			dataFormat = GL_RGBA;
+		}
+		else if (channels == 3)
+		{
+			internalFormat = GL_RGB8;
+			dataFormat = GL_RGB;
+		}
+
+		OG_CORE_ASSERT(internalFormat & dataFormat, "格式不支持！");
+
 		glCreateTextures(GL_TEXTURE_2D, 1, &o_RendererID);
-		glTextureStorage2D(o_RendererID, 1, GL_RGB8, o_Width, o_Height);
+		glTextureStorage2D(o_RendererID, 1, internalFormat, o_Width, o_Height);
 
 		glTextureParameteri(o_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTextureParameteri(o_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		glTextureSubImage2D(o_RendererID, 0, 0, 0, o_Width, o_Height, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glTextureSubImage2D(o_RendererID, 0, 0, 0, o_Width, o_Height, dataFormat, GL_UNSIGNED_BYTE, data);
 
 		stbi_image_free(data);
 	}
