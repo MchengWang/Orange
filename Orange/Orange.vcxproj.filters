@@ -1406,6 +1406,7 @@
     </ClInclude>
     <ClInclude Include="src\Orange\Renderer\Texture.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
+    <ClInclude Include="src\Orange\OrthographicCameraController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Orange\Application.cpp">
@@ -1476,5 +1477,6 @@
     </ClCompile>
     <ClCompile Include="src\Orange\Renderer\Texture.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
+    <ClCompile Include="src\Orange\OrthographicCameraController.cpp" />
   </ItemGroup>
 </Project>

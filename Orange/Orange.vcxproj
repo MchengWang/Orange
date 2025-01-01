@@ -143,6 +143,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Orange\OrthographicCameraController.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
     <ClInclude Include="src\Orange.h" />
     <ClInclude Include="src\Orange\Application.h" />
@@ -597,6 +598,7 @@
     <ClInclude Include="vendor\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Orange\OrthographicCameraController.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
     <ClCompile Include="src\Orange\Application.cpp" />
     <ClCompile Include="src\Orange\ImGui\ImGuiBuild.cpp" />

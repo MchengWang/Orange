@@ -10,6 +10,7 @@
 #include "Orange/Input.h"
 #include "Orange/KeyCodes.h"
 #include "Orange/MouseButtonCodes.h"
+#include "Orange/OrthographicCameraController.h"
 
 #include "Orange/ImGui/ImGuiLayer.h"
 

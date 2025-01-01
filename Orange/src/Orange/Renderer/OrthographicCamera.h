@@ -10,6 +10,8 @@ namespace Orange
 	public:
 		OrthographicCamera(float left, float right, float bottom, float top);
 
+		void SetProjection(float left, float right, float bottom, float top);
+
 		const glm::vec3& GetPosition() const { return o_Position; }
 		void SetPosition(const glm::vec3& position) { o_Position = position; RecalculateViewMatrix(); }
 

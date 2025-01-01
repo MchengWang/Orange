@@ -11,7 +11,7 @@ class ExampleLayer : public Orange::Layer
 {
 public:
 	ExampleLayer()
-		: Layer("Example"), o_Camera(-1.5f, 1.5f, -0.8f, 0.8f), o_CameraPosition(0.0f)
+		: Layer("Example"), o_CameraController(1280.0f / 720.0f)
 	{
 		o_VertexArray.reset(Orange::VertexArray::Create());
 
@@ -150,28 +150,14 @@ public:
 
 	void OnUpdate(Orange::Timestep timestep) override
 	{
-		if (Orange::Input::IsKeyPressed(OG_KEY_LEFT))
-			o_CameraPosition.x -= o_CameraMoveSpeed * timestep;
-		else if (Orange::Input::IsKeyPressed(OG_KEY_RIGHT))
-			o_CameraPosition.x += o_CameraMoveSpeed * timestep;
+		// Update
+		o_CameraController.OnUpdate(timestep);
 
-		if (Orange::Input::IsKeyPressed(OG_KEY_UP))
-			o_CameraPosition.y += o_CameraMoveSpeed * timestep;
-		else if (Orange::Input::IsKeyPressed(OG_KEY_DOWN))
-			o_CameraPosition.y -= o_CameraMoveSpeed * timestep;
-
-		if (Orange::Input::IsKeyPressed(OG_KEY_A))
-			o_CameraRotation += o_CameraMoveSpeed * timestep;
-		else if (Orange::Input::IsKeyPressed(OG_KEY_D))
-			o_CameraRotation -= o_CameraMoveSpeed * timestep;
-
+		// Render
 		Orange::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1});
 		Orange::RenderCommand::Clear();
 
-		o_Camera.SetPosition(o_CameraPosition);
-		o_Camera.SetRotation(o_CameraRotation);
-
-		Orange::Renderer::BeginScene(o_Camera);
+		Orange::Renderer::BeginScene(o_CameraController.GetCamera());
 
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 
@@ -210,7 +196,7 @@ public:
 
 	void OnEvent(Orange::Event& event) override
 	{
-
+		o_CameraController.OnEvent(event);
 	}
 
 private:
@@ -223,12 +209,7 @@ private:
 
 	Orange::Ref<Orange::Texture2D> o_Texture, o_OrangeLogoTexture;
 
-	Orange::OrthographicCamera o_Camera;
-	glm::vec3 o_CameraPosition;
-	float o_CameraMoveSpeed = 5.0f;
-
-	float o_CameraRotation = 0.0f;
-	float o_CameraRotationSpeed = 180.0f;
+	Orange::OrthographicCameraController o_CameraController;
 
 	glm::vec3 o_SquareColor = { 0.2f, 0.3f, 0.8f };
 
