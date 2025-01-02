@@ -75,16 +75,17 @@ namespace Orange
 
 		const char* typeToken = "#type";
 		size_t typeTokenLength = strlen(typeToken);
-		size_t pos = source.find(typeToken, 0);
+		size_t pos = source.find(typeToken, 0); // Strart of shader type declaration line
 		while (pos != std::string::npos)
 		{
-			size_t eol = source.find_first_of("\r\n", pos);
-			OG_CORE_ASSERT(eol == std::string::npos, "语法错误！");
-			size_t begin = pos + typeTokenLength + 1;
+			size_t eol = source.find_first_of("\r\n", pos); // End of shader type declaration line
+			OG_CORE_ASSERT((eol != std::string::npos), "语法错误！");
+			size_t begin = pos + typeTokenLength + 1; // Start of shader type name (after "#type" keyword)
 			std::string type = source.substr(begin, eol - begin);
 			OG_CORE_ASSERT(ShaderTypeFromString(type), "指定的着色器类型无效！");
 
-			size_t nextLinePos = source.find_first_not_of("\r\n", eol);
+			size_t nextLinePos = source.find_first_not_of("\r\n", eol); // Start of shader code after shader type declaration line 
+			OG_CORE_ASSERT((nextLinePos != std::string::npos), "语法错误！"); // Start of next shader type declaration line
 			pos = source.find(typeToken, nextLinePos);
 			shaderSources[ShaderTypeFromString(type)] = source.substr(nextLinePos, pos - (nextLinePos == std::string::npos ?
 				source.size() - 1 : nextLinePos));
@@ -161,7 +162,10 @@ namespace Orange
 		}
 
 		for (auto id : glShaderIDs)
+		{
 			glDetachShader(program, id);
+			glDeleteShader(id);
+		}
 	}
 
 	void OpenGLShader::Bind() const

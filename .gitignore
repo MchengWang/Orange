@@ -1,7 +1,11 @@
-# 文件夹
-.vs/
-/bin/
+# 二进制
+**/bin/
+!vendor/bin/premake/
 bin-obj/
 
-# 文件
-*.user
+# VS 文件和文件夹
+.vs/
+**.sln
+**.vcxproj
+**.vcxproj.filters
+**.vcxproj.user

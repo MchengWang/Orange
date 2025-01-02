@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Orange/Core.h"
+#include "Orange/Core/Core.h"
 
 namespace Orange
 {
@@ -23,7 +23,7 @@ namespace Orange
 		virtual float GetMouseXImpl() = 0;
 		virtual float GetMouseYImpl() = 0;
 	private:
-		static Input* o_Instance;
+		static Scope<Input> o_Instance;
 	};
 
 }

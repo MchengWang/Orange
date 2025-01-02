@@ -1,8 +1,8 @@
 #include "ogpch.h"
 #include "OrthographicCameraController.h"
 
-#include "Orange/Input.h"
-#include "Orange/KeyCodes.h"
+#include "Orange/Core/Input.h"
+#include "Orange/Core/KeyCodes.h"
 
 namespace Orange
 {
@@ -16,14 +16,26 @@ namespace Orange
 	void OrthographicCameraController::OnUpdate(Timestep timestep)
 	{
 		if (Input::IsKeyPressed(OG_KEY_A))
-			o_CameraPostion.x -= o_CameraTranslationSpeed * timestep;
+		{
+			o_CameraPostion.x -= cos(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
+			o_CameraPostion.y -= sin(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
+		}
 		else if (Input::IsKeyPressed(OG_KEY_D))
-			o_CameraPostion.x += o_CameraTranslationSpeed * timestep;
+		{
+			o_CameraPostion.x += cos(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
+			o_CameraPostion.y += sin(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
+		}
 
 		if (Input::IsKeyPressed(OG_KEY_W))
-			o_CameraPostion.y += o_CameraTranslationSpeed * timestep;
+		{
+			o_CameraPostion.x += -sin(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
+			o_CameraPostion.y += cos(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
+		}
 		else if (Input::IsKeyPressed(OG_KEY_S))
-			o_CameraPostion.y -= o_CameraTranslationSpeed * timestep;
+		{
+			o_CameraPostion.x -= -sin(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
+			o_CameraPostion.y -= cos(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
+		}
 
 		if (o_Rotation)
 		{
@@ -31,6 +43,11 @@ namespace Orange
 				o_CameraRotation += o_CameraRotationSpeed * timestep;
 			else if (Input::IsKeyPressed(OG_KEY_E))
 				o_CameraRotation -= o_CameraRotationSpeed * timestep;
+
+			if (o_CameraRotation > 180.0f)
+				o_CameraRotation -= 360.0f;
+			else if (o_CameraRotation <= -180.0f)
+				o_CameraRotation += 360.0f;
 
 			o_Camera.SetRotation(o_CameraRotation);
 		}

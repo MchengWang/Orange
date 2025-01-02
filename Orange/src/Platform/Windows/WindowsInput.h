@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Orange/Input.h"
+#include "Orange/Core/Input.h"
 
 namespace Orange
 {

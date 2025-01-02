@@ -51,7 +51,7 @@ namespace Orange
 
 		o_Window = glfwCreateWindow((int)props.Width, (int)props.Height, o_Data.Title.c_str(), nullptr, nullptr);
 		
-		o_Context = new OpenGLContext(o_Window);
+		o_Context = CreateScope<OpenGLContext>(o_Window);
 		o_Context->Init();
 
 		glfwSetWindowUserPointer(o_Window, &o_Data);

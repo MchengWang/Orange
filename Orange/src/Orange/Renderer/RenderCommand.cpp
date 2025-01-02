@@ -6,6 +6,6 @@
 namespace Orange
 {
 
-	RendererAPI* RenderCommand::o_RendererAPI = new OpenGLRendererAPI;
+	Scope<RendererAPI> RenderCommand::o_RendererAPI = CreateScope<OpenGLRendererAPI>();
 
 }

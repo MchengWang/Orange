@@ -28,7 +28,7 @@ namespace Orange
 			glm::mat4 ViewProjMatrix;
 		};
 
-		static SceneData* o_SceneData;
+		static Scope<SceneData> o_SceneData;
 	};
 
 }

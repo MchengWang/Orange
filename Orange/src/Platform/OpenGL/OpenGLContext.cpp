@@ -24,6 +24,16 @@ namespace Orange
 		OG_CORE_INFO("  出厂商: {0}", (char*)glGetString(GL_VENDOR));
 		OG_CORE_INFO("  型  号: {0}", (char*)glGetString(GL_RENDERER));
 		OG_CORE_INFO("  版  本: {0}", (char*)glGetString(GL_VERSION));
+
+		#ifdef OG_ENABLE_ASSERTS
+				int versionMajor;
+				int versionMinor;
+				glGetIntegerv(GL_MAJOR_VERSION, &versionMajor);
+				glGetIntegerv(GL_MINOR_VERSION, &versionMinor);
+
+				OG_CORE_ASSERT((versionMajor > 4 || (versionMajor == 4 && versionMinor >= 5)), "Orange requires at least OpenGL version 4.5!");
+		#endif // OG_ENABLE_ASSERTS
+
 	}
 
 	void OpenGLContext::SwapBuffers()

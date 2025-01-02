@@ -35,7 +35,7 @@ namespace Orange
 		bool o_Rotation;
 
 		glm::vec3 o_CameraPostion = { 0.0f, 0.0f, 0.0f };
-		float o_CameraRotation = 0.0f;
+		float o_CameraRotation = 0.0f; // In degrees, in the anti-clockwise direction
 		float o_CameraTranslationSpeed = 5.0f, o_CameraRotationSpeed = 180.0f;
 	};
 

@@ -3,7 +3,7 @@
 #include "Application.h"
 
 #include "Orange/Events/ApplicationEvent.h"
-#include "Orange/Log.h"
+#include "Orange/Core/Log.h"
 
 #include "Orange/Renderer/Renderer.h"
 

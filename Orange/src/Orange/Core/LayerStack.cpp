@@ -10,7 +10,10 @@ namespace Orange {
 	LayerStack::~LayerStack()
 	{
 		for (Layer* layer : o_Layers)
+		{
+			layer->OnDetach();
 			delete layer;
+		}
 	}
 
 	void LayerStack::PushLayer(Layer* layer)

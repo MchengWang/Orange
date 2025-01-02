@@ -1,13 +1,13 @@
 #include "ogpch.h"
 #include "WindowsInput.h"
 
-#include "Orange/Application.h"
+#include "Orange/Core/Application.h"
 #include "GLFW/glfw3.h"
 
 namespace Orange
 {
 	
-	Input* Input::o_Instance = new WindowsInput();
+	Scope<Input> Input::o_Instance = CreateScope<WindowsInput>();
 
 	bool WindowsInput::IsKeyPressedImpl(int keyCode)
 	{

@@ -34,7 +34,7 @@ namespace Orange
 		}
 
 	private:
-		static RendererAPI* o_RendererAPI;
+		static Scope<RendererAPI> o_RendererAPI;
 	};
 
 }

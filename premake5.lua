@@ -76,7 +76,6 @@ project "Orange"
 
 		defines
 		{
-			"OG_PLATFORM_WINDOWS",
 			"OG_BUILD_DLL",
 			"GLFW_INCLUDE_NONE"
 		}
@@ -133,11 +132,6 @@ project "Sandbox"
 	filter "system:windows"
 		cppdialect "C++17"
 		systemversion "latest"
-
-		defines
-		{
-			"OG_PLATFORM_WINDOWS"
-		}
 
 	filter "configurations:Debug"
 		defines "OG_DEBUG"

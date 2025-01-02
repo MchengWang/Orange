@@ -6,7 +6,7 @@
 namespace Orange
 {
 
-	Renderer::SceneData* Renderer::o_SceneData = new Renderer::SceneData;
+	Scope<Renderer::SceneData> Renderer::o_SceneData = CreateScope<Renderer::SceneData>();
 
 	void Renderer::Init()
 	{
