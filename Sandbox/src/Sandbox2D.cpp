@@ -13,7 +13,7 @@ Sandbox2D::Sandbox2D()
 
 void Sandbox2D::OnAttach()
 {
-	
+	o_CheckerboardTexture = Orange::Texture2D::Create("assets/textures/Checkerboard.png");
 }
 
 void Sandbox2D::OnDetach()
@@ -30,7 +30,9 @@ void Sandbox2D::OnUpdate(Orange::Timestep timestep)
 	Orange::RenderCommand::Clear();
 		
 	Orange::Renderer2D::BeginScene(o_CameraController.GetCamera());
-	Orange::Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, o_SquareColor);
+	Orange::Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, -0.8f }, {0.2f, 0.3f, 0.8f, 1.0f});
+	Orange::Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, -0.75f }, o_SquareColor);
+	Orange::Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, o_CheckerboardTexture);
 	Orange::Renderer2D::EndScene();
 
 }

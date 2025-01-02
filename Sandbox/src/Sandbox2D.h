@@ -22,5 +22,7 @@ private:
 	Orange::Ref<Orange::VertexArray> o_SquareVA;
 	Orange::Ref<Orange::Shader> o_FlatColorShader;
 
+	Orange::Ref<Orange::Texture2D> o_CheckerboardTexture;
+
 	glm::vec4 o_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 };
