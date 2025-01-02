@@ -1,4 +1,5 @@
 #include <Orange.h>
+#include <Orange/Core/EntryPoint.h>
 
 #include "Platform/OpenGL/OpenGLShader.h"
 
@@ -7,13 +8,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Sandbox2D.h"
+
 class ExampleLayer : public Orange::Layer
 {
 public:
 	ExampleLayer()
 		: Layer("Example"), o_CameraController(1280.0f / 720.0f)
 	{
-		o_VertexArray.reset(Orange::VertexArray::Create());
+		o_VertexArray = Orange::VertexArray::Create();
 
 		float vertices[3 * 7] = {
 			-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
@@ -36,7 +39,7 @@ public:
 		indexBuffer.reset(Orange::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 		o_VertexArray->SetIndexBuffer(indexBuffer);
 
-		o_SquareVA.reset(Orange::VertexArray::Create());
+		o_SquareVA = Orange::VertexArray::Create();
 
 		float squareVertices[5 * 4] = {
 			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
@@ -220,7 +223,7 @@ class Sandbox : public Orange::Application
 public:
 	Sandbox()
 	{
-		PushLayer(new ExampleLayer());
+		PushLayer(new Sandbox2D());
 	}
 
 	~Sandbox()

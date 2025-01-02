@@ -7,12 +7,12 @@
 namespace Orange
 {
 
-	VertexArray* VertexArray::Create()
+	Ref<VertexArray> VertexArray::Create()
 	{ 
 		switch (Renderer::GetAPI())
 		{
 		case RendererAPI::API::None: OG_CORE_ASSERT(false, "当前渲染接口：None 暂不支持！"); return nullptr;
-		case RendererAPI::API::OpenGL: return new OpenGLVertexArray();
+		case RendererAPI::API::OpenGL: return std::make_shared<OpenGLVertexArray>();
 		}
 
 		OG_CORE_ASSERT(false, "未知的渲染器接口！");

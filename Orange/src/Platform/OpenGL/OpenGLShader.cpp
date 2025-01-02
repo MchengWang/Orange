@@ -97,7 +97,7 @@ namespace Orange
 	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
 		GLuint program = glCreateProgram();
-		OG_CORE_ASSERT(shaderSources.size() > 2, "我们现在仅支持2个着色器！顶点(vertex, dot),片段(fragment, pixel)");
+		OG_CORE_ASSERT((shaderSources.size() <= 2), "我们现在仅支持2个着色器！顶点(vertex, dot),片段(fragment, pixel)");
 		std::array<GLenum, 2> glShaderIDs;
 		int glShaderIDIndex = 0;
 		for (auto& kv : shaderSources)

@@ -52,8 +52,8 @@
 
 
 #ifdef OG_ENABLE_ASSERTS
-	#define OG_CLIENT_ASSERT(x, ...) { if ((!x)) { OG_CLIENT_ERROR("∂œ—‘ ß∞‹: {0}", __VA_ARGS__); __debugbreak(); } } 
-	#define OG_CORE_ASSERT(x, ...) { if ((!x)) { OG_CORE_ERROR("∂œ—‘ ß∞‹: {0}", __VA_ARGS__); __debugbreak(); } } 
+	#define OG_CLIENT_ASSERT(x, ...) { if (!(x)) { OG_CLIENT_ERROR("∂œ—‘ ß∞‹: {0}", __VA_ARGS__); __debugbreak(); } } 
+	#define OG_CORE_ASSERT(x, ...) { if (!(x)) { OG_CORE_ERROR("∂œ—‘ ß∞‹: {0}", __VA_ARGS__); __debugbreak(); } } 
 #else 
     #define OG_CLIENT_ASSERT(x, ...)  
     #define OG_CORE_ASSERT(x, ...) 

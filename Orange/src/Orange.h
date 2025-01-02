@@ -25,8 +25,3 @@
 
 #include "Orange/Renderer/OrthographicCamera.h"
 // -------------------------
-
-
-// ---------Èë¿Úµã----------
-#include "Orange/Core/EntryPoint.h"
-// -------------------------
