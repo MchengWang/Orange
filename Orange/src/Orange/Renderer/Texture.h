@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "Orange/Core.h"
+#include "Orange/Core/Core.h"
 
 namespace Orange
 {

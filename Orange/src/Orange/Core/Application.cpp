@@ -51,6 +51,7 @@ namespace Orange
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
+		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResized));
 
 		for (auto it = o_LayerStack.end(); it != o_LayerStack.begin(); )
 		{
@@ -68,8 +69,11 @@ namespace Orange
 			Timestep timestep = time - o_LastFrameTime;
 			o_LastFrameTime = time;
 
-			for (Layer* layer : o_LayerStack)
-				layer->OnUpdate(timestep);
+			if (!o_Minimized) // 当窗口不是最小化的时候，进行图层更新
+			{
+				for (Layer* layer : o_LayerStack)
+					layer->OnUpdate(timestep);
+			}
 
 			o_ImGuiLayer->Begin();
 			for (Layer* layer : o_LayerStack)
@@ -80,9 +84,23 @@ namespace Orange
 		}
 	}
 
-	bool Application::OnWindowClose(WindowCloseEvent& e)
+	bool Application::OnWindowClose(WindowCloseEvent& event)
 	{
 		o_Running = false;
 		return true;
+	}
+
+	bool Application::OnWindowResized(WindowResizeEvent& event)
+	{
+		if (event.GetWidth() == 0 || event.GetHeight() == 0) // 当窗口尺寸最小化时，宽度和高度即为0
+		{
+			o_Minimized = true;
+			return false;
+		}
+
+		o_Minimized = false;
+		Renderer::OnWindowResized(event.GetWidth(), event.GetHeight());
+
+		return false;
 	}
 }

@@ -20,6 +20,9 @@ namespace Orange
 		OrthographicCamera& GetCamera() { return o_Camera; }
 		const OrthographicCamera& GetCamera() const { return o_Camera; }
 
+		float GetZoomLevel() const { return o_ZoomLevel; }
+		void SetZoomLevel(float zoomLevel) { o_ZoomLevel = zoomLevel; }
+
 	private:
 		bool OnMouseScrolled(MouseScrolledEvent& event);
 		bool OnWindowResized(WindowResizeEvent& event);

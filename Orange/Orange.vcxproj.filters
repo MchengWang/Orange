@@ -57,17 +57,38 @@
     <ClInclude Include="src\Orange.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\Orange\Application.h">
-      <Filter>src\Orange</Filter>
+    <ClInclude Include="src\Orange\Core\Application.h">
+      <Filter>src\Orange\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Orange\Core.h">
-      <Filter>src\Orange</Filter>
+    <ClInclude Include="src\Orange\Core\Core.h">
+      <Filter>src\Orange\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Core\EntryPoint.h">
+      <Filter>src\Orange\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Core\Input.h">
+      <Filter>src\Orange\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Core\KeyCodes.h">
+      <Filter>src\Orange\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Core\Layer.h">
+      <Filter>src\Orange\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Core\LayerStack.h">
+      <Filter>src\Orange\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Core\Log.h">
+      <Filter>src\Orange\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Core\MouseButtonCodes.h">
+      <Filter>src\Orange\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Orange\Core\Timestep.h">
       <Filter>src\Orange\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Orange\EntryPoint.h">
-      <Filter>src\Orange</Filter>
+    <ClInclude Include="src\Orange\Core\Window.h">
+      <Filter>src\Orange\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Orange\Events\ApplicationEvent.h">
       <Filter>src\Orange\Events</Filter>
@@ -84,24 +105,6 @@
     <ClInclude Include="src\Orange\ImGui\ImGuiLayer.h">
       <Filter>src\Orange\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="src\Orange\Input.h">
-      <Filter>src\Orange</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Orange\KeyCodes.h">
-      <Filter>src\Orange</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Orange\Layer.h">
-      <Filter>src\Orange</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Orange\LayerStack.h">
-      <Filter>src\Orange</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Orange\Log.h">
-      <Filter>src\Orange</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Orange\MouseButtonCodes.h">
-      <Filter>src\Orange</Filter>
-    </ClInclude>
     <ClInclude Include="src\Orange\Renderer\Buffer.h">
       <Filter>src\Orange\Renderer</Filter>
     </ClInclude>
@@ -109,6 +112,9 @@
       <Filter>src\Orange\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Orange\Renderer\OrthographicCamera.h">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Renderer\OrthographicCameraController.h">
       <Filter>src\Orange\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Orange\Renderer\RenderCommand.h">
@@ -123,11 +129,11 @@
     <ClInclude Include="src\Orange\Renderer\Shader.h">
       <Filter>src\Orange\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Orange\Renderer\VertexArray.h">
+    <ClInclude Include="src\Orange\Renderer\Texture.h">
       <Filter>src\Orange\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Orange\Window.h">
-      <Filter>src\Orange</Filter>
+    <ClInclude Include="src\Orange\Renderer\VertexArray.h">
+      <Filter>src\Orange\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h">
       <Filter>src\Platform\OpenGL</Filter>
@@ -139,6 +145,9 @@
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h">
@@ -1404,13 +1413,19 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Orange\Renderer\Texture.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
-    <ClInclude Include="src\Orange\OrthographicCameraController.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Orange\Application.cpp">
-      <Filter>src\Orange</Filter>
+    <ClCompile Include="src\Orange\Core\Application.cpp">
+      <Filter>src\Orange\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orange\Core\Layer.cpp">
+      <Filter>src\Orange\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orange\Core\LayerStack.cpp">
+      <Filter>src\Orange\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orange\Core\Log.cpp">
+      <Filter>src\Orange\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Orange\ImGui\ImGuiBuild.cpp">
       <Filter>src\Orange\ImGui</Filter>
@@ -1418,19 +1433,13 @@
     <ClCompile Include="src\Orange\ImGui\ImGuiLayer.cpp">
       <Filter>src\Orange\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="src\Orange\Layer.cpp">
-      <Filter>src\Orange</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Orange\LayerStack.cpp">
-      <Filter>src\Orange</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Orange\Log.cpp">
-      <Filter>src\Orange</Filter>
-    </ClCompile>
     <ClCompile Include="src\Orange\Renderer\Buffer.cpp">
       <Filter>src\Orange\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Orange\Renderer\OrthographicCamera.cpp">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orange\Renderer\OrthographicCameraController.cpp">
       <Filter>src\Orange\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Orange\Renderer\RenderCommand.cpp">
@@ -1443,6 +1452,9 @@
       <Filter>src\Orange\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Orange\Renderer\Shader.cpp">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orange\Renderer\Texture.cpp">
       <Filter>src\Orange\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Orange\Renderer\VertexArray.cpp">
@@ -1460,6 +1472,9 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
@@ -1475,8 +1490,5 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\Orange\Renderer\Texture.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
-    <ClCompile Include="src\Orange\OrthographicCameraController.cpp" />
   </ItemGroup>
 </Project>
