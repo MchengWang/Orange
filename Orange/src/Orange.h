@@ -16,6 +16,7 @@
 
 // ---------äÖÈ¾Æ÷----------
 #include "Orange/Renderer/Renderer.h"
+#include "Orange/Renderer/Renderer2D.h"
 #include "Orange/Renderer/RenderCommand.h"
 
 #include "Orange/Renderer/Buffer.h"
