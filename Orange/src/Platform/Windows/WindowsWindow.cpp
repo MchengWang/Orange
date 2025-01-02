@@ -9,7 +9,7 @@
 
 namespace Orange
 {
-	static bool o_GLFWInitialized = false;
+	static uint8_t o_GLFWInitialized = 0;
 
 	static void GLFWErrorCallback(int error, const char* description)
 	{

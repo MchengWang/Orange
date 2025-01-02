@@ -60,11 +60,11 @@ namespace Orange
 		{
 			glEnableVertexAttribArray(index);
 			glVertexAttribPointer(index,
-				element.GetCpmponentCount(),
-				ShaderDataTypeToOpenGLBaseType(element.Type),
-				element.Normalized ? GL_TRUE : GL_FALSE,
-				layout.GetStride(),
-				(const void*)element.Offset);
+			element.GetCpmponentCount(),
+			ShaderDataTypeToOpenGLBaseType(element.Type),
+			element.Normalized ? GL_TRUE : GL_FALSE,
+			layout.GetStride(),
+			(const void*)element.Offset);
 			index++;
 		}
 
