@@ -100,9 +100,6 @@ namespace Orange
 				}
 				o_ImGuiLayer->End();
 			}
-
-			
-
 			o_Window->OnUpdate();
 		}
 	}

@@ -19,7 +19,7 @@ namespace Orange
 		logSinks[0]->set_pattern("%^[%T] %n: %v%$");
 		logSinks[1]->set_pattern("[%T] [%l] %n: %v");
 
-		sg_CoreLogger = std::make_shared<spdlog::logger>("HAZEL", begin(logSinks), end(logSinks));
+		sg_CoreLogger = std::make_shared<spdlog::logger>("ORANGE", begin(logSinks), end(logSinks));
 		spdlog::register_logger(sg_CoreLogger);
 		sg_CoreLogger->set_level(spdlog::level::trace);
 		sg_CoreLogger->flush_on(spdlog::level::trace);

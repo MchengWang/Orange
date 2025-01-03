@@ -9,6 +9,9 @@ namespace Orange
 	
 	class Input
 	{
+	protected:
+		Input() = default;
+
 	public:
 		Input(const Input&) = delete;
 		Input& operator=(const Input&) = delete;
@@ -19,8 +22,8 @@ namespace Orange
 		inline static float GetMouseX() { return o_Instance->GetMouseXImpl(); }
 		inline static float GetMouseY() { return o_Instance->GetMouseYImpl(); }
 
+		static Scope<Input> Create();
 	protected:
-		Input() = default;
 		virtual bool IsKeyPressedImpl(KeyCode keyCode) = 0;
 
 		virtual bool IsMouseButtonPressedImpl(MouseCode button) = 0;

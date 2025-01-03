@@ -12,6 +12,8 @@
 
 #include "Orange/ImGui/ImGuiLayer.h"
 
+int main(int argc, char** argv);
+
 namespace Orange
 {
 	class Application 
@@ -19,8 +21,6 @@ namespace Orange
 	public:
 		Application();
 		virtual ~Application();
-
-		void Run();
 
 		void OnEvent(Event& e);
 
@@ -32,6 +32,7 @@ namespace Orange
 		inline static Application& Get() { return *o_Instance; }
 
 	private:
+		void Run();
 		bool OnWindowClose(WindowCloseEvent& event); // 窗口关闭事件
 		bool OnWindowResized(WindowResizeEvent& event); // 窗口尺寸修改事件
 
@@ -41,11 +42,11 @@ namespace Orange
 		bool o_Running = true;
 		bool o_Minimized = false; // 设置窗口最小化标志
 		LayerStack o_LayerStack;
-
 		float o_LastFrameTime = 0.0f;
 
 	private:
 		static Application* o_Instance;
+		friend int ::main(int argc, char** argv);
 	};
 
 	// 在客户端定义

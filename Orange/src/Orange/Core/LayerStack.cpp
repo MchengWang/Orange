@@ -25,9 +25,10 @@ namespace Orange {
 
 	void LayerStack::PopLayer(Layer* layer)
 	{
-		auto it = std::find(o_Layers.begin(), o_Layers.end(), layer);
+		auto it = std::find(o_Layers.begin(), o_Layers.begin() + o_LayerInsertIndex, layer);
 		if (it != o_Layers.end())
 		{
+			layer->OnDetach();
 			o_Layers.erase(it);
 			o_LayerInsertIndex--;
 		}
@@ -35,9 +36,12 @@ namespace Orange {
 
 	void LayerStack::PopOverlay(Layer* overlay)
 	{
-		auto it = std::find(o_Layers.begin(), o_Layers.end(), overlay);
+		auto it = std::find(o_Layers.begin() + o_LayerInsertIndex,o_Layers.end(), overlay);
 		if (it != o_Layers.end())
+		{
+			overlay->OnDetach();
 			o_Layers.erase(it);
+		}
 	}
 
 }

@@ -8,9 +8,4 @@ namespace Orange {
 	{
 	}
 
-	Layer::~Layer()
-	{
-
-	}
-
 }
