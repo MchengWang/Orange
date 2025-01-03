@@ -32,19 +32,19 @@
 	#endif
 #endif // _WIN32
 
-#ifdef OG_PLATFORM_WINDOWS
-	#if OG_DYNAMIC_LINK
-		#ifdef OG_BUILD_DLL
-			#define ORANGE_API __declspec(dllexport)
-		#else
-			#define ORANGE_API __declspec(dllimport)
-		#endif // OG_BUILD_DLL
-	#else
-		#define ORANGE_API
-	#endif // OG_DYNAMIC_LINK
-#else 
-	#error orange仅支持Windows系统！
-#endif // OG_PLATFORM_WINDOWS
+//#ifdef OG_PLATFORM_WINDOWS
+//	#if OG_DYNAMIC_LINK
+//		#ifdef OG_BUILD_DLL
+//			#define ORANGE_API __declspec(dllexport)
+//		#else
+//			#define ORANGE_API __declspec(dllimport)
+//		#endif // OG_BUILD_DLL
+//	#else
+//		#define ORANGE_API
+//	#endif // OG_DYNAMIC_LINK
+//#else 
+//	#error orange仅支持Windows系统！
+//#endif // OG_PLATFORM_WINDOWS
 
 #ifdef OG_DEBUG
 	#define OG_ENABLE_ASSERTS

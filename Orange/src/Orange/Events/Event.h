@@ -32,7 +32,7 @@ namespace Orange
 								virtual const char* GetName() const override { return #type; }
 #define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
 
-	class ORANGE_API Event
+	class Event
 	{
 		friend class EventDispatcher;
 	public:

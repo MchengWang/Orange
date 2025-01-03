@@ -1,11 +1,11 @@
 #include "ogpch.h"
-#include "ImGuiLayer.h"
+#include "Orange/ImGui/ImGuiLayer.h"
 
-#include "imgui.h"
+#include <imgui.h>
 
 #define IMGUI_IMPL_API
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
 
 #include "Orange/Core/Application.h"
 
@@ -90,10 +90,10 @@ namespace Orange {
 		}
 	}
 
-	void ImGuiLayer::OnImGuiRender()
+	/*void ImGuiLayer::OnImGuiRender()
 	{
 		static bool show = true;
 		ImGui::ShowDemoWindow(&show);
-	}
+	}*/
 
 }

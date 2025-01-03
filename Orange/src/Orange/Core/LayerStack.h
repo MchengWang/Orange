@@ -1,16 +1,16 @@
 #pragma once
 
 #include "Orange/Core/Core.h"
-#include "Layer.h"
+#include "Orange/Core/Layer.h"
 
 #include <vector>
 
 namespace Orange {
 
-	class ORANGE_API LayerStack
+	class LayerStack
 	{
 	public:
-		LayerStack();
+		LayerStack() = default;
 		~LayerStack();
 
 		void PushLayer(Layer* layer);

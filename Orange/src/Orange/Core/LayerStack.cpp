@@ -1,11 +1,7 @@
 #include "ogpch.h"
-#include "LayerStack.h"
+#include "Orange/Core/LayerStack.h"
 
 namespace Orange {
-
-	LayerStack::LayerStack()
-	{
-	}
 
 	LayerStack::~LayerStack()
 	{

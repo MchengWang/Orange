@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Core.h"
+#include "Orange/Core/Core.h"
 
-#include "Window.h"
+#include "Orange/Core/Window.h"
 
 #include "Orange/Core/LayerStack.h"
 #include "Orange/Events/Event.h"

@@ -1,7 +1,6 @@
 #include "ogpch.h"
-#include "Shader.h"
 
-#include "Renderer.h"
+#include "Orange/Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLShader.h"
 
 namespace Orange
@@ -12,7 +11,7 @@ namespace Orange
 		switch (Renderer::GetAPI())
 		{
 		case RendererAPI::API::None: OG_CORE_ASSERT(false, "当前暂不支持渲染接口：None！"); return nullptr;
-		case RendererAPI::API::OpenGL: return std::make_shared<OpenGLShader>(filepath);
+		case RendererAPI::API::OpenGL: return CreateRef<OpenGLShader>(filepath);
 		}
 
 		OG_CORE_ASSERT(false, "未知的渲染接口！");
@@ -24,7 +23,7 @@ namespace Orange
 		switch (Renderer::GetAPI())
 		{
 		case RendererAPI::API::None: OG_CORE_ASSERT(false, "当前暂不支持渲染接口：None！"); return nullptr;
-		case RendererAPI::API::OpenGL: return std::make_shared<OpenGLShader>(name, vertSrc, fragSrc);
+		case RendererAPI::API::OpenGL: return CreateRef<OpenGLShader>(name, vertSrc, fragSrc);
 		}
 
 		OG_CORE_ASSERT(false, "未知的渲染接口！");

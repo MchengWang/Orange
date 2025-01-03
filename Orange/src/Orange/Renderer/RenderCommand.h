@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RendererAPI.h"
+#include "Orange/Renderer/RendererAPI.h"
 
 namespace Orange
 {
@@ -28,7 +28,7 @@ namespace Orange
 			o_RendererAPI->Clear();
 		}
 
-		inline static void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
+		inline static void DrawIndexed(const Ref<VertexArray>& vertexArray)
 		{
 			o_RendererAPI->DrawIndexed(vertexArray);
 		}

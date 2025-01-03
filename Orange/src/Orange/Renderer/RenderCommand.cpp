@@ -1,11 +1,10 @@
 #include "ogpch.h"
-#include "RenderCommand.h"
 
-#include "Platform/OpenGL/OpenGLRendererAPI.h"
+#include "Orange/Renderer/RenderCommand.h"
 
 namespace Orange
 {
 
-	Scope<RendererAPI> RenderCommand::o_RendererAPI = CreateScope<OpenGLRendererAPI>();
+	Scope<RendererAPI> RenderCommand::o_RendererAPI = RendererAPI::Create();
 
 }

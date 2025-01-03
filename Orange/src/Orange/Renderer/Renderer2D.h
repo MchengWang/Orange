@@ -1,8 +1,8 @@
 #pragma once
 
-#include "OrthographicCamera.h"
+#include "Orange/Renderer/OrthographicCamera.h"
 
-#include "Texture.h"
+#include "Orange/Renderer/Texture.h"
 
 namespace Orange
 {

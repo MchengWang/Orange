@@ -13,8 +13,6 @@
 
 namespace Orange
 {
-#define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
-
 	Application* Application::o_Instance = nullptr;
 
 	Application::Application()
@@ -22,8 +20,8 @@ namespace Orange
 		OG_CORE_ASSERT(!o_Instance, "Application 实例已经存在！")
 		o_Instance = this;
 
-		o_Window = std::unique_ptr<Window>(Window::Create());
-		o_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
+		o_Window = Window::Create();
+		o_Window->SetEventCallback(OG_BIND_EVENT_FN(Application::OnEvent));
 
 		Renderer::Init();
 
@@ -33,6 +31,7 @@ namespace Orange
 
 	Application::~Application()
 	{
+		Renderer::Shutdown();
 	}
 
 	void Application::PushLayer(Layer* layer)
@@ -50,8 +49,8 @@ namespace Orange
 	void Application::OnEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
-		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResized));
+		dispatcher.Dispatch<WindowCloseEvent>(OG_BIND_EVENT_FN(Application::OnWindowClose));
+		dispatcher.Dispatch<WindowResizeEvent>(OG_BIND_EVENT_FN(Application::OnWindowResized));
 
 		for (auto it = o_LayerStack.end(); it != o_LayerStack.begin(); )
 		{

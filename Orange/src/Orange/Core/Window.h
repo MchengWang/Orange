@@ -20,7 +20,7 @@ namespace Orange
 	};
 
 	// 表示基于桌面系统的 Window 的界面
-	class ORANGE_API Window
+	class Window
 	{
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;
@@ -39,6 +39,6 @@ namespace Orange
 
 		virtual void* GetNativeWindow() const = 0;
 
-		static Window* Create(const WindowProps& props = WindowProps());
+		static Scope<Window> Create(const WindowProps& props = WindowProps());
 	};								 
 }

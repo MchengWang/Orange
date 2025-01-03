@@ -9,16 +9,16 @@
 
 namespace Orange
 {
-	static uint8_t o_GLFWInitialized = 0;
+	static uint8_t o_GLFWwindowCount = 0;
 
 	static void GLFWErrorCallback(int error, const char* description)
 	{
 		OG_CORE_ERROR("GLFW 错误: ({0}): {1}", error, description);
 	}
 
-	Window* Window::Create(const WindowProps& props)
+	Scope<Window> Window::Create(const WindowProps& props)
 	{
-		return new WindowsWindow(props);
+		return CreateScope<WindowsWindow>(props);
 	}
 
 	WindowsWindow::WindowsWindow(const WindowProps& props)
@@ -39,14 +39,13 @@ namespace Orange
 
 		OG_CORE_INFO("创建窗口 标题: {0}, 宽度: {1}, 高度: {2}", props.Title, props.Width, props.Height);
 
-		if (!o_GLFWInitialized)
+		if (o_GLFWwindowCount == 0)
 		{
 			// TODO glfw在系统关闭时终止
 			int success = glfwInit();
 			OG_CORE_ASSERT(success, "不能初始化 GLFW");
 
 			glfwSetErrorCallback(GLFWErrorCallback);
-			o_GLFWInitialized = true;
 		}
 
 		o_Window = glfwCreateWindow((int)props.Width, (int)props.Height, o_Data.Title.c_str(), nullptr, nullptr);
@@ -152,6 +151,11 @@ namespace Orange
 	void WindowsWindow::Shutdown()
 	{
 		glfwDestroyWindow(o_Window);
+
+		--o_GLFWwindowCount;
+
+		if (o_GLFWwindowCount == 0)
+			glfwTerminate();
 	}
 
 	void WindowsWindow::OnUpdate()

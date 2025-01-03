@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Event.h"
+#include "Orange/Events/Event.h"
 
 namespace Orange
 {
-	class ORANGE_API MouseMovedEvent : public Event
+	class  MouseMovedEvent : public Event
 	{
 	public:
 		MouseMovedEvent(float x, float y)
@@ -27,7 +27,7 @@ namespace Orange
 		float o_MouseVecX, o_MouseVecY;
 	};
 
-	class ORANGE_API MouseScrolledEvent : public Event
+	class MouseScrolledEvent : public Event
 	{
 	public:
 		MouseScrolledEvent(float offsetX, float offsetY)
@@ -50,7 +50,7 @@ namespace Orange
 		float o_OffsetX, o_OffsetY;
 	};
 
-	class ORANGE_API MouseButtonEvent : public Event
+	class MouseButtonEvent : public Event
 	{
 	public:
 		inline int GetMouseButton() const { return o_Button; }
@@ -64,7 +64,7 @@ namespace Orange
 		int o_Button;
 	};
 
-	class ORANGE_API MouseButtonPressedEvent : public MouseButtonEvent
+	class MouseButtonPressedEvent : public MouseButtonEvent
 	{
 	public:
 		MouseButtonPressedEvent(int button)
@@ -80,7 +80,7 @@ namespace Orange
 		EVENT_CLASS_TYPE(MouseButtonPressed)
 	};
 
-	class ORANGE_API MouseButtonReleasedEvent : public MouseButtonEvent
+	class MouseButtonReleasedEvent : public MouseButtonEvent
 	{
 	public:
 		MouseButtonReleasedEvent(int button)

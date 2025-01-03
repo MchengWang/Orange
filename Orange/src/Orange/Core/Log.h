@@ -1,24 +1,24 @@
 #pragma once
 
-#include "Core.h"
+#include "Orange/Core/Core.h"
 
 #include <memory>
 
-#include "spdlog/spdlog.h"
-#include "spdlog/fmt/ostr.h"
+#include <spdlog/spdlog.h>
+#include <spdlog/fmt/ostr.h>
 
 namespace Orange
 {
-	class ORANGE_API Log
+	class Log
 	{
 	public:
 		static void Init();
 
-		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return sg_CoreLogger; }
-		inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return sg_ClientLogger; }
+		inline static Ref<spdlog::logger>& GetCoreLogger() { return sg_CoreLogger; }
+		inline static Ref<spdlog::logger>& GetClientLogger() { return sg_ClientLogger; }
 	private:
-		static std::shared_ptr<spdlog::logger> sg_CoreLogger;
-		static std::shared_ptr<spdlog::logger> sg_ClientLogger;
+		static Ref<spdlog::logger> sg_CoreLogger;
+		static Ref<spdlog::logger> sg_ClientLogger;
 	};
 }
 

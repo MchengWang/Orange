@@ -1414,6 +1414,7 @@
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
     <ClInclude Include="src\Orange\Renderer\Renderer2D.h" />
+    <ClInclude Include="src\Orange\Debug\Instrumentor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Orange\Core\Application.cpp">
@@ -1492,5 +1493,6 @@
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
     <ClCompile Include="src\Orange\Renderer\Renderer2D.cpp" />
+    <ClCompile Include="src\Orange\Renderer\GraphicsContext.cpp" />
   </ItemGroup>
 </Project>

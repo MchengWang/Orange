@@ -1,5 +1,5 @@
 #include "ogpch.h"
-#include "Texture.h"
+#include "Orange/Renderer/Texture.h"
 
 #include "Orange/Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLTexture.h"

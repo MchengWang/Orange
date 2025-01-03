@@ -1,9 +1,7 @@
 #include <Orange.h>
 #include <Orange/Core/EntryPoint.h>
 
-#include "Platform/OpenGL/OpenGLShader.h"
-
-#include "imgui/imgui.h"
+#include <imgui/imgui.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -24,8 +22,7 @@ public:
 			 0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
 		};
 
-		Orange::Ref<Orange::VertexBuffer> vertexBuffer;
-		vertexBuffer.reset(Orange::VertexBuffer::Create(vertices, sizeof(vertices)));
+		Orange::Ref<Orange::VertexBuffer> vertexBuffer = Orange::VertexBuffer::Create(vertices, sizeof(vertices));
 		Orange::BufferLayout layout = {
 			{ Orange::ShaderDataType::Float3, "a_Position"},
 			{ Orange::ShaderDataType::Float4, "a_Color"}
@@ -35,8 +32,7 @@ public:
 		o_VertexArray->AddVertexBuffer(vertexBuffer);
 
 		uint32_t indices[3] = { 0, 1, 2 };
-		Orange::Ref<Orange::IndexBuffer> indexBuffer;
-		indexBuffer.reset(Orange::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+		Orange::Ref<Orange::IndexBuffer> indexBuffer = Orange::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 		o_VertexArray->SetIndexBuffer(indexBuffer);
 
 		o_SquareVA = Orange::VertexArray::Create();
@@ -48,8 +44,7 @@ public:
 			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 		};
 
-		Orange::Ref<Orange::VertexBuffer> squareVB;
-		squareVB.reset(Orange::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+		Orange::Ref<Orange::VertexBuffer> squareVB = Orange::VertexBuffer::Create(squareVertices, sizeof(squareVertices));
 
 		squareVB->SetLayout({
 			{ Orange::ShaderDataType::Float3, "a_Position" },
@@ -59,8 +54,7 @@ public:
 		o_SquareVA->AddVertexBuffer(squareVB);
 
 		uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
-		Orange::Ref<Orange::IndexBuffer> squareIB;
-		squareIB.reset(Orange::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+		Orange::Ref<Orange::IndexBuffer> squareIB = Orange::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
 		o_SquareVA->SetIndexBuffer(squareIB);
 
 		std::string vertSrc = R"(
@@ -147,8 +141,8 @@ public:
 		o_Texture = Orange::Texture2D::Create("assets/textures/Checkerboard.png");
 		o_OrangeLogoTexture = Orange::Texture2D::Create("assets/textures/LogoO.png");
 
-		std::dynamic_pointer_cast<Orange::OpenGLShader>(textureShader)->Bind();
-		std::dynamic_pointer_cast<Orange::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
+		textureShader->Bind();
+		textureShader->SetInt("u_Texture", 0);
 	}
 
 	void OnUpdate(Orange::Timestep timestep) override
@@ -164,8 +158,8 @@ public:
 
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 
-		std::dynamic_pointer_cast<Orange::OpenGLShader>(o_FlatColorShader)->Bind();
-		std::dynamic_pointer_cast<Orange::OpenGLShader>(o_FlatColorShader)->UploadUniformFloat3("u_Color", o_SquareColor);
+		o_FlatColorShader->Bind();
+		o_FlatColorShader->SetFloat3("u_Color", o_SquareColor);
 
 		for (int i = 0; i < 20; i++)
 		{

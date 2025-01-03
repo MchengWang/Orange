@@ -8,7 +8,7 @@
 
 namespace Orange {
 
-	class ORANGE_API ImGuiLayer : public Layer
+	class ImGuiLayer : public Layer
 	{
 	public:
 		ImGuiLayer();
@@ -16,7 +16,7 @@ namespace Orange {
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
-		virtual void OnImGuiRender() override;
+		//virtual void OnImGuiRender() override;
 
 		void Begin();
 		void End();

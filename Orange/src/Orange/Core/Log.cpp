@@ -1,13 +1,13 @@
 #include "ogpch.h"
 
-#include "Log.h"
+#include "Orange/Core/Log.h"
 
-#include "spdlog/sinks/stdout_color_sinks.h"
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace Orange
 {
-	std::shared_ptr<spdlog::logger> Log::sg_CoreLogger;
-	std::shared_ptr<spdlog::logger> Log::sg_ClientLogger;
+	Ref<spdlog::logger> Log::sg_CoreLogger;
+	Ref<spdlog::logger> Log::sg_ClientLogger;
 
 	void Log::Init()
 	{

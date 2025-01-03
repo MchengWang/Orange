@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Event.h"
+#include "Orange/Events/Event.h"
 
 namespace Orange
 {
-	class ORANGE_API KeyEvent : public Event
+	class KeyEvent : public Event
 	{
 	public:
 		inline int GetKeyCode() { return o_KeyCode; }
@@ -18,7 +18,7 @@ namespace Orange
 		int o_KeyCode;
 	};
 
-	class ORANGE_API KeyPressedEvent : public KeyEvent
+	class KeyPressedEvent : public KeyEvent
 	{
 	public:
 		KeyPressedEvent(int keycode, int repeatCount)
@@ -39,7 +39,7 @@ namespace Orange
 		int o_RepeatCount;
 	};
 
-	class ORANGE_API KeyReleasedEvent : public KeyEvent
+	class KeyReleasedEvent : public KeyEvent
 	{
 	public:
 		KeyReleasedEvent(int KeyCode)
@@ -56,7 +56,7 @@ namespace Orange
 		EVENT_CLASS_TYPE(KeyReleased)
 	};
 
-	class ORANGE_API KeyTypedEvent : public KeyEvent
+	class KeyTypedEvent : public KeyEvent
 	{
 	public:
 		KeyTypedEvent(int keyCode)

@@ -5,7 +5,7 @@
 namespace Orange
 {
 	
-	class ORANGE_API Input
+	class Input
 	{
 	public:
 		inline static bool IsKeyPressed(int keyCode) { return o_Instance->IsKeyPressedImpl(keyCode); }
@@ -16,6 +16,7 @@ namespace Orange
 		inline static float GetMouseY() { return o_Instance->GetMouseYImpl(); }
 
 	protected:
+		Input() = default;
 		virtual bool IsKeyPressedImpl(int keyCode) = 0;
 
 		virtual bool IsMouseButtonPressedImpl(int button) = 0;

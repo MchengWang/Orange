@@ -1,9 +1,13 @@
 #pragma once
 
 // 供 Orange 应用使用
+#include "Orange/Core/Core.h"
+
 #include "Orange/Core/Application.h"
 #include "Orange/Core/Layer.h"
 #include "Orange/Core/Log.h"
+
+#include "Orange/Debug/Instrumentor.h"
 
 #include "Orange/Core/Timestep.h"
 

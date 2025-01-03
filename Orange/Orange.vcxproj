@@ -143,6 +143,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Orange\Debug\Instrumentor.h" />
     <ClInclude Include="src\Orange\Renderer\Renderer2D.h" />
     <ClInclude Include="src\Orange.h" />
     <ClInclude Include="src\Orange\Core\Application.h" />
@@ -599,6 +600,7 @@
     <ClInclude Include="vendor\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Orange\Renderer\GraphicsContext.cpp" />
     <ClCompile Include="src\Orange\Renderer\Renderer2D.cpp" />
     <ClCompile Include="src\Orange\Core\Application.cpp" />
     <ClCompile Include="src\Orange\Core\Layer.cpp" />
