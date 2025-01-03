@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Orange/Events/Event.h"
+#include "Orange/Core/Input.h"
 
 namespace Orange
 {
@@ -53,21 +54,21 @@ namespace Orange
 	class MouseButtonEvent : public Event
 	{
 	public:
-		inline int GetMouseButton() const { return o_Button; }
+		inline MouseCode GetMouseButton() const { return o_Button; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 
 	protected:
-		MouseButtonEvent(int button)
+		MouseButtonEvent(MouseCode button)
 			:o_Button(button) {}
 
-		int o_Button;
+		MouseCode o_Button;
 	};
 
 	class MouseButtonPressedEvent : public MouseButtonEvent
 	{
 	public:
-		MouseButtonPressedEvent(int button)
+		MouseButtonPressedEvent(MouseCode button)
 			:MouseButtonEvent(button) {}
 
 		std::string ToString() const override
@@ -83,7 +84,7 @@ namespace Orange
 	class MouseButtonReleasedEvent : public MouseButtonEvent
 	{
 	public:
-		MouseButtonReleasedEvent(int button)
+		MouseButtonReleasedEvent(MouseCode button)
 			:MouseButtonEvent(button) {}
 
 		std::string ToString() const override

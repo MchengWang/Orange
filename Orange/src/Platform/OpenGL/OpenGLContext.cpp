@@ -16,6 +16,8 @@ namespace Orange
 
 	void OpenGLContext::Init()
 	{
+		HZ_PROFILE_FUNCTION();
+
 		glfwMakeContextCurrent(o_WindowHandle);
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		OG_CORE_ASSERT(status, "glad 初始化失败！");
@@ -31,13 +33,15 @@ namespace Orange
 				glGetIntegerv(GL_MAJOR_VERSION, &versionMajor);
 				glGetIntegerv(GL_MINOR_VERSION, &versionMinor);
 
-				OG_CORE_ASSERT((versionMajor > 4 || (versionMajor == 4 && versionMinor >= 5)), "Orange requires at least OpenGL version 4.5!");
+				OG_CORE_ASSERT((versionMajor > 4 || (versionMajor == 4 && versionMinor >= 5)), "Orange 至少需要 OpenGL 版本 4.5！");
 		#endif // OG_ENABLE_ASSERTS
 
 	}
 
 	void OpenGLContext::SwapBuffers()
 	{
+		HZ_PROFILE_FUNCTION();
+
 		glfwSwapBuffers(o_WindowHandle);
 	}
 

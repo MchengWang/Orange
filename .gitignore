@@ -3,6 +3,9 @@
 !vendor/bin/premake/
 bin-obj/
 
+# Orange 系统文件
+*.log
+
 # VS 文件和文件夹
 .vs/
 **.sln

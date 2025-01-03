@@ -10,6 +10,9 @@
     <Filter Include="src\Orange\Core">
       <UniqueIdentifier>{D072C586-3CFE-324B-450F-B63FB1198F4B}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Orange\Debug">
+      <UniqueIdentifier>{EE27805F-DA20-9FB1-0353-8436EFAA7EBD}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Orange\Events">
       <UniqueIdentifier>{5C780F53-C88E-0DE9-1106-990A7D5BDE70}</UniqueIdentifier>
     </Filter>
@@ -81,7 +84,7 @@
     <ClInclude Include="src\Orange\Core\Log.h">
       <Filter>src\Orange\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Orange\Core\MouseButtonCodes.h">
+    <ClInclude Include="src\Orange\Core\MouseCodes.h">
       <Filter>src\Orange\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Orange\Core\Timestep.h">
@@ -89,6 +92,9 @@
     </ClInclude>
     <ClInclude Include="src\Orange\Core\Window.h">
       <Filter>src\Orange\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Debug\Instrumentor.h">
+      <Filter>src\Orange\Debug</Filter>
     </ClInclude>
     <ClInclude Include="src\Orange\Events\ApplicationEvent.h">
       <Filter>src\Orange\Events</Filter>
@@ -121,6 +127,9 @@
       <Filter>src\Orange\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Orange\Renderer\Renderer.h">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orange\Renderer\Renderer2D.h">
       <Filter>src\Orange\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Orange\Renderer\RendererAPI.h">
@@ -1413,8 +1422,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Orange\Renderer\Renderer2D.h" />
-    <ClInclude Include="src\Orange\Debug\Instrumentor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Orange\Core\Application.cpp">
@@ -1438,6 +1445,9 @@
     <ClCompile Include="src\Orange\Renderer\Buffer.cpp">
       <Filter>src\Orange\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Orange\Renderer\GraphicsContext.cpp">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Orange\Renderer\OrthographicCamera.cpp">
       <Filter>src\Orange\Renderer</Filter>
     </ClCompile>
@@ -1448,6 +1458,9 @@
       <Filter>src\Orange\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Orange\Renderer\Renderer.cpp">
+      <Filter>src\Orange\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orange\Renderer\Renderer2D.cpp">
       <Filter>src\Orange\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Orange\Renderer\RendererAPI.cpp">
@@ -1492,7 +1505,5 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\Orange\Renderer\Renderer2D.cpp" />
-    <ClCompile Include="src\Orange\Renderer\GraphicsContext.cpp" />
   </ItemGroup>
 </Project>

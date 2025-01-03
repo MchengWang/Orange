@@ -1,9 +1,13 @@
 #include "ogpch.h"
 #include "WindowsWindow.h"
 
+#include "Orange/Core/Input.h"
+
 #include "Orange/Events/ApplicationEvent.h"
 #include "Orange/Events/MouseEvent.h"
 #include "Orange/Events/KeyEvent.h"
+
+#include "Orange/Renderer/Renderer.h"
 
 #include "Platform/OpenGL/OpenGLContext.h"
 
@@ -23,16 +27,22 @@ namespace Orange
 
 	WindowsWindow::WindowsWindow(const WindowProps& props)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		Init(props);
 	}
 
 	WindowsWindow::~WindowsWindow()
 	{
+		HZ_PROFILE_FUNCTION();
+
 		Shutdown();
 	}
 
 	void WindowsWindow::Init(const WindowProps& props)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		o_Data.Title = props.Title;
 		o_Data.Width = props.Width;
 		o_Data.Height = props.Height;
@@ -41,14 +51,23 @@ namespace Orange
 
 		if (o_GLFWwindowCount == 0)
 		{
-			// TODO glfw在系统关闭时终止
+			HZ_PROFILE_SCOPE("glfwInit");
 			int success = glfwInit();
 			OG_CORE_ASSERT(success, "不能初始化 GLFW");
 
 			glfwSetErrorCallback(GLFWErrorCallback);
 		}
 
-		o_Window = glfwCreateWindow((int)props.Width, (int)props.Height, o_Data.Title.c_str(), nullptr, nullptr);
+		{
+			HZ_PROFILE_SCOPE("glfwCreateWindow");
+		#if defined(OG_DEBUG)
+					if (Renderer::GetAPI() == RendererAPI::API::OpenGL)
+						glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+		#endif // defined(OG_DEBUG)
+
+			o_Window = glfwCreateWindow((int)props.Width, (int)props.Height, o_Data.Title.c_str(), nullptr, nullptr);
+			++o_GLFWwindowCount;
+		}
 		
 		o_Context = CreateScope<OpenGLContext>(o_Window);
 		o_Context->Init();
@@ -83,19 +102,19 @@ namespace Orange
 				{
 					case GLFW_PRESS:
 					{
-						KeyPressedEvent event(key, 0);
+						KeyPressedEvent event(static_cast<KeyCode>(key), 0);
 						data.EventCallback(event);
 						break;
 					}
 					case GLFW_RELEASE:
 					{
-						KeyReleasedEvent event(key);
+						KeyReleasedEvent event(static_cast<KeyCode>(key));
 						data.EventCallback(event);
 						break;
 					}
 					case GLFW_REPEAT:
 					{
-						KeyPressedEvent event(key, 1);
+						KeyPressedEvent event(static_cast<KeyCode>(key), 1);
 						data.EventCallback(event);
 						break;
 					}
@@ -106,7 +125,7 @@ namespace Orange
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				KeyTypedEvent event(keyCode);
+				KeyTypedEvent event(static_cast<KeyCode>(keyCode));
 				data.EventCallback(event);
 			});
 
@@ -118,13 +137,13 @@ namespace Orange
 				{
 					case GLFW_PRESS:
 					{
-						MouseButtonPressedEvent event(button);
+						MouseButtonPressedEvent event(static_cast<MouseCode>(button));
 						data.EventCallback(event);
 						break;
 					}
 					case GLFW_RELEASE:
 					{
-						MouseButtonReleasedEvent event(button);
+						MouseButtonReleasedEvent event(static_cast<MouseCode>(button));
 						data.EventCallback(event);
 						break;
 					}
@@ -150,6 +169,8 @@ namespace Orange
 
 	void WindowsWindow::Shutdown()
 	{
+		HZ_PROFILE_FUNCTION();
+
 		glfwDestroyWindow(o_Window);
 
 		--o_GLFWwindowCount;
@@ -160,12 +181,16 @@ namespace Orange
 
 	void WindowsWindow::OnUpdate()
 	{
+		HZ_PROFILE_FUNCTION();
+
 		glfwPollEvents();
 		o_Context->SwapBuffers();
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		if (enabled) glfwSwapInterval(1);
 		else glfwSwapInterval(0);
 

@@ -17,6 +17,8 @@ namespace Orange
 
 	Application::Application()
 	{
+		HZ_PROFILE_FUNCTION();
+
 		OG_CORE_ASSERT(!o_Instance, "Application 实例已经存在！")
 		o_Instance = this;
 
@@ -31,30 +33,38 @@ namespace Orange
 
 	Application::~Application()
 	{
+		HZ_PROFILE_FUNCTION();
+
 		Renderer::Shutdown();
 	}
 
 	void Application::PushLayer(Layer* layer)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		o_LayerStack.PushLayer(layer);
 		layer->OnAttach();
 	}
 
 	void Application::PushOverLayer(Layer* overLayer)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		o_LayerStack.PushOverlay(overLayer);
 		overLayer->OnAttach();
 	}
 
 	void Application::OnEvent(Event& e)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(OG_BIND_EVENT_FN(Application::OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(OG_BIND_EVENT_FN(Application::OnWindowResized));
 
-		for (auto it = o_LayerStack.end(); it != o_LayerStack.begin(); )
+		for (auto it = o_LayerStack.rbegin(); it != o_LayerStack.rend(); ++it)
 		{
-			(*--it)->OnEvent(e);
+			(*it)->OnEvent(e);
 			if (e.Handled)
 				break;
 		}
@@ -62,22 +72,36 @@ namespace Orange
 
 	void Application::Run()
 	{
+		HZ_PROFILE_FUNCTION();
+
 		while (o_Running)
 		{
+			HZ_PROFILE_SCOPE("RunLoop");
+
 			float time = (float)glfwGetTime();
 			Timestep timestep = time - o_LastFrameTime;
 			o_LastFrameTime = time;
 
 			if (!o_Minimized) // 当窗口不是最小化的时候，进行图层更新
 			{
-				for (Layer* layer : o_LayerStack)
-					layer->OnUpdate(timestep);
+				{
+					HZ_PROFILE_SCOPE("LayerStack OnUpdate");
+
+					for (Layer* layer : o_LayerStack)
+						layer->OnUpdate(timestep);
+				}
+
+				o_ImGuiLayer->Begin();
+				{
+					HZ_PROFILE_SCOPE("LayerStack OnImGuiRender");
+
+					for (Layer* layer : o_LayerStack)
+						layer->OnImGuiRender();
+				}
+				o_ImGuiLayer->End();
 			}
 
-			o_ImGuiLayer->Begin();
-			for (Layer* layer : o_LayerStack)
-				layer->OnImGuiRender();
-			o_ImGuiLayer->End();
+			
 
 			o_Window->OnUpdate();
 		}
@@ -91,6 +115,8 @@ namespace Orange
 
 	bool Application::OnWindowResized(WindowResizeEvent& event)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		if (event.GetWidth() == 0 || event.GetHeight() == 0) // 当窗口尺寸最小化时，宽度和高度即为0
 		{
 			o_Minimized = true;

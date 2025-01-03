@@ -8,9 +8,9 @@ namespace Orange
 	class WindowsInput : public Input
 	{
 	protected:
-		virtual bool IsKeyPressedImpl(int keyCode) override;
+		virtual bool IsKeyPressedImpl(KeyCode keyCode) override;
 
-		virtual bool IsMouseButtonPressedImpl(int keybutton) override;
+		virtual bool IsMouseButtonPressedImpl(MouseCode keybutton) override;
 		virtual std::pair<float, float> GetMousePositionImpl() override;
 		virtual float GetMouseYImpl() override;
 		virtual float GetMouseXImpl() override;

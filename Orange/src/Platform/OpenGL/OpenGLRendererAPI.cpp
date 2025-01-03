@@ -5,9 +5,41 @@
 
 namespace Orange
 {
+	void OpenGLMessageCallback(
+		unsigned source,
+		unsigned type,
+		unsigned id,
+		unsigned severity,
+		int lenght,
+		const char* message,
+		const void* userParam)
+		{
+			switch (severity)
+			{
+			case GL_DEBUG_SEVERITY_HIGH:           OG_CORE_CRITICAL(message); return;
+			case GL_DEBUG_SEVERITY_MEDIUM:         OG_CORE_ERROR(message); return;
+			case GL_DEBUG_SEVERITY_LOW:            OG_CORE_WARN(message); return;
+			case GL_DEBUG_SEVERITY_NOTIFICATION:   OG_CORE_TRACE(message); return;
+			}
+
+			OG_CORE_ASSERT(false, "未知的安全等级！");
+		}
+	
 
 	void OpenGLRendererAPI::Init()
 	{
+		HZ_PROFILE_FUNCTION();
+
+#ifdef OG_DEBUG
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		glDebugMessageCallback(OpenGLMessageCallback, nullptr);
+
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
+
+#endif // OG_DEBUG
+
+
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

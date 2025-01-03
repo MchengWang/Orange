@@ -15,6 +15,8 @@ namespace Orange
 
 	void OrthographicCameraController::OnUpdate(Timestep timestep)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		if (Input::IsKeyPressed(OG_KEY_A))
 		{
 			o_CameraPostion.x -= cos(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
@@ -59,6 +61,8 @@ namespace Orange
 
 	void OrthographicCameraController::OnEvent(Event& event)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		EventDispatcher dispatcher(event);
 		dispatcher.Dispatch<MouseScrolledEvent>(OG_BIND_EVENT_FN(OrthographicCameraController::OnMouseScrolled));
 		dispatcher.Dispatch<WindowResizeEvent>(OG_BIND_EVENT_FN(OrthographicCameraController::OnWindowResized));
@@ -66,6 +70,8 @@ namespace Orange
 
 	bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& event)
 	{ 
+		HZ_PROFILE_FUNCTION();
+
 		o_ZoomLevel -= event.GetOffsetY() * 0.25f;
 		o_ZoomLevel = std::max(o_ZoomLevel, 0.25f);
 		o_Camera.SetProjection(-o_AspectRatio * o_ZoomLevel, o_AspectRatio * o_ZoomLevel, -o_ZoomLevel, o_ZoomLevel);
@@ -74,6 +80,8 @@ namespace Orange
 
 	bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& event)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		o_AspectRatio = (float)event.GetWidth() / (float)event.GetHeight();
 		o_Camera.SetProjection(-o_AspectRatio * o_ZoomLevel, o_AspectRatio * o_ZoomLevel, -o_ZoomLevel, o_ZoomLevel);
 		return false;

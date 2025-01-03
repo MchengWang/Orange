@@ -15,6 +15,8 @@
 
 #include "Orange/Core/Log.h"
 
+#include "Orange/Debug/Instrumentor.h"
+
 #ifdef OG_PLATFORM_WINDOWS
 	#include <Windows.h>
 #endif // OG_PLATFORM_WINDOWS

@@ -7,13 +7,11 @@
 #include "Orange/Core/Layer.h"
 #include "Orange/Core/Log.h"
 
-#include "Orange/Debug/Instrumentor.h"
-
 #include "Orange/Core/Timestep.h"
 
 #include "Orange/Core/Input.h"
 #include "Orange/Core/KeyCodes.h"
-#include "Orange/Core/MouseButtonCodes.h"
+#include "Orange/Core/MouseCodes.h"
 #include "Orange/Renderer/OrthographicCameraController.h"
 
 #include "Orange/ImGui/ImGuiLayer.h"

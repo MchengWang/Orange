@@ -1,27 +1,28 @@
 #pragma once
 
 #include "Orange/Events/Event.h"
+#include "Orange/Core/Input.h"
 
 namespace Orange
 {
 	class KeyEvent : public Event
 	{
 	public:
-		inline int GetKeyCode() { return o_KeyCode; }
+		inline KeyCode GetKeyCode() { return o_KeyCode; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput);
 
 	protected:
-		KeyEvent(int KeyCode)
-			:o_KeyCode(KeyCode) {}
+		KeyEvent(KeyCode keyCode)
+			:o_KeyCode(keyCode) {}
 
-		int o_KeyCode;
+		KeyCode o_KeyCode;
 	};
 
 	class KeyPressedEvent : public KeyEvent
 	{
 	public:
-		KeyPressedEvent(int keycode, int repeatCount)
+		KeyPressedEvent(KeyCode keycode, int repeatCount)
 		:KeyEvent(keycode), o_RepeatCount(repeatCount) {}
 
 		inline int GetRepeatCount() const { return o_RepeatCount; }
@@ -42,8 +43,8 @@ namespace Orange
 	class KeyReleasedEvent : public KeyEvent
 	{
 	public:
-		KeyReleasedEvent(int KeyCode)
-			:KeyEvent(KeyCode) {
+		KeyReleasedEvent(KeyCode keyCode)
+			:KeyEvent(keyCode) {
 		}
 
 		std::string ToString() const override
@@ -59,7 +60,7 @@ namespace Orange
 	class KeyTypedEvent : public KeyEvent
 	{
 	public:
-		KeyTypedEvent(int keyCode)
+		KeyTypedEvent(KeyCode keyCode)
 			:KeyEvent(keyCode)
 		{
 		}

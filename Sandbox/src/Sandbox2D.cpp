@@ -13,25 +13,25 @@ Sandbox2D::Sandbox2D()
 
 void Sandbox2D::OnAttach()
 {
+	HZ_PROFILE_FUNCTION();
+
 	o_CheckerboardTexture = Orange::Texture2D::Create("assets/textures/Checkerboard.png");
 }
 
 void Sandbox2D::OnDetach()
 {
+	HZ_PROFILE_FUNCTION();
 }
 
 void Sandbox2D::OnUpdate(Orange::Timestep timestep)
 {
 	HZ_PROFILE_FUNCTION();
 
-	// Update
-	{
-		HZ_PROFILE_SCOPE("CameraController-OnUpdate");
-		o_CameraController.OnUpdate(timestep);
-	}
+	// ¸üÐÂ
+	o_CameraController.OnUpdate(timestep);
 
 
-	// Render
+	// äÖÈ¾
 	{
 		HZ_PROFILE_SCOPE("Renderer-Prep");
 		Orange::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });

@@ -22,6 +22,8 @@ namespace Orange
 
 	OpenGLShader::OpenGLShader(const std::string& filepath)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		std::string source = ReadFile(filepath);
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);
@@ -37,6 +39,8 @@ namespace Orange
 	OpenGLShader::OpenGLShader(const std::string& name ,const std::string& vertexSrc, const std::string& fragmentSrc)
 		:o_Name(name)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		std::unordered_map<GLenum, std::string> sources;
 		sources[GL_VERTEX_SHADER] = vertexSrc;
 		sources[GL_FRAGMENT_SHADER] = fragmentSrc;
@@ -45,11 +49,15 @@ namespace Orange
 
 	OpenGLShader::~OpenGLShader()
 	{
+		HZ_PROFILE_FUNCTION();
+
 		glDeleteProgram(o_RendererID);
 	}
 
 	std::string OpenGLShader::ReadFile(const std::string& filepath)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		std::string result;
 		std::ifstream in(filepath, std::ios::in | std::ios::binary);
 		if (in)
@@ -65,7 +73,7 @@ namespace Orange
 			}
 			else
 			{
-				OG_CORE_ERROR("Count not read from file '{0}'", filepath);
+				OG_CORE_ERROR("无法从 '{0}' 文件中读取", filepath);
 			}
 		}
 		else
@@ -78,21 +86,23 @@ namespace Orange
 
 	std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(const std::string& source)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		std::unordered_map<GLenum, std::string> shaderSources;
 
 		const char* typeToken = "#type";
 		size_t typeTokenLength = strlen(typeToken);
-		size_t pos = source.find(typeToken, 0); // Strart of shader type declaration line
+		size_t pos = source.find(typeToken, 0); // 开始于着色器类型声明行的
 		while (pos != std::string::npos)
 		{
-			size_t eol = source.find_first_of("\r\n", pos); // End of shader type declaration line
+			size_t eol = source.find_first_of("\r\n", pos); // 着色器类型声明行的结尾
 			OG_CORE_ASSERT((eol != std::string::npos), "语法错误！");
-			size_t begin = pos + typeTokenLength + 1; // Start of shader type name (after "#type" keyword)
+			size_t begin = pos + typeTokenLength + 1; // 着色器类型名称的开头（在 “#type” 关键字之后）
 			std::string type = source.substr(begin, eol - begin);
 			OG_CORE_ASSERT(ShaderTypeFromString(type), "指定的着色器类型无效！");
 
-			size_t nextLinePos = source.find_first_not_of("\r\n", eol); // Start of shader code after shader type declaration line 
-			OG_CORE_ASSERT((nextLinePos != std::string::npos), "语法错误！"); // Start of next shader type declaration line
+			size_t nextLinePos = source.find_first_not_of("\r\n", eol); // 着色器类型声明行之后的着色器代码开始 
+			OG_CORE_ASSERT((nextLinePos != std::string::npos), "语法错误！"); // 下一个着色器类型声明行的开头
 			pos = source.find(typeToken, nextLinePos);
 			shaderSources[ShaderTypeFromString(type)] = source.substr(nextLinePos, pos - (nextLinePos == std::string::npos ?
 				source.size() - 1 : nextLinePos));
@@ -103,6 +113,8 @@ namespace Orange
 
 	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		GLuint program = glCreateProgram();
 		OG_CORE_ASSERT((shaderSources.size() <= 2), "我们现在仅支持2个着色器！顶点(vertex, dot),片段(fragment, pixel)");
 		std::array<GLenum, 2> glShaderIDs;
@@ -142,10 +154,10 @@ namespace Orange
 
 		o_RendererID = program;
 
-		// Link our program
+		// 链接我们的程序
 		glLinkProgram(program);
 
-		// Note the different functions here: glGetProgram* instead of glGetShader*.
+		// 请注意此处的不同函数：glGetProgram* 而不是 glGetShader*。
 		GLint isLinked = 0;
 		glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
 		if (isLinked == GL_FALSE)
@@ -153,11 +165,11 @@ namespace Orange
 			GLint maxLength = 0;
 			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
 
-			// The maxLength includes the NULL character
+			// maxLength 包括 NULL 字符
 			std::vector<GLchar> infoLog(maxLength);
 			glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
 
-			// We don't need the program anymore.
+			// 我们不再需要这个程序了。
 			glDeleteProgram(program);
 
 			for (auto id : glShaderIDs)
@@ -177,28 +189,40 @@ namespace Orange
 
 	void OpenGLShader::Bind() const
 	{
+		HZ_PROFILE_FUNCTION();
+
 		glUseProgram(o_RendererID);
 	}
 
 	void OpenGLShader::Unbind() const
 	{
+		HZ_PROFILE_FUNCTION();
+
 		glUseProgram(0);
 	}
 
 	void OpenGLShader::SetInt(const std::string& name, int value)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		UploadUniformInt(name, value);
 	}
 	void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		UploadUniformFloat3(name, value);
 	}
 	void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		UploadUniformFloat4(name, value);
 	}
 	void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value)
 	{
+		HZ_PROFILE_FUNCTION();
+
 		UploadUniformMat4(name, value);
 	}
 
