@@ -25,6 +25,7 @@ private:
 	Orange::Ref<Orange::Shader> o_FlatColorShader;
 
 	Orange::Ref<Orange::Texture2D> o_CheckerboardTexture;
+	Orange::Ref<Orange::Texture2D> o_SpriteSheet;
 
 	glm::vec4 o_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 

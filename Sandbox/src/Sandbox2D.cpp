@@ -16,6 +16,7 @@ void Sandbox2D::OnAttach()
 	HZ_PROFILE_FUNCTION();
 
 	o_CheckerboardTexture = Orange::Texture2D::Create("assets/textures/Checkerboard.png");
+	o_SpriteSheet = Orange::Texture2D::Create("assets/game/textures/RPGpack_sheet_2X.png");
 
 	o_Particle.ColorBegin = { 254 / 255.0f, 212 / 255.0f, 123 / 255.0f, 1.0f };
 	o_Particle.ColorEnd = { 254 / 255.0f, 109 / 255.0f, 41 / 255.0f, 1.0f };
@@ -47,6 +48,7 @@ void Sandbox2D::OnUpdate(Orange::Timestep timestep)
 		Orange::RenderCommand::Clear();
 	}
 		
+#if 0
 	{
 		
 		static float rotation = 0.0f;
@@ -73,6 +75,7 @@ void Sandbox2D::OnUpdate(Orange::Timestep timestep)
 		}
 		Orange::Renderer2D::EndScene();
 	}
+#endif
 
 	if (Orange::Input::IsMouseButtonPressed(OG_MOUSE_BUTTON_LEFT))
 	{
@@ -91,6 +94,11 @@ void Sandbox2D::OnUpdate(Orange::Timestep timestep)
 
 	o_ParticleSystem.OnUpdate(timestep);
 	o_ParticleSystem.OnRender(o_CameraController.GetCamera());
+
+	Orange::Renderer2D::BeginScene(o_CameraController.GetCamera());
+	Orange::Renderer2D::DrawQuad({ 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }, o_SpriteSheet);
+	Orange::Renderer2D::EndScene();
+
 }
 
 void Sandbox2D::OnImGuiRender()
