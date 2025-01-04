@@ -208,6 +208,11 @@ namespace Orange
 		UploadUniformInt(name, value);
 	}
 
+	void OpenGLShader::SetIntArray(const std::string& name, int* array, uint32_t count)
+	{
+		UploadUniformIntArray(name, array, count);
+	}
+
 	void OpenGLShader::SetFloat(const std::string& name, float value)
 	{
 		HZ_PROFILE_FUNCTION();
@@ -240,6 +245,12 @@ namespace Orange
 	{
 		GLint location = glGetUniformLocation(o_RendererID, name.c_str());
 		glUniform1i(location, value);
+	}
+
+	void OpenGLShader::UploadUniformIntArray(const std::string& name, int* array, uint32_t count)
+	{
+		GLint location = glGetUniformLocation(o_RendererID, name.c_str());
+		glUniform1iv(location, count, array);
 	}
 
 	void OpenGLShader::UploadUniformFloat(const std::string& name, float value)

@@ -17,6 +17,9 @@ namespace Orange
 		glm::vec3 Position;
 		glm::vec4 Color;
 		glm::vec2 TexCoord;
+
+		float TexIndex;
+		float TilingFactor;
 	};
 
 	struct Renderer2D2ata
@@ -24,6 +27,7 @@ namespace Orange
 		const uint32_t MaxModels = 10000;
 		const uint32_t MaxVerts = MaxModels * 4;
 		const uint32_t MaxDots = MaxModels * 6;
+		static const uint32_t MaxTexSolts = 32; // GPU 最大支持的纹理插槽
 
 
 		Ref<VertexArray> QuadVertexArray;
@@ -34,6 +38,9 @@ namespace Orange
 		uint32_t QuadIndexCount = 0;
 		QuadVert* QuadVertBufferBase = nullptr;
 		QuadVert* QuadVertBufferPtr = nullptr;
+
+		std::array<Ref<Texture2D>, MaxTexSolts> TextureSlots;
+		uint32_t TextureSlotIndex = 1; // 0--bindng->Whith Texture
 	};
 
 	static Renderer2D2ata r2s_Data;
@@ -48,7 +55,9 @@ namespace Orange
 		r2s_Data.QuadVertexBuffer->SetLayout({
 			{ShaderDataType::Float3, "a_Position"},
 			{ShaderDataType::Float4, "a_Color"},
-			{ShaderDataType::Float2, "a_TexCoord"}
+			{ShaderDataType::Float2, "a_TexCoord"},
+			{ShaderDataType::Float, "a_TexIndex"},
+			{ShaderDataType::Float, "a_TilingFactor"}
 			});
 		r2s_Data.QuadVertexArray->AddVertexBuffer(r2s_Data.QuadVertexBuffer);
 
@@ -79,9 +88,16 @@ namespace Orange
 		uint32_t whithTextureData = 0xffffffff;
 		r2s_Data.WhiteTexture->SetData(&whithTextureData, sizeof(uint32_t));
 
+		int32_t samplers[r2s_Data.MaxTexSolts];
+		for (uint32_t i = 0; i < r2s_Data.MaxTexSolts; i++)
+			samplers[i] = i;
+
 		r2s_Data.TextureShader = Shader::Create("assets/shaders/Texture.gsc");
 		r2s_Data.TextureShader->Bind();
-		r2s_Data.TextureShader->SetInt("u_Texture", 0);
+		r2s_Data.TextureShader->SetIntArray("u_Textures", samplers, r2s_Data.MaxTexSolts);
+
+		// set all texture slots to 0
+		r2s_Data.TextureSlots[0] = r2s_Data.WhiteTexture;
 	}
 
 	void Renderer2D::Shutdown()
@@ -99,6 +115,8 @@ namespace Orange
 
 		r2s_Data.QuadIndexCount = 0;
 		r2s_Data.QuadVertBufferPtr = r2s_Data.QuadVertBufferBase;
+
+		r2s_Data.TextureSlotIndex = 1;
 	}
 
 	void Renderer2D::EndScene()
@@ -113,6 +131,10 @@ namespace Orange
 
 	void Renderer2D::Flush()
 	{
+		// Bindg texures
+		for (uint32_t i = 0; i < r2s_Data.TextureSlotIndex; i++)
+			r2s_Data.TextureSlots[i]->Bind();
+
 		RenderCommand::DrawIndexed(r2s_Data.QuadVertexArray, r2s_Data.QuadIndexCount);
 	}
 
@@ -125,24 +147,35 @@ namespace Orange
 	{
 		HZ_PROFILE_FUNCTION();
 
+		const float texIndex = 0.0f; // White Texture
+		const float tilingFactor = 1.0f; // 平衡因子
+
 		r2s_Data.QuadVertBufferPtr->Position = position;
 		r2s_Data.QuadVertBufferPtr->Color = color;
 		r2s_Data.QuadVertBufferPtr->TexCoord = { 0.0f, 0.0f };
+		r2s_Data.QuadVertBufferPtr->TexIndex = texIndex;
+		r2s_Data.QuadVertBufferPtr->TilingFactor = tilingFactor;
 		r2s_Data.QuadVertBufferPtr++;
 
 		r2s_Data.QuadVertBufferPtr->Position = { position.x + size.x, position.y, 0.0f};
 		r2s_Data.QuadVertBufferPtr->Color = color;
 		r2s_Data.QuadVertBufferPtr->TexCoord = { 1.0f, 0.0f };
+		r2s_Data.QuadVertBufferPtr->TexIndex = texIndex;
+		r2s_Data.QuadVertBufferPtr->TilingFactor = tilingFactor;
 		r2s_Data.QuadVertBufferPtr++;
 
 		r2s_Data.QuadVertBufferPtr->Position = { position.x + size.x, position.y + size.y, 0.0f };
 		r2s_Data.QuadVertBufferPtr->Color = color;
 		r2s_Data.QuadVertBufferPtr->TexCoord = { 1.0f, 1.0f };
+		r2s_Data.QuadVertBufferPtr->TexIndex = texIndex;
+		r2s_Data.QuadVertBufferPtr->TilingFactor = tilingFactor;
 		r2s_Data.QuadVertBufferPtr++;
 
 		r2s_Data.QuadVertBufferPtr->Position = { position.x, position.y + size.y, 0.0f };
 		r2s_Data.QuadVertBufferPtr->Color = color;
 		r2s_Data.QuadVertBufferPtr->TexCoord = { 0.0f, 1.0f };
+		r2s_Data.QuadVertBufferPtr->TexIndex = texIndex;
+		r2s_Data.QuadVertBufferPtr->TilingFactor = tilingFactor;
 		r2s_Data.QuadVertBufferPtr++;
 
 		r2s_Data.QuadIndexCount += 6;
@@ -166,6 +199,56 @@ namespace Orange
 	{
 		HZ_PROFILE_FUNCTION();
 
+		constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		float textureIndex = 0.0f;
+		for (uint32_t i = 1; i < r2s_Data.TextureSlotIndex; i++)
+		{
+			if (*r2s_Data.TextureSlots[i].get() == *texture.get())
+			{
+				textureIndex = (float)i;
+				break;
+			}
+		}
+
+		if (textureIndex == 0.0f)
+		{
+			textureIndex = (float)r2s_Data.TextureSlotIndex;
+			r2s_Data.TextureSlots[r2s_Data.TextureSlotIndex] = texture;
+			r2s_Data.TextureSlotIndex++;
+		}
+
+		r2s_Data.QuadVertBufferPtr->Position = position;
+		r2s_Data.QuadVertBufferPtr->Color = color;
+		r2s_Data.QuadVertBufferPtr->TexCoord = { 0.0f, 0.0f };
+		r2s_Data.QuadVertBufferPtr->TexIndex = textureIndex;
+		r2s_Data.QuadVertBufferPtr->TilingFactor = tilingFactor;
+		r2s_Data.QuadVertBufferPtr++;
+
+		r2s_Data.QuadVertBufferPtr->Position = { position.x + size.x, position.y, 0.0f };
+		r2s_Data.QuadVertBufferPtr->Color = color;
+		r2s_Data.QuadVertBufferPtr->TexCoord = { 1.0f, 0.0f };
+		r2s_Data.QuadVertBufferPtr->TexIndex = textureIndex;
+		r2s_Data.QuadVertBufferPtr->TilingFactor = tilingFactor;
+		r2s_Data.QuadVertBufferPtr++;
+
+		r2s_Data.QuadVertBufferPtr->Position = { position.x + size.x, position.y + size.y, 0.0f };
+		r2s_Data.QuadVertBufferPtr->Color = color;
+		r2s_Data.QuadVertBufferPtr->TexCoord = { 1.0f, 1.0f };
+		r2s_Data.QuadVertBufferPtr->TexIndex = textureIndex;
+		r2s_Data.QuadVertBufferPtr->TilingFactor = tilingFactor;
+		r2s_Data.QuadVertBufferPtr++;
+
+		r2s_Data.QuadVertBufferPtr->Position = { position.x, position.y + size.y, 0.0f };
+		r2s_Data.QuadVertBufferPtr->Color = color;
+		r2s_Data.QuadVertBufferPtr->TexCoord = { 0.0f, 1.0f };
+		r2s_Data.QuadVertBufferPtr->TexIndex = textureIndex;
+		r2s_Data.QuadVertBufferPtr->TilingFactor = tilingFactor;
+		r2s_Data.QuadVertBufferPtr++;
+
+		r2s_Data.QuadIndexCount += 6;
+
+#if OLD_PATH
 		r2s_Data.TextureShader->SetFloat4("u_Color", tintColor);
 		r2s_Data.TextureShader->SetFloat("u_TilingFactor", tilingFactor);
 		texture->Bind();
@@ -176,6 +259,7 @@ namespace Orange
 
 		r2s_Data.QuadVertexArray->Bind();
 		RenderCommand::DrawIndexed(r2s_Data.QuadVertexArray);
+#endif // OLD_PATH
 	}
 
 	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
