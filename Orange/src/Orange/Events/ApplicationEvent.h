@@ -12,8 +12,8 @@ namespace Orange
 		{
 		}
 
-		inline unsigned int GetWidth() { return o_Width; }
-		inline unsigned int GetHeight() { return o_Height; }
+		unsigned int GetWidth() { return o_Width; }
+		unsigned int GetHeight() { return o_Height; }
 
 		std::string ToString() const override
 		{

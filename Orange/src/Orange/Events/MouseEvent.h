@@ -11,8 +11,8 @@ namespace Orange
 		MouseMovedEvent(float x, float y)
 		:o_MouseVecX(x), o_MouseVecY(y) {}
 
-		inline float GetVecX() const { return o_MouseVecX; }
-		inline float GetVecY() const { return o_MouseVecY; }
+		float GetVecX() const { return o_MouseVecX; }
+		float GetVecY() const { return o_MouseVecY; }
 
 		std::string ToString() const override
 		{
@@ -34,8 +34,8 @@ namespace Orange
 		MouseScrolledEvent(float offsetX, float offsetY)
 			:o_OffsetX(offsetX), o_OffsetY(offsetY) {}
 
-		inline float GetOffsetX() const { return o_OffsetX; }
-		inline float GetOffsetY() const { return o_OffsetY; }
+		float GetOffsetX() const { return o_OffsetX; }
+		float GetOffsetY() const { return o_OffsetY; }
 
 		std::string ToString() const override
 		{
@@ -54,7 +54,7 @@ namespace Orange
 	class MouseButtonEvent : public Event
 	{
 	public:
-		inline MouseCode GetMouseButton() const { return o_Button; }
+		MouseCode GetMouseButton() const { return o_Button; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 

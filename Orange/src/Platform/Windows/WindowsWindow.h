@@ -15,15 +15,15 @@ namespace Orange
 
 		void OnUpdate() override;
 
-		inline unsigned int GetWidth() const override { return o_Data.Width; }
-		inline unsigned int GetHeight() const override { return o_Data.Height; }
+		unsigned int GetWidth() const override { return o_Data.Width; }
+		unsigned int GetHeight() const override { return o_Data.Height; }
 
 		// ¥∞ø⁄ Ù–‘
-		inline void SetEventCallback(const EventCallbackFn& callback) override { o_Data.EventCallback = callback; }
+		void SetEventCallback(const EventCallbackFn& callback) override { o_Data.EventCallback = callback; }
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
 
-		inline virtual void* GetNativeWindow() const { return o_Window; }
+		virtual void* GetNativeWindow() const { return o_Window; }
 
 	private:
 		virtual void Init(const WindowProps& props);

@@ -8,7 +8,7 @@ namespace Orange
 	class KeyEvent : public Event
 	{
 	public:
-		inline KeyCode GetKeyCode() { return o_KeyCode; }
+		KeyCode GetKeyCode() { return o_KeyCode; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput);
 
@@ -25,7 +25,7 @@ namespace Orange
 		KeyPressedEvent(KeyCode keycode, int repeatCount)
 		:KeyEvent(keycode), o_RepeatCount(repeatCount) {}
 
-		inline int GetRepeatCount() const { return o_RepeatCount; }
+		int GetRepeatCount() const { return o_RepeatCount; }
 
 		std::string ToString() const override
 		{

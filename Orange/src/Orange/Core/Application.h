@@ -27,9 +27,9 @@ namespace Orange
 		void PushLayer(Layer* layer);
 		void PushOverLayer(Layer* overLayer);
 
-		inline Window& GetWindow() { return *o_Window; }
+		Window& GetWindow() { return *o_Window; }
 
-		inline static Application& Get() { return *o_Instance; }
+		static Application& Get() { return *o_Instance; }
 
 	private:
 		void Run();

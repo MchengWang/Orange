@@ -14,8 +14,8 @@ namespace Orange
 	public:
 		static void Init();
 
-		inline static Ref<spdlog::logger>& GetCoreLogger() { return sg_CoreLogger; }
-		inline static Ref<spdlog::logger>& GetClientLogger() { return sg_ClientLogger; }
+		static Ref<spdlog::logger>& GetCoreLogger() { return sg_CoreLogger; }
+		static Ref<spdlog::logger>& GetClientLogger() { return sg_ClientLogger; }
 	private:
 		static Ref<spdlog::logger> sg_CoreLogger;
 		static Ref<spdlog::logger> sg_ClientLogger;

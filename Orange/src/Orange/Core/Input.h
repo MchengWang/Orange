@@ -15,12 +15,12 @@ namespace Orange
 	public:
 		Input(const Input&) = delete;
 		Input& operator=(const Input&) = delete;
-		inline static bool IsKeyPressed(KeyCode keyCode) { return o_Instance->IsKeyPressedImpl(keyCode); }
+		static bool IsKeyPressed(KeyCode keyCode) { return o_Instance->IsKeyPressedImpl(keyCode); }
 
-		inline static bool IsMouseButtonPressed(MouseCode button) { return o_Instance->IsMouseButtonPressedImpl(button); }
-		inline static std::pair<float, float> GetMousePostion() { return o_Instance->GetMousePositionImpl(); }
-		inline static float GetMouseX() { return o_Instance->GetMouseXImpl(); }
-		inline static float GetMouseY() { return o_Instance->GetMouseYImpl(); }
+		static bool IsMouseButtonPressed(MouseCode button) { return o_Instance->IsMouseButtonPressedImpl(button); }
+		static std::pair<float, float> GetMousePostion() { return o_Instance->GetMousePositionImpl(); }
+		static float GetMouseX() { return o_Instance->GetMouseXImpl(); }
+		static float GetMouseY() { return o_Instance->GetMouseYImpl(); }
 
 		static Scope<Input> Create();
 	protected:
