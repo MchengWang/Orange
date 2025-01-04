@@ -162,7 +162,7 @@ namespace Hazel {
 	};
 }
 
-#define HZ_PROFILE 1
+#define HZ_PROFILE 0
 #if HZ_PROFILE
 	// 解析将使用哪个函数签名宏。请注意，这仅在预编译器启动时解析，因此语法高亮显示可能会在您的编辑器中标记一个错误！
 	#if defined(__GNUC__) || (defined(__MWERKS__) && (__MWERKS__ >= 0x3000)) || (defined(__ICC) && (__ICC >= 600)) || defined(__ghs__)

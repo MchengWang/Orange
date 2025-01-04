@@ -28,9 +28,9 @@ namespace Orange
 			o_RendererAPI->Clear();
 		}
 
-		inline static void DrawIndexed(const Ref<VertexArray>& vertexArray)
+		inline static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t count = 0)
 		{
-			o_RendererAPI->DrawIndexed(vertexArray);
+			o_RendererAPI->DrawIndexed(vertexArray, count);
 		}
 
 	private:
