@@ -22,6 +22,7 @@ namespace Orange
 
 	private:
 		uint32_t o_RendererID;
+		uint32_t o_VertexBufferIndex = 0;
 		std::vector<Ref<VertexBuffer>> o_VertexBuffers;
 		Ref<IndexBuffer> o_IndexBuffer;
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "Orange/Core/Core.h"
+#include "Orange/Core/Base.h"
 
 #ifdef OG_PLATFORM_WINDOWS
 

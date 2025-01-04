@@ -7,7 +7,7 @@
 #include "Platform/OpenGL/OpenGLShader.h"
 
 Sandbox2D::Sandbox2D()
-	:Layer("Sandbox2D"), o_CameraController(1280.0f / 720.0f)
+	:Layer("Sandbox2D"), o_CameraController(1280.0f / 720.0f), o_SquareColor({ 0.2f, 0.3f, 0.8f, 1.0f })
 {
 }
 
@@ -40,24 +40,26 @@ void Sandbox2D::OnUpdate(Orange::Timestep timestep)
 	}
 		
 	{
+		
 		static float rotation = 0.0f;
-		rotation += timestep * 50.f;
+		rotation += timestep * 50.0f;
 
-		HZ_PROFILE_SCOPE("Renderer-Draw");
+		HZ_PROFILE_SCOPE("Renderer Draw");
 		Orange::Renderer2D::BeginScene(o_CameraController.GetCamera());
-		Orange::Renderer2D::DrawRotatedQuad({ 1.0f, 0.0f }, { 0.8f, -0.8f }, glm::radians(-45.0f), { 0.8f, 0.2f, 0.3f, 1.0f });
-		Orange::Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, o_SquareColor);
+		Orange::Renderer2D::DrawRotatedQuad({ 1.0f, 0.0f }, { 0.8f, 0.8f }, -45.0f, { 0.8f, 0.2f, 0.3f, 1.0f });
+		Orange::Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.8f, 0.2f, 0.3f, 1.0f });
+		Orange::Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, o_SquareColor);
 		Orange::Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, { 0.52f, 0.21f, 0.52f, 1.0f }); // njucolor
-		Orange::Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 20.0f, 20.0f }, o_CheckerboardTexture, 10.284f);
-		Orange::Renderer2D::DrawRotatedQuad({ -2.0f, 0.0f,  0.0f }, { 1.0f, 1.0f }, rotation, o_CheckerboardTexture, 20.568f);
+		Orange::Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 20.0f, 20.0f }, o_CheckerboardTexture, 10.0f);
+		Orange::Renderer2D::DrawRotatedQuad({ -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, rotation, o_CheckerboardTexture, 20.0f);
 		Orange::Renderer2D::EndScene();
 
 		Orange::Renderer2D::BeginScene(o_CameraController.GetCamera());
-		for (float y = -0.5f; y < 5.0f; y += 0.5f)
+		for (float y = -5.0f; y < 5.0f; y += 0.5f)
 		{
-			for (float x = -0.5f; x < 5.0f; x += 0.5f)
+			for (float x = -5.0f; x < 5.0f; x += 0.5f)
 			{
-				glm::vec4 color = { (x + 0.5)/ 10.0f, 0.4f, (y + 0.5f) / 10.0f, 0.7f };
+				glm::vec4 color = { (x + 5.0f) / 10.0f, 0.4f, (y + 5.0f) / 10.0f, 0.7f };
 				Orange::Renderer2D::DrawQuad({ x, y }, { 0.45f, 0.45f }, color);
 			}
 		}

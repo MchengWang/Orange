@@ -9,7 +9,7 @@
 
 #include "Input.h"
 
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 namespace Orange
 {
@@ -64,9 +64,9 @@ namespace Orange
 
 		for (auto it = o_LayerStack.rbegin(); it != o_LayerStack.rend(); ++it)
 		{
-			(*it)->OnEvent(e);
 			if (e.Handled)
 				break;
+			(*it)->OnEvent(e);
 		}
 	}
 

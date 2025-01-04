@@ -1,7 +1,7 @@
 #pragma once
 
 // 供 Orange 应用使用
-#include "Orange/Core/Core.h"
+#include "Orange/Core/Base.h"
 
 #include "Orange/Core/Application.h"
 #include "Orange/Core/Layer.h"

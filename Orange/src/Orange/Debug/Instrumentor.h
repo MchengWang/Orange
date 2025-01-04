@@ -44,24 +44,29 @@ namespace Hazel {
 		void BeginSession(const std::string& name, const std::string& filepath = "results.json")
 		{
 			std::lock_guard lock(m_Mutex);
-			if (m_CurrentSession) {
+			if (m_CurrentSession)
+			{
 				// If there is already a current session, then close it before beginning new one.
 				// Subsequent profiling output meant for the original session will end up in the
 				// newly opened session instead.  That's better than having badly formatted
 				// profiling output.
-				if (Orange::Log::GetCoreLogger()) { // Edge case: BeginSession() might be before Log::Init()
+				if (Orange::Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
+				{
 					OG_CORE_ERROR("Instrumentor::BeginSession('{0}') when session '{1}' already open.", name, m_CurrentSession->Name);
 				}
 				InternalEndSession();
 			}
 			m_OutputStream.open(filepath);
 
-			if (m_OutputStream.is_open()) {
+			if (m_OutputStream.is_open())
+			{
 				m_CurrentSession = new InstrumentationSession({ name });
 				WriteHeader();
 			}
-			else {
-				if (Orange::Log::GetCoreLogger()) { // Edge case: BeginSession() might be before Log::Init()
+			else
+			{
+				if (Orange::Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
+				{
 					OG_CORE_ERROR("Instrumentor could not open results file '{0}'.", filepath);
 				}
 			}
@@ -77,14 +82,11 @@ namespace Hazel {
 		{
 			std::stringstream json;
 
-			std::string name = result.Name;
-			std::replace(name.begin(), name.end(), '"', '\'');
-
 			json << std::setprecision(3) << std::fixed;
 			json << ",{";
 			json << "\"cat\":\"function\",";
 			json << "\"dur\":" << (result.ElapsedTime.count()) << ',';
-			json << "\"name\":\"" << name << "\",";
+			json << "\"name\":\"" << result.Name << "\",";
 			json << "\"ph\":\"X\",";
 			json << "\"pid\":0,";
 			json << "\"tid\":" << result.ThreadID << ",";
@@ -92,13 +94,15 @@ namespace Hazel {
 			json << "}";
 
 			std::lock_guard lock(m_Mutex);
-			if (m_CurrentSession) {
+			if (m_CurrentSession)
+			{
 				m_OutputStream << json.str();
 				m_OutputStream.flush();
 			}
 		}
 
-		static Instrumentor& Get() {
+		static Instrumentor& Get()
+		{
 			static Instrumentor instance;
 			return instance;
 		}
@@ -119,8 +123,10 @@ namespace Hazel {
 
 		// Note: you must already own lock on m_Mutex before
 		// calling InternalEndSession()
-		void InternalEndSession() {
-			if (m_CurrentSession) {
+		void InternalEndSession()
+		{
+			if (m_CurrentSession)
+			{
 				WriteFooter();
 				m_OutputStream.close();
 				delete m_CurrentSession;
@@ -160,6 +166,35 @@ namespace Hazel {
 		std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint;
 		bool m_Stopped;
 	};
+
+	namespace InstrumentorUtils {
+
+		template <size_t N>
+		struct ChangeResult
+		{
+			char Data[N];
+		};
+
+		template <size_t N, size_t K>
+		constexpr auto CleanupOutputString(const char(&expr)[N], const char(&remove)[K])
+		{
+			ChangeResult<N> result = {};
+
+			size_t srcIndex = 0;
+			size_t dstIndex = 0;
+			while (srcIndex < N)
+			{
+				size_t matchIndex = 0;
+				while (matchIndex < K - 1 && srcIndex + matchIndex < N - 1 && expr[srcIndex + matchIndex] == remove[matchIndex])
+					matchIndex++;
+				if (matchIndex == K - 1)
+					srcIndex += matchIndex;
+				result.Data[dstIndex++] = expr[srcIndex] == '"' ? '\'' : expr[srcIndex];
+				srcIndex++;
+			}
+			return result;
+		}
+	}
 }
 
 #define HZ_PROFILE 0

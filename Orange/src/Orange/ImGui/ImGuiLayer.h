@@ -16,6 +16,7 @@ namespace Orange {
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
+		virtual void OnEvent(Event& event) override;
 		//virtual void OnImGuiRender() override;
 
 		void Begin();

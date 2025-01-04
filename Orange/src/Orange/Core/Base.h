@@ -47,13 +47,23 @@
 //#endif // OG_PLATFORM_WINDOWS
 
 #ifdef OG_DEBUG
+	#if defined(OG_PLATFORM_WINDOWS)
+		#define OG_DEBUGBREAK() __debugbreak()
+	#elif defined(OG_PLATFORM_LINUX)
+		#include <signal.h>
+		#define OG_DEBUGBREAK() raise(SIGTRAP)
+	#else
+		#error "µ±«∞∆ΩÃ®‘›≤ª÷ß≥÷µ˜ ‘£°"
+	#endif // defined(OG_PLATFORM_WINDOWS)
+	#define OG_DEBUGBREAK()
+#else
 	#define OG_ENABLE_ASSERTS
 #endif // OG_DEBUG
 
 
 #ifdef OG_ENABLE_ASSERTS
-	#define OG_CLIENT_ASSERT(x, ...) { if (!(x)) { OG_CLIENT_ERROR("∂œ—‘ ß∞‹: {0}", __VA_ARGS__); __debugbreak(); } } 
-	#define OG_CORE_ASSERT(x, ...) { if (!(x)) { OG_CORE_ERROR("∂œ—‘ ß∞‹: {0}", __VA_ARGS__); __debugbreak(); } } 
+	#define OG_CLIENT_ASSERT(x, ...) { if (!(x)) { OG_CLIENT_ERROR("∂œ—‘ ß∞‹: {0}", __VA_ARGS__); OG_DEBUGBREAK(); } } 
+	#define OG_CORE_ASSERT(x, ...) { if (!(x)) { OG_CORE_ERROR("∂œ—‘ ß∞‹: {0}", __VA_ARGS__); OG_DEBUGBREAK(); } } 
 #else 
     #define OG_CLIENT_ASSERT(x, ...)  
     #define OG_CORE_ASSERT(x, ...) 

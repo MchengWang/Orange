@@ -68,14 +68,49 @@ namespace Orange
 		const auto& layout = vertexBuffer->GetLayout();
 		for (const auto& element : layout)
 		{
-			glEnableVertexAttribArray(index);
-			glVertexAttribPointer(index,
-			element.GetCpmponentCount(),
-			ShaderDataTypeToOpenGLBaseType(element.Type),
-			element.Normalized ? GL_TRUE : GL_FALSE,
-			layout.GetStride(),
-			(const void*)element.Offset);
-			index++;
+			switch (element.Type)
+			{
+			case ShaderDataType::Float:
+			case ShaderDataType::Float2:
+			case ShaderDataType::Float3:
+			case ShaderDataType::Float4:
+			case ShaderDataType::Int:
+			case ShaderDataType::Int2:
+			case ShaderDataType::Int3:
+			case ShaderDataType::Int4:
+			case ShaderDataType::Bool:
+			{
+				glEnableVertexAttribArray(o_VertexBufferIndex);
+				glVertexAttribPointer(o_VertexBufferIndex,
+					element.GetComponentCount(),
+					ShaderDataTypeToOpenGLBaseType(element.Type),
+					element.Normalized ? GL_TRUE : GL_FALSE,
+					layout.GetStride(),
+					(const void*)element.Offset);
+				o_VertexBufferIndex++;
+				break;
+			}
+			case ShaderDataType::Mat3:
+			case ShaderDataType::Mat4:
+			{
+				uint8_t count = element.GetComponentCount();
+				for (uint8_t i = 0; i < count; i++)
+				{
+					glEnableVertexAttribArray(o_VertexBufferIndex);
+					glVertexAttribPointer(o_VertexBufferIndex,
+						count,
+						ShaderDataTypeToOpenGLBaseType(element.Type),
+						element.Normalized ? GL_TRUE : GL_FALSE,
+						layout.GetStride(),
+						(const void*)(sizeof(float) * count * i));
+					glVertexAttribDivisor(o_VertexBufferIndex, 1);
+					o_VertexBufferIndex++;
+				}
+				break;
+			}
+			default:
+				OG_CORE_ASSERT(false, "未知的着色器数据类型！");
+			}
 		}
 
 		o_VertexBuffers.push_back(vertexBuffer);
