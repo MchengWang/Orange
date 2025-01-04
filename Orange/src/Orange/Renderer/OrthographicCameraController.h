@@ -8,6 +8,14 @@
 
 namespace Orange
 {
+	struct OrthographicCameraBounds
+	{
+		float Left, Right;
+		float Bottom, Top;
+
+		float GetWidth() { return Right - Left; }
+		float GetHeight() { return Top - Bottom; }
+	};
 
 	class OrthographicCameraController
 	{
@@ -23,6 +31,8 @@ namespace Orange
 		float GetZoomLevel() const { return o_ZoomLevel; }
 		void SetZoomLevel(float zoomLevel) { o_ZoomLevel = zoomLevel; }
 
+		const OrthographicCameraBounds& GetBounds() const { return o_Bounds; }
+
 	private:
 		bool OnMouseScrolled(MouseScrolledEvent& event);
 		bool OnWindowResized(WindowResizeEvent& event);
@@ -30,6 +40,7 @@ namespace Orange
 	private:
 		float o_AspectRatio;
 		float o_ZoomLevel = 1.0f;
+		OrthographicCameraBounds o_Bounds;
 		OrthographicCamera o_Camera;
 
 		bool o_Rotation;

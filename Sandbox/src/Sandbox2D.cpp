@@ -16,6 +16,14 @@ void Sandbox2D::OnAttach()
 	HZ_PROFILE_FUNCTION();
 
 	o_CheckerboardTexture = Orange::Texture2D::Create("assets/textures/Checkerboard.png");
+
+	o_Particle.ColorBegin = { 254 / 255.0f, 212 / 255.0f, 123 / 255.0f, 1.0f };
+	o_Particle.ColorEnd = { 254 / 255.0f, 109 / 255.0f, 41 / 255.0f, 1.0f };
+	o_Particle.SizeBegin = 0.5f, o_Particle.SizeVariation = 0.3f, o_Particle.SizeEnd = 0.0f;
+	o_Particle.LifeTime = 1.0f;
+	o_Particle.Velocity = { 0.0f, 0.0f };
+	o_Particle.VelocityVariation = { 3.0f, 1.0f };
+	o_Particle.Position = { 0.0f, 0.0f };
 }
 
 void Sandbox2D::OnDetach()
@@ -46,12 +54,12 @@ void Sandbox2D::OnUpdate(Orange::Timestep timestep)
 
 		HZ_PROFILE_SCOPE("Renderer Draw");
 		Orange::Renderer2D::BeginScene(o_CameraController.GetCamera());
-		Orange::Renderer2D::DrawRotatedQuad({ 1.0f, 0.0f }, { 0.8f, 0.8f }, -45.0f, { 0.8f, 0.2f, 0.3f, 1.0f });
-		Orange::Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.8f, 0.2f, 0.3f, 1.0f });
+		Orange::Renderer2D::DrawRotatedQuad({ 1.0f, 0.0f }, { 0.8f, 0.8f }, glm::radians(- 45.0f), {0.8f, 0.2f, 0.3f, 1.0f});
+		Orange::Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.52f, 0.21f, 0.52f, 1.0f });
 		Orange::Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, o_SquareColor);
-		Orange::Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, { 0.52f, 0.21f, 0.52f, 1.0f }); // njucolor
+		Orange::Renderer2D::DrawRotatedQuad({ 0.25f, 0.5f }, { 0.5f, 0.75f }, glm::radians(90.0f), { 0.52f, 0.21f, 0.52f, 1.0f }); // njucolor
 		Orange::Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 20.0f, 20.0f }, o_CheckerboardTexture, 10.0f);
-		Orange::Renderer2D::DrawRotatedQuad({ -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, rotation, o_CheckerboardTexture, 20.0f);
+		Orange::Renderer2D::DrawRotatedQuad({ -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, glm::radians(rotation), o_CheckerboardTexture, 20.0f);
 		Orange::Renderer2D::EndScene();
 
 		Orange::Renderer2D::BeginScene(o_CameraController.GetCamera());
@@ -65,6 +73,24 @@ void Sandbox2D::OnUpdate(Orange::Timestep timestep)
 		}
 		Orange::Renderer2D::EndScene();
 	}
+
+	if (Orange::Input::IsMouseButtonPressed(OG_MOUSE_BUTTON_LEFT))
+	{
+		auto [x, y] = Orange::Input::GetMousePostion();
+		auto width = Orange::Application::Get().GetWindow().GetWidth();
+		auto height = Orange::Application::Get().GetWindow().GetHeight();
+
+		auto bounds = o_CameraController.GetBounds();
+		auto pos = o_CameraController.GetCamera().GetPosition();
+		x = (x / width) * bounds.GetWidth() - bounds.GetWidth() * 0.5f;
+		y = bounds.GetHeight() * 0.5f - (y / height) * bounds.GetHeight();
+		o_Particle.Position = { x + pos.x, y + pos.y };
+		for (int i = 0; i < 5; i++)
+			o_ParticleSystem.Emit(o_Particle);
+	}
+
+	o_ParticleSystem.OnUpdate(timestep);
+	o_ParticleSystem.OnRender(o_CameraController.GetCamera());
 }
 
 void Sandbox2D::OnImGuiRender()

@@ -9,7 +9,7 @@ namespace Orange
 
 	OrthographicCameraController::OrthographicCameraController(float aspectRatio, bool rotation)
 		:o_AspectRatio(aspectRatio), o_Camera(-o_AspectRatio * o_ZoomLevel, o_AspectRatio* o_ZoomLevel, -o_ZoomLevel, o_ZoomLevel),
-		o_Rotation(rotation)
+		o_Bounds({ -o_AspectRatio * o_ZoomLevel, o_AspectRatio * o_ZoomLevel, -o_ZoomLevel, o_ZoomLevel }), o_Rotation(rotation)
 	{
 	}
 
@@ -74,7 +74,8 @@ namespace Orange
 
 		o_ZoomLevel -= event.GetOffsetY() * 0.25f;
 		o_ZoomLevel = std::max(o_ZoomLevel, 0.25f);
-		o_Camera.SetProjection(-o_AspectRatio * o_ZoomLevel, o_AspectRatio * o_ZoomLevel, -o_ZoomLevel, o_ZoomLevel);
+		o_Bounds = { -o_AspectRatio * o_ZoomLevel, o_AspectRatio * o_ZoomLevel, -o_ZoomLevel, o_ZoomLevel };
+		o_Camera.SetProjection(o_Bounds.Left, o_Bounds.Right, o_Bounds.Bottom, o_Bounds.Top);
 		return false;
 	}
 
@@ -83,7 +84,8 @@ namespace Orange
 		HZ_PROFILE_FUNCTION();
 
 		o_AspectRatio = (float)event.GetWidth() / (float)event.GetHeight();
-		o_Camera.SetProjection(-o_AspectRatio * o_ZoomLevel, o_AspectRatio * o_ZoomLevel, -o_ZoomLevel, o_ZoomLevel);
+		o_Bounds = { -o_AspectRatio * o_ZoomLevel, o_AspectRatio * o_ZoomLevel, -o_ZoomLevel, o_ZoomLevel };
+		o_Camera.SetProjection(o_Bounds.Left, o_Bounds.Right, o_Bounds.Bottom, o_Bounds.Top);
 		return false;
 	}
 

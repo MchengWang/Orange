@@ -2,6 +2,8 @@
 
 #include "Orange.h"
 
+#include "ParticleSystem.h"
+
 class Sandbox2D : public Orange::Layer
 {
 public:
@@ -25,4 +27,7 @@ private:
 	Orange::Ref<Orange::Texture2D> o_CheckerboardTexture;
 
 	glm::vec4 o_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
+
+	ParticleSystem o_ParticleSystem;
+	ParticleProps o_Particle;
 };
