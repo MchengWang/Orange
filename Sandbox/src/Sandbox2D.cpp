@@ -18,6 +18,10 @@ void Sandbox2D::OnAttach()
 	o_CheckerboardTexture = Orange::Texture2D::Create("assets/textures/Checkerboard.png");
 	o_SpriteSheet = Orange::Texture2D::Create("assets/game/textures/RPGpack_sheet_2X.png");
 
+	o_TextureStairs = Orange::SubTexture2D::CreateFromCoords(o_SpriteSheet, { 7, 6 }, { 128, 128 });
+	o_TextureBarrel = Orange::SubTexture2D::CreateFromCoords(o_SpriteSheet, { 8, 2 }, { 128, 128 });
+	o_TextureTree = Orange::SubTexture2D::CreateFromCoords(o_SpriteSheet, { 2, 1 }, { 128, 128 }, { 1, 2 });
+
 	o_Particle.ColorBegin = { 254 / 255.0f, 212 / 255.0f, 123 / 255.0f, 1.0f };
 	o_Particle.ColorEnd = { 254 / 255.0f, 109 / 255.0f, 41 / 255.0f, 1.0f };
 	o_Particle.SizeBegin = 0.5f, o_Particle.SizeVariation = 0.3f, o_Particle.SizeEnd = 0.0f;
@@ -96,7 +100,9 @@ void Sandbox2D::OnUpdate(Orange::Timestep timestep)
 	o_ParticleSystem.OnRender(o_CameraController.GetCamera());
 
 	Orange::Renderer2D::BeginScene(o_CameraController.GetCamera());
-	Orange::Renderer2D::DrawQuad({ 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }, o_SpriteSheet);
+	Orange::Renderer2D::DrawQuad({ 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }, o_TextureStairs);
+	Orange::Renderer2D::DrawQuad({ 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }, o_TextureBarrel);
+	Orange::Renderer2D::DrawQuad({ -1.0f, 0.0f, 1.0f }, { 1.0f, 2.0f }, o_TextureTree);
 	Orange::Renderer2D::EndScene();
 
 }

@@ -16,7 +16,7 @@ namespace Orange
 		if (type == "fragment" || type == "pixel")
 			return GL_FRAGMENT_SHADER;
 
-		OG_CORE_ASSERT(false, "位置的着色器类型！");
+		OG_CORE_ASSERT(false, "未知的着色器类型！");
 		return 0;
 	}
 
@@ -149,7 +149,7 @@ namespace Orange
 			}
 
 			glAttachShader(program, shader);
-			glShaderIDs[glShaderIDIndex] = shader;
+			glShaderIDs[glShaderIDIndex++] = shader;
 		}
 
 		o_RendererID = program;
