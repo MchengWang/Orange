@@ -32,6 +32,7 @@ void Sandbox2D::OnUpdate(Orange::Timestep timestep)
 
 
 	// ‰÷»æ
+	Orange::Renderer2D::ResetStats();
 	{
 		HZ_PROFILE_SCOPE("Renderer-Prep");
 		Orange::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
@@ -45,10 +46,21 @@ void Sandbox2D::OnUpdate(Orange::Timestep timestep)
 		HZ_PROFILE_SCOPE("Renderer-Draw");
 		Orange::Renderer2D::BeginScene(o_CameraController.GetCamera());
 		Orange::Renderer2D::DrawRotatedQuad({ 1.0f, 0.0f }, { 0.8f, -0.8f }, glm::radians(-45.0f), { 0.8f, 0.2f, 0.3f, 1.0f });
-		Orange::Renderer2D::DrawQuad({-1.0f, 0.0f }, { 0.8f, 0.8f }, o_SquareColor); 
+		Orange::Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, o_SquareColor);
 		Orange::Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, { 0.52f, 0.21f, 0.52f, 1.0f }); // njucolor
-		Orange::Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, o_CheckerboardTexture, 10.284f);
-		Orange::Renderer2D::DrawRotatedQuad({ -2.0f, 0.0f,  0.0f }, { 1.0f, 1.0f },rotation, o_CheckerboardTexture, 20.568f);
+		Orange::Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 20.0f, 20.0f }, o_CheckerboardTexture, 10.284f);
+		Orange::Renderer2D::DrawRotatedQuad({ -2.0f, 0.0f,  0.0f }, { 1.0f, 1.0f }, rotation, o_CheckerboardTexture, 20.568f);
+		Orange::Renderer2D::EndScene();
+
+		Orange::Renderer2D::BeginScene(o_CameraController.GetCamera());
+		for (float y = -0.5f; y < 5.0f; y += 0.5f)
+		{
+			for (float x = -0.5f; x < 5.0f; x += 0.5f)
+			{
+				glm::vec4 color = { (x + 0.5)/ 10.0f, 0.4f, (y + 0.5f) / 10.0f, 0.7f };
+				Orange::Renderer2D::DrawQuad({ x, y }, { 0.45f, 0.45f }, color);
+			}
+		}
 		Orange::Renderer2D::EndScene();
 	}
 }
@@ -58,6 +70,12 @@ void Sandbox2D::OnImGuiRender()
 	HZ_PROFILE_FUNCTION();
 
 	ImGui::Begin("Settings");
+	auto stats = Orange::Renderer2D::GetStats();
+	ImGui::Text("Renderer2D Stats:");
+	ImGui::Text("Draw Calls: %d", stats.DrawCalls);
+	ImGui::Text("Quads: %d", stats.QuadCount);
+	ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
+	ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 	ImGui::ColorEdit4("Square Color", glm::value_ptr(o_SquareColor));
 
 	ImGui::End();

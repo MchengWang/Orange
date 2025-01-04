@@ -24,9 +24,9 @@ namespace Orange
 
 	struct Renderer2D2ata
 	{
-		const uint32_t MaxModels = 10000;
-		const uint32_t MaxVerts = MaxModels * 4;
-		const uint32_t MaxDots = MaxModels * 6;
+		static const uint32_t MaxModels = 20000;
+		static const uint32_t MaxVerts = MaxModels * 4;
+		static const uint32_t MaxDots = MaxModels * 6;
 		static const uint32_t MaxTexSolts = 32; // GPU 最大支持的纹理插槽
 
 
@@ -43,6 +43,8 @@ namespace Orange
 		uint32_t TextureSlotIndex = 1; // 0--bindng->Whith Texture
 
 		glm::vec4 QuadVertexPositions[4];
+
+		Renderer2D::Statistics stats;
 	};
 
 	static Renderer2D2ata r2s_Data;
@@ -143,6 +145,17 @@ namespace Orange
 			r2s_Data.TextureSlots[i]->Bind();
 
 		RenderCommand::DrawIndexed(r2s_Data.QuadVertexArray, r2s_Data.QuadIndexCount);
+		r2s_Data.stats.DrawCalls++;
+	}
+
+	void Renderer2D::FlushAndReset()
+	{
+		EndScene();
+
+		r2s_Data.QuadIndexCount = 0;
+		r2s_Data.QuadVertBufferPtr = r2s_Data.QuadVertBufferBase;
+
+		r2s_Data.TextureSlotIndex = 1;
 	}
 
 	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
@@ -153,6 +166,9 @@ namespace Orange
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 	{
 		HZ_PROFILE_FUNCTION();
+
+		if (r2s_Data.QuadIndexCount >= Renderer2D2ata::MaxVerts)
+			FlushAndReset();
 
 		const float textureIndex = 0.0f; // White Texture
 		const float tilingFactor = 1.0f; // 平衡因子
@@ -189,6 +205,8 @@ namespace Orange
 		r2s_Data.QuadVertBufferPtr++;
 
 		r2s_Data.QuadIndexCount += 6;
+
+		r2s_Data.stats.QuadCount++;
 	}
 
 	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture,
@@ -201,6 +219,9 @@ namespace Orange
 		float tilingFactor, const glm::vec4& tintColor)
 	{
 		HZ_PROFILE_FUNCTION();
+
+		if (r2s_Data.QuadIndexCount >= Renderer2D2ata::MaxVerts)
+			FlushAndReset();
 
 		constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
@@ -253,6 +274,8 @@ namespace Orange
 		r2s_Data.QuadVertBufferPtr++;
 
 		r2s_Data.QuadIndexCount += 6;
+
+		r2s_Data.stats.QuadCount++;
 	}
 
 	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
@@ -263,6 +286,9 @@ namespace Orange
 	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
 		HZ_PROFILE_FUNCTION();
+
+		if (r2s_Data.QuadIndexCount >= Renderer2D2ata::MaxVerts)
+			FlushAndReset();
 
 		const float textureIndex = 0.0f; // White Texture
 		const float tilingFactor = 1.0f;
@@ -300,6 +326,8 @@ namespace Orange
 		r2s_Data.QuadVertBufferPtr++;
 
 		r2s_Data.QuadIndexCount += 6;
+
+		r2s_Data.stats.QuadCount++;
 	}
 
 	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture,
@@ -312,6 +340,9 @@ namespace Orange
 		float tilingFactor, const glm::vec4& tintColor)
 	{
 		HZ_PROFILE_FUNCTION();
+
+		if (r2s_Data.QuadIndexCount >= Renderer2D2ata::MaxVerts)
+			FlushAndReset();
 
 		constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
@@ -365,5 +396,17 @@ namespace Orange
 		r2s_Data.QuadVertBufferPtr++;
 
 		r2s_Data.QuadIndexCount += 6;
+
+		r2s_Data.stats.QuadCount++;
+	}
+
+	void Renderer2D::ResetStats()
+	{
+		memset(&r2s_Data.stats, 0, sizeof(Statistics));
+	}
+
+	Renderer2D::Statistics Renderer2D::GetStats()
+	{
+		return r2s_Data.stats;
 	}
 }
