@@ -15,14 +15,14 @@ namespace Orange
 {
 	Application* Application::o_Instance = nullptr;
 
-	Application::Application()
+	Application::Application(const std::string& name)
 	{
 		HZ_PROFILE_FUNCTION();
 
 		OG_CORE_ASSERT(!o_Instance, "Application 实例已经存在！")
 		o_Instance = this;
 
-		o_Window = Window::Create();
+		o_Window = Window::Create(WindowProps(name));
 		o_Window->SetEventCallback(OG_BIND_EVENT_FN(Application::OnEvent));
 
 		Renderer::Init();
