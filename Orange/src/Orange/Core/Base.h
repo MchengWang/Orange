@@ -55,9 +55,9 @@
 	#else
 		#error "当前平台暂不支持调试！"
 	#endif // defined(OG_PLATFORM_WINDOWS)
-	#define OG_DEBUGBREAK()
-#else
 	#define OG_ENABLE_ASSERTS
+#else
+	#define OG_DEBUGBREAK()
 #endif // OG_DEBUG
 
 

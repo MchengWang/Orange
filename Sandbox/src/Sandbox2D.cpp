@@ -6,6 +6,26 @@
 
 #include "Platform/OpenGL/OpenGLShader.h"
 
+static const uint32_t mapWidth = 24;
+
+// 在 C++ 中 "ssd" "daf" 两段字符串会进行拼接 -> "ssddaf"
+static const char* o_MapTiles = 
+"WWWWWWWWWWWWWWWWWWWWWWWW"
+"WWWWWWWDDDDDDWWWWWWCWWWW"
+"WWWWWDDDDDDDDDDDWWWWWWWW"
+"WWWWDDDDDDDDDDDDDDWWWWWW"
+"WWWDDWWWDDDDDDDDDDDDWWWW"
+"WWDDDDDDDDDDDDDDDDDDDWWW"
+"WDDDDWWWWWDDDDDDDDDDDDWW"
+"WWDDDDDDDDDDDDDDDDDDDWWW"
+"WWWDDDDDDDWWWWDDDDDDWWWW"
+"WWWWDDDDDDDDDDDDDDWWWWWW"
+"WWWWWDDDDDDDDDDDWWWWWWWW"
+"WWWWWWDDDDDDWWWWWWWWWWWW"
+"WWWWWWWWWWWWWWWWWWWWWWWW"
+"WWWWWWWWWWWWWWWWWWWWWWWW"
+	;
+
 Sandbox2D::Sandbox2D()
 	:Layer("Sandbox2D"), o_CameraController(1280.0f / 720.0f), o_SquareColor({ 0.2f, 0.3f, 0.8f, 1.0f })
 {
@@ -18,9 +38,15 @@ void Sandbox2D::OnAttach()
 	o_CheckerboardTexture = Orange::Texture2D::Create("assets/textures/Checkerboard.png");
 	o_SpriteSheet = Orange::Texture2D::Create("assets/game/textures/RPGpack_sheet_2X.png");
 
-	o_TextureStairs = Orange::SubTexture2D::CreateFromCoords(o_SpriteSheet, { 7, 6 }, { 128, 128 });
-	o_TextureBarrel = Orange::SubTexture2D::CreateFromCoords(o_SpriteSheet, { 8, 2 }, { 128, 128 });
+	o_TextureStairs = Orange::SubTexture2D::CreateFromCoords(o_SpriteSheet, { 0, 11 }, { 128, 128 });
 	o_TextureTree = Orange::SubTexture2D::CreateFromCoords(o_SpriteSheet, { 2, 1 }, { 128, 128 }, { 1, 2 });
+	o_TextureBarrel = Orange::SubTexture2D::CreateFromCoords(o_SpriteSheet, { 2, 1 }, { 128, 128 }, { 1, 2 });
+
+	o_MapWidth = mapWidth;
+	o_MapHeight = strlen(o_MapTiles) / mapWidth;
+
+	o_TextureMap['D'] = Orange::SubTexture2D::CreateFromCoords(o_SpriteSheet, {6, 11}, {128, 128});
+	o_TextureMap['W'] = Orange::SubTexture2D::CreateFromCoords(o_SpriteSheet, {11, 11}, {128, 128});
 
 	o_Particle.ColorBegin = { 254 / 255.0f, 212 / 255.0f, 123 / 255.0f, 1.0f };
 	o_Particle.ColorEnd = { 254 / 255.0f, 109 / 255.0f, 41 / 255.0f, 1.0f };
@@ -29,6 +55,8 @@ void Sandbox2D::OnAttach()
 	o_Particle.Velocity = { 0.0f, 0.0f };
 	o_Particle.VelocityVariation = { 3.0f, 1.0f };
 	o_Particle.Position = { 0.0f, 0.0f };
+
+	o_CameraController.SetZoomLevel(5.0f);
 }
 
 void Sandbox2D::OnDetach()
@@ -100,9 +128,25 @@ void Sandbox2D::OnUpdate(Orange::Timestep timestep)
 	o_ParticleSystem.OnRender(o_CameraController.GetCamera());
 
 	Orange::Renderer2D::BeginScene(o_CameraController.GetCamera());
-	Orange::Renderer2D::DrawQuad({ 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }, o_TextureStairs);
-	Orange::Renderer2D::DrawQuad({ 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }, o_TextureBarrel);
-	Orange::Renderer2D::DrawQuad({ -1.0f, 0.0f, 1.0f }, { 1.0f, 2.0f }, o_TextureTree);
+
+	for (uint32_t y = 0; y < o_MapHeight; y++)
+	{
+		for (uint32_t x = 0; x < o_MapWidth; x++)
+		{
+			char titleType = o_MapTiles[x + y * o_MapWidth];
+			Orange::Ref<Orange::SubTexture2D> texture;
+			if (o_TextureMap.find(titleType) != o_TextureMap.end())
+				texture = o_TextureMap[titleType];
+			else
+				texture = o_TextureBarrel;
+
+			Orange::Renderer2D::DrawQuad({ x - o_MapWidth / 2.0f, y - o_MapHeight / 2.0f ,0.5f }, { 1.0f, 1.0f }, texture);
+		}
+	}
+
+	//Orange::Renderer2D::DrawQuad({ 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }, o_TextureStairs);
+	//Orange::Renderer2D::DrawQuad({ 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }, o_TextureBarrel);
+	//Orange::Renderer2D::DrawQuad({ -1.0f, 0.0f, 1.0f }, { 1.0f, 2.0f }, o_TextureTree);
 	Orange::Renderer2D::EndScene();
 
 }

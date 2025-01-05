@@ -32,4 +32,7 @@ private:
 
 	ParticleSystem o_ParticleSystem;
 	ParticleProps o_Particle;
+
+	uint32_t o_MapWidth, o_MapHeight;
+	std::unordered_map<char, Orange::Ref<Orange::SubTexture2D>> o_TextureMap;
 };
