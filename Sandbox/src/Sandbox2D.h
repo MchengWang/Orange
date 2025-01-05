@@ -23,6 +23,7 @@ private:
 	// ¡Ÿ ±
 	Orange::Ref<Orange::VertexArray> o_SquareVA;
 	Orange::Ref<Orange::Shader> o_FlatColorShader;
+	Orange::Ref<Orange::Framebuffer> o_Framebuffer;
 
 	Orange::Ref<Orange::Texture2D> o_CheckerboardTexture;
 	Orange::Ref<Orange::Texture2D> o_SpriteSheet;

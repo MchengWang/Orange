@@ -36,6 +36,12 @@ void Sandbox2D::OnAttach()
 	HZ_PROFILE_FUNCTION();
 
 	o_CheckerboardTexture = Orange::Texture2D::Create("assets/textures/Checkerboard.png");
+
+	Orange::FramebufferSpecification fbSpec;
+	fbSpec.width = 1280;
+	fbSpec.height = 720;
+	o_Framebuffer = Orange::Framebuffer::Create(fbSpec);
+
 	//o_SpriteSheet = Orange::Texture2D::Create("assets/game/textures/RPGpack_sheet_2X.png");
 
 	//o_TextureStairs = Orange::SubTexture2D::CreateFromCoords(o_SpriteSheet, { 0, 11 }, { 128, 128 });
@@ -75,6 +81,7 @@ void Sandbox2D::OnUpdate(Orange::Timestep timestep)
 	Orange::Renderer2D::ResetStats();
 	{
 		HZ_PROFILE_SCOPE("Renderer-Prep");
+		o_Framebuffer->Bind();
 		Orange::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 		Orange::RenderCommand::Clear();
 	}
@@ -104,6 +111,7 @@ void Sandbox2D::OnUpdate(Orange::Timestep timestep)
 			}
 		}
 		Orange::Renderer2D::EndScene();
+		o_Framebuffer->Unbind();
 	}
 
 
@@ -154,7 +162,7 @@ void Sandbox2D::OnImGuiRender()
 	HZ_PROFILE_FUNCTION();
 
 	// Note: Switch this to true to enable dockspace
-	static bool dockingEnabled = false;
+	static bool dockingEnabled = true;
 	if (dockingEnabled)
 	{
 		static bool dockspaceOpen = true;
@@ -217,8 +225,8 @@ void Sandbox2D::OnImGuiRender()
 		ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 
 		ImGui::ColorEdit4("Square Color", glm::value_ptr(o_SquareColor));
-		uint32_t textureID = o_CheckerboardTexture->GetRendererID();
-		ImGui::Image((void*)textureID, ImVec2{ 256.0f, 256.0f });
+		uint32_t textureID = o_Framebuffer->GetColorAttachmentRendererID();
+		ImGui::Image((void*)textureID, ImVec2{ 1280, 720 });
 		ImGui::End();
 
 		ImGui::End();
@@ -234,7 +242,7 @@ void Sandbox2D::OnImGuiRender()
 		ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 		ImGui::ColorEdit4("Square Color", glm::value_ptr(o_SquareColor));
 		uint32_t textureID = o_CheckerboardTexture->GetRendererID();
-		ImGui::Image((void*)textureID, ImVec2{ 256.0f, 256.0f });
+		ImGui::Image((void*)textureID, ImVec2{ 1280, 720 });
 		ImGui::End();
 	}
 }
