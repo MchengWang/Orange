@@ -54,6 +54,11 @@ namespace Orange
 		overLayer->OnAttach();
 	}
 
+	void Application::Close()
+	{
+		o_Running = false;
+	}
+
 	void Application::OnEvent(Event& e)
 	{
 		HZ_PROFILE_FUNCTION();

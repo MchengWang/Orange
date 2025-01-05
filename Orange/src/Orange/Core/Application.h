@@ -29,6 +29,8 @@ namespace Orange
 
 		Window& GetWindow() { return *o_Window; }
 
+		void Close();
+
 		static Application& Get() { return *o_Instance; }
 
 	private:
