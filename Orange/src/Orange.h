@@ -16,6 +16,9 @@
 
 #include "Orange/ImGui/ImGuiLayer.h"
 
+#include "Orange/Scene/Scene.h"
+#include "Orange/Scene/Components.h"
+
 // ---------äÖÈ¾Æ÷----------
 #include "Orange/Renderer/Renderer.h"
 #include "Orange/Renderer/Renderer2D.h"

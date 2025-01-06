@@ -16,12 +16,20 @@ namespace Orange
 	{
 		HZ_PROFILE_FUNCTION();
 
-		o_CheckerboardTexture = Orange::Texture2D::Create("assets/textures/Checkerboard.png");
+		o_CheckerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
 
-		Orange::FramebufferSpecification fbSpec;
+		FramebufferSpecification fbSpec;
 		fbSpec.width = 1280;
 		fbSpec.height = 720;
-		o_Framebuffer = Orange::Framebuffer::Create(fbSpec);
+		o_Framebuffer = Framebuffer::Create(fbSpec);
+
+		o_ActiveScene = CreateRef<Scene>();
+
+		auto square = o_ActiveScene->CreateEntity();
+		o_ActiveScene->Reg().emplace<TransformComponent>(square);
+		o_ActiveScene->Reg().emplace<SpriteRendererComponent>(square, glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
+
+		o_SquareEntity = square;
 	}
 
 	void EditorLayer::OnDetach()
@@ -29,7 +37,7 @@ namespace Orange
 		HZ_PROFILE_FUNCTION();
 	}
 
-	void EditorLayer::OnUpdate(Orange::Timestep timestep)
+	void EditorLayer::OnUpdate(Timestep timestep)
 	{
 		HZ_PROFILE_FUNCTION();
 
@@ -39,41 +47,19 @@ namespace Orange
 
 
 		// äÖÈ¾
-		Orange::Renderer2D::ResetStats();
-		{
-			HZ_PROFILE_SCOPE("Renderer-Prep");
-			o_Framebuffer->Bind();
-			Orange::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
-			Orange::RenderCommand::Clear();
-		}
+		Renderer2D::ResetStats();
+		o_Framebuffer->Bind();
+		RenderCommand::SetClearColor({ 0.52f, 0.21f, 0.52f, 1.0f });
+		RenderCommand::Clear();
 
-		{
+		Renderer2D::BeginScene(o_CameraController.GetCamera());
+		
+		// update Scene
+		o_ActiveScene->OnUpdate(timestep);
 
-			static float rotation = 0.0f;
-			rotation += timestep * 50.0f;
+		Renderer2D::EndScene();
 
-			HZ_PROFILE_SCOPE("Renderer Draw");
-			Orange::Renderer2D::BeginScene(o_CameraController.GetCamera());
-			Orange::Renderer2D::DrawRotatedQuad({ 1.0f, 0.0f }, { 0.8f, 0.8f }, glm::radians(-45.0f), { 0.8f, 0.2f, 0.3f, 1.0f });
-			Orange::Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.52f, 0.21f, 0.52f, 1.0f });
-			Orange::Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, o_SquareColor);
-			Orange::Renderer2D::DrawRotatedQuad({ 0.25f, 0.5f }, { 0.5f, 0.75f }, glm::radians(90.0f), { 0.52f, 0.21f, 0.52f, 1.0f }); // njucolor
-			Orange::Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 20.0f, 20.0f }, o_CheckerboardTexture, 10.0f);
-			Orange::Renderer2D::DrawRotatedQuad({ -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, glm::radians(rotation), o_CheckerboardTexture, 20.0f);
-			Orange::Renderer2D::EndScene();
-
-			Orange::Renderer2D::BeginScene(o_CameraController.GetCamera());
-			for (float y = -5.0f; y < 5.0f; y += 0.5f)
-			{
-				for (float x = -5.0f; x < 5.0f; x += 0.5f)
-				{
-					glm::vec4 color = { (x + 5.0f) / 10.0f, 0.4f, (y + 5.0f) / 10.0f, 0.7f };
-					Orange::Renderer2D::DrawQuad({ x, y }, { 0.45f, 0.45f }, color);
-				}
-			}
-			Orange::Renderer2D::EndScene();
-			o_Framebuffer->Unbind();
-		}
+		o_Framebuffer->Unbind();
 	}
 
 	void EditorLayer::OnImGuiRender()
@@ -137,13 +123,14 @@ namespace Orange
 		}
 
 		ImGui::Begin("Settings");
-		auto stats = Orange::Renderer2D::GetStats();
+		auto stats = Renderer2D::GetStats();
 		ImGui::Text("Renderer2D Stats:");
 		ImGui::Text("Draw Calls: %d", stats.DrawCalls);
 		ImGui::Text("Quads: %d", stats.QuadCount);
 		ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
 		ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 
+		auto& squareColor = o_ActiveScene->Reg().get<SpriteRendererComponent>(o_SquareEntity).Color;
 		ImGui::ColorEdit4("Square Color", glm::value_ptr(o_SquareColor));
 
 		ImGui::End();
@@ -156,7 +143,7 @@ namespace Orange
 		Application::Get().GetImGuiLayer()->BlockEvents(!o_ViewportFocused || !o_ViewportHovered);
 
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		if (o_ViewportSize != *((glm::vec2*)&viewportPanelSize))
+		if (o_ViewportSize != *((glm::vec2*)&viewportPanelSize) && viewportPanelSize.x > 0 && viewportPanelSize.y > 0)
 		{
 			o_Framebuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
 			o_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
@@ -171,7 +158,7 @@ namespace Orange
 		ImGui::End();
 	}
 
-	void EditorLayer::OnEvent(Orange::Event& event)
+	void EditorLayer::OnEvent(Event& event)
 	{
 		o_CameraController.OnEvent(event);
 	}

@@ -26,6 +26,9 @@ namespace Orange
 		Ref<Shader> o_FlatColorShader;
 		Ref<Framebuffer> o_Framebuffer;
 
+		Ref<Scene> o_ActiveScene;
+		entt::entity o_SquareEntity;
+
 		Ref<Texture2D> o_CheckerboardTexture;
 
 		bool o_ViewportFocused = false, o_ViewportHovered = false;

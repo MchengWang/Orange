@@ -23,6 +23,7 @@ IncludeDir["Glad"] = "Orange/vendor/Glad/include"
 IncludeDir["ImGui"] = "Orange/vendor/imgui"
 IncludeDir["glm"] = "Orange/vendor/glm"
 IncludeDir["stb_image"] = "Orange/vendor/stb_image"
+IncludeDir["entt"] = "Orange/vendor/entt/include"
 
 group "Dependencies"
 	include "Orange/vendor/GLFW"
@@ -67,7 +68,8 @@ project "Orange"
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.stb_image}"
+		"%{IncludeDir.stb_image}",
+		"%{IncludeDir.entt}"
 	}
 
 	links
@@ -173,7 +175,8 @@ project "Orangefruit"
 		"Orange/vendor/spdlog/include",
 		"Orange/src",
 		"Orange/vendor",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.entt}"
 	}
 
 	links
