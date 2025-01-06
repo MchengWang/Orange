@@ -25,9 +25,9 @@ namespace Orange
 
 		o_ActiveScene = CreateRef<Scene>();
 
-		// Entity
-		auto square = o_ActiveScene->CreateEntity("Puzzle Square");
-		square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.52f, 0.21f, 0.52f, 1.0f });
+		auto square = o_ActiveScene->CreateEntity();
+		o_ActiveScene->Reg().emplace<TransformComponent>(square);
+		o_ActiveScene->Reg().emplace<SpriteRendererComponent>(square, glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
 
 		o_SquareEntity = square;
 	}
@@ -41,14 +41,6 @@ namespace Orange
 	{
 		HZ_PROFILE_FUNCTION();
 
-		if (Orange::FramebufferSpecification spec = o_Framebuffer->GetSpecification();
-			o_ViewportSize.x > 0.0f && o_ViewportSize.y > 0.0f && 
-			(spec.width != o_ViewportSize.x || spec.height != o_ViewportSize.y))
-		{
-			o_Framebuffer->Resize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
-			o_CameraController.OnResize(o_ViewportSize.x, o_ViewportSize.y);
-		}
-
 		// ¸üÐÂ
 		if (o_ViewportFocused)
 			o_CameraController.OnUpdate(timestep);
@@ -57,7 +49,7 @@ namespace Orange
 		// äÖÈ¾
 		Renderer2D::ResetStats();
 		o_Framebuffer->Bind();
-		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+		RenderCommand::SetClearColor({ 0.52f, 0.21f, 0.52f, 1.0f });
 		RenderCommand::Clear();
 
 		Renderer2D::BeginScene(o_CameraController.GetCamera());
@@ -138,17 +130,8 @@ namespace Orange
 		ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
 		ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 
-		if (o_SquareEntity)
-		{
-			ImGui::Separator();
-			auto& tag = o_SquareEntity.GetComponent<TagComponent>().Tag;
-			ImGui::Text("%s", tag.c_str());
-
-			auto& squareColor = o_SquareEntity.GetComponent<SpriteRendererComponent>().Color;
-			ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
-			ImGui::Separator();
-		}
-		
+		auto& squareColor = o_ActiveScene->Reg().get<SpriteRendererComponent>(o_SquareEntity).Color;
+		ImGui::ColorEdit4("Square Color", glm::value_ptr(o_SquareColor));
 
 		ImGui::End();
 
@@ -160,9 +143,13 @@ namespace Orange
 		Application::Get().GetImGuiLayer()->BlockEvents(!o_ViewportFocused || !o_ViewportHovered);
 
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		
-		o_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+		if (o_ViewportSize != *((glm::vec2*)&viewportPanelSize) && viewportPanelSize.x > 0 && viewportPanelSize.y > 0)
+		{
+			o_Framebuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
+			o_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 
+			o_CameraController.OnResize(viewportPanelSize.x, viewportPanelSize.y);
+		}
 		uint32_t textureID = o_Framebuffer->GetColorAttachmentRendererID();
 		ImGui::Image((void*)textureID, ImVec2{ o_ViewportSize.x, o_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 		ImGui::End();

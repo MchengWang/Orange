@@ -7,22 +7,21 @@
 namespace Orange
 {
 
-	class Entity;
-
 	class Scene
 	{
 	public:
 		Scene();
 		~Scene();
 
-		Entity CreateEntity(const std::string& name = std::string());
+		entt::entity CreateEntity();
+
+		// ¡Ÿ ±
+		entt::registry& Reg() { return o_Registry; }
 
 		void OnUpdate(Timestep timestep);
 
 	private:
 		entt::registry o_Registry;
-
-		friend class Entity;
 	};
 
 }

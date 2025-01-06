@@ -6,8 +6,6 @@
 
 #include <glm/glm.hpp>
 
-#include "Entity.h"
-
 namespace Orange
 {
 
@@ -46,13 +44,9 @@ namespace Orange
 	{
 	}
 
-	Entity Scene::CreateEntity(const std::string& name)
+	entt::entity Scene::CreateEntity()
 	{
-		Entity entity = { o_Registry.create(), this };
-		entity.AddComponent<TransformComponent>();
-		auto& tag = entity.AddComponent<TagComponent>();
-		tag.Tag = name.empty() ? "Entity" : name;
-		return entity;
+		return o_Registry.create();
 	}
 
 	void Scene::OnUpdate(Timestep timestep)

@@ -17,7 +17,6 @@
 #include "Orange/ImGui/ImGuiLayer.h"
 
 #include "Orange/Scene/Scene.h"
-#include "Orange/Scene/Entity.h"
 #include "Orange/Scene/Components.h"
 
 // ---------äÖÈ¾Æ÷----------

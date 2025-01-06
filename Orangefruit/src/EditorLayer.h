@@ -27,7 +27,7 @@ namespace Orange
 		Ref<Framebuffer> o_Framebuffer;
 
 		Ref<Scene> o_ActiveScene;
-		Entity o_SquareEntity;
+		entt::entity o_SquareEntity;
 
 		Ref<Texture2D> o_CheckerboardTexture;
 

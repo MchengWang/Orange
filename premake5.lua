@@ -128,8 +128,7 @@ project "Sandbox"
 		"Orange/vendor/spdlog/include",
 		"Orange/src",
 		"Orange/vendor",
-		"%{IncludeDir.glm}",
-		"%{IncludeDir.entt}"
+		"%{IncludeDir.glm}"
 	}
 
 	links
