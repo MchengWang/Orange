@@ -31,6 +31,8 @@ namespace Orange
 
 		void Close();
 
+		ImGuiLayer* GetImGuiLayer() { return o_ImGuiLayer; }
+
 		static Application& Get() { return *o_Instance; }
 
 	private:

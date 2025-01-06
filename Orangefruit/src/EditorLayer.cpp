@@ -34,7 +34,8 @@ namespace Orange
 		HZ_PROFILE_FUNCTION();
 
 		// ¸üÐÂ
-		o_CameraController.OnUpdate(timestep);
+		if (o_ViewportFocused)
+			o_CameraController.OnUpdate(timestep);
 
 
 		// äÖÈ¾
@@ -149,6 +150,11 @@ namespace Orange
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("Viewport");
+
+		o_ViewportFocused = ImGui::IsWindowFocused();
+		o_ViewportHovered = ImGui::IsWindowHovered();
+		Application::Get().GetImGuiLayer()->BlockEvents(!o_ViewportFocused || !o_ViewportHovered);
+
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		if (o_ViewportSize != *((glm::vec2*)&viewportPanelSize))
 		{

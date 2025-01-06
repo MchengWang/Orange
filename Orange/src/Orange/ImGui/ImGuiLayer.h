@@ -20,7 +20,10 @@ namespace Orange {
 
 		void Begin();
 		void End();
+
+		void BlockEvents(bool block) { o_BlockEvents = block; }
 	private:
+		bool o_BlockEvents = true;
 		float m_Time = 0.0f;
 	};
 
