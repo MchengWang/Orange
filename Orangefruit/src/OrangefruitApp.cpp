@@ -6,16 +6,16 @@
 namespace Orange
 {
 
-	class OrangeEditor : public Orange::Application
+	class Orangefruit : public Orange::Application
 	{
 	public:
-		OrangeEditor()
-			: Application("Orange Editor")
+		Orangefruit()
+			: Application("Orangefruit")
 		{
 			PushLayer(new EditorLayer());
 		}
 
-		~OrangeEditor()
+		~Orangefruit()
 		{
 
 		}
@@ -24,6 +24,6 @@ namespace Orange
 
 	Application* CreateApplication()
 	{
-		return new OrangeEditor();
+		return new Orangefruit();
 	}
 }

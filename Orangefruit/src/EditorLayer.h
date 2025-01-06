@@ -28,6 +28,8 @@ namespace Orange
 
 		Ref<Texture2D> o_CheckerboardTexture;
 
+		glm::vec2 o_ViewportSize = { 0.0f, 0.0f };
+
 		glm::vec4 o_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 	};
 

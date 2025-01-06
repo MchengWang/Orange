@@ -1,6 +1,6 @@
 workspace "Orange"
 	architecture "x86_64"
-	startproject "Sandbox"
+	startproject "Orangefruit"
 
 	configurations
 	{
@@ -9,9 +9,14 @@ workspace "Orange"
 		"Dist"
 	}
 
+	flags
+	{
+		"MultiProcessorCompile"
+	}
+
 outdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
--- 包括相对于根文件夹（解决方案目录）的目录
+-- 包括相对于根文件夹（解决方案目录）的目录 
 IncludeDir = {}
 IncludeDir["GLFW"] = "Orange/vendor/GLFW/include"
 IncludeDir["Glad"] = "Orange/vendor/Glad/include"
@@ -74,8 +79,11 @@ project "Orange"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
 		systemversion "latest"
+
+		defines
+		{
+		}
 
 		--postbuildcommands
 		--{
@@ -127,7 +135,6 @@ project "Sandbox"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
 		systemversion "latest"
 
 	filter "configurations:Debug"
@@ -145,8 +152,8 @@ project "Sandbox"
 		runtime "Release"
 		optimize "on"
 
-project "Orange-Editor"
-	location "Orange-Editor"
+project "Orangefruit"
+	location "Orangefruit"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"

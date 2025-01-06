@@ -110,7 +110,7 @@ void Sandbox2D::OnUpdate(Orange::Timestep timestep)
 
 	if (Orange::Input::IsMouseButtonPressed(OG_MOUSE_BUTTON_LEFT))
 	{
-		auto [x, y] = Orange::Input::GetMousePostion();
+		auto [x, y] = Orange::Input::GetMousePosition();
 		auto width = Orange::Application::Get().GetWindow().GetWidth();
 		auto height = Orange::Application::Get().GetWindow().GetHeight();
 
