@@ -19,8 +19,8 @@ namespace Orange
 		case ShaderDataType::Mat4:     return 4 * 4 * 4;
 		case ShaderDataType::Int:      return 4;
 		case ShaderDataType::Int2:     return 4 * 2;
-		case ShaderDataType::Int3:     return 4 * 2;
-		case ShaderDataType::Int4:     return 4 * 2;
+		case ShaderDataType::Int3:     return 4 * 3;
+		case ShaderDataType::Int4:     return 4 * 4;
 		case ShaderDataType::Bool:     return 1;
 		}
 
@@ -37,9 +37,11 @@ namespace Orange
 		bool Normalized;
 
 		BufferElement() = default;
+
 		BufferElement(ShaderDataType type, const std::string& name, bool normalized = false) 
 			:Name(name), Type(type), Size(ShaderDataTypeSize(type)), Offset(0), Normalized(normalized)
-		{}
+		{
+		}
 
 		uint32_t GetComponentCount() const
 		{

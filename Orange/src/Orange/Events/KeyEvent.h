@@ -44,8 +44,7 @@ namespace Orange
 	{
 	public:
 		KeyReleasedEvent(KeyCode keyCode)
-			:KeyEvent(keyCode) {
-		}
+			:KeyEvent(keyCode) {}
 
 		std::string ToString() const override
 		{
@@ -61,9 +60,7 @@ namespace Orange
 	{
 	public:
 		KeyTypedEvent(KeyCode keyCode)
-			:KeyEvent(keyCode)
-		{
-		}
+			:KeyEvent(keyCode){}
 
 		std::string ToString() const override
 		{

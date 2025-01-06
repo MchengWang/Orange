@@ -51,20 +51,18 @@ namespace Orange
 
 	class EventDispatcher
 	{
-		template<typename T>
-		using EventFn = std::function<bool(T&)>;
 	public:
 		EventDispatcher(Event& event)
 			:o_Event(event)
 		{
 		}
 
-		template<typename T>
-		bool Dispatch(EventFn<T> func)
+		template<typename T, typename F>
+		bool Dispatch(const F& func)
 		{
 			if (o_Event.GetEventType() == T::GetStaticType())
 			{
-				o_Event.Handled = func(*(T*)&o_Event);
+				o_Event.Handled = func(static_cast<T&>(o_Event));
 				return true;
 			}
 

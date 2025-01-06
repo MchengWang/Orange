@@ -16,7 +16,7 @@ namespace Orange
 
 		glCreateBuffers(1, &o_RendererID);
 		glBindBuffer(GL_ARRAY_BUFFER, o_RendererID);
-		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 	}
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size)
@@ -65,8 +65,8 @@ namespace Orange
 		HZ_PROFILE_FUNCTION();
 
 		glCreateBuffers(1, &o_RendererID);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o_RendererID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, o_RendererID);
+		glBufferData(GL_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 	}
 
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()

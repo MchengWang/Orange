@@ -18,7 +18,7 @@ namespace Orange
 		glTextureStorage2D(o_RendererID, 1, o_InternalFormat, o_Width, o_Height);
 
 		glTextureParameteri(o_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(o_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameteri(o_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		glTextureParameteri(o_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(o_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -63,7 +63,7 @@ namespace Orange
 		glTextureStorage2D(o_RendererID, 1, internalFormat, o_Width, o_Height);
 
 		glTextureParameteri(o_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(o_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameteri(o_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		glTextureParameteri(o_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(o_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);

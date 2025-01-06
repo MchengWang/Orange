@@ -25,11 +25,13 @@ namespace Orange
 		void OnUpdate(Timestep timestep);
 		void OnEvent(Event& e);
 
+		void OnResize(float width, float height);
+
 		OrthographicCamera& GetCamera() { return o_Camera; }
 		const OrthographicCamera& GetCamera() const { return o_Camera; }
 
 		float GetZoomLevel() const { return o_ZoomLevel; }
-		void SetZoomLevel(float zoomLevel) { o_ZoomLevel = zoomLevel; CalculateView(); }
+		void SetZoomLevel(float zoomLevel) { o_ZoomLevel = zoomLevel; /*CalculateView();*/ }
 
 		const OrthographicCameraBounds& GetBounds() const { return o_Bounds; }
 

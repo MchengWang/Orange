@@ -74,13 +74,19 @@ namespace Orange
 		o_Camera.SetProjection(o_Bounds.Left, o_Bounds.Right, o_Bounds.Bottom, o_Bounds.Top);
 	}
 
+	void OrthographicCameraController::OnResize(float width, float height)
+	{
+		o_AspectRatio = width / height;
+		o_Camera.SetProjection(-o_AspectRatio * o_ZoomLevel, o_AspectRatio * o_ZoomLevel, -o_ZoomLevel, o_ZoomLevel);
+	}
+
 	bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& event)
 	{ 
 		HZ_PROFILE_FUNCTION();
 
 		o_ZoomLevel -= event.GetOffsetY() * 0.25f;
 		o_ZoomLevel = std::max(o_ZoomLevel, 0.25f);
-		CalculateView();
+		o_Camera.SetProjection(-o_AspectRatio * o_ZoomLevel, o_AspectRatio * o_ZoomLevel, -o_ZoomLevel, o_ZoomLevel);
 		return false;
 	}
 
@@ -88,8 +94,7 @@ namespace Orange
 	{
 		HZ_PROFILE_FUNCTION();
 
-		o_AspectRatio = (float)event.GetWidth() / (float)event.GetHeight();
-		CalculateView();
+		OnResize((float)event.GetWidth(), (float)event.GetHeight());
 		return false;
 	}
 
