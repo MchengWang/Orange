@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#include "Orange/Renderer/Camera.h"
+#include "SceneCamera.h"
 
 namespace Orange
 {
@@ -42,13 +42,12 @@ namespace Orange
 
 	struct CameraComponent
 	{
-		Orange::Camera Camera;
+		SceneCamera Camera;
 		bool Primary = true; // ¿¼ÂÇÇ¨ÒÆµ½ Scene
+		bool fixedAspectRatio = false;
 
 		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
-		CameraComponent(const glm::mat4& projection)
-			:Camera(projection) {}
 	};
 
 }
