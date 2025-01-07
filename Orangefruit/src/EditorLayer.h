@@ -28,6 +28,10 @@ namespace Orange
 
 		Ref<Scene> o_ActiveScene;
 		Entity o_SquareEntity;
+		Entity o_CameraEntity;
+		Entity o_SecondCamera;
+
+		bool o_PrimaryCamera = true;
 
 		Ref<Texture2D> o_CheckerboardTexture;
 

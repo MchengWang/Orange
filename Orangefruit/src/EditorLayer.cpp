@@ -30,6 +30,13 @@ namespace Orange
 		square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.52f, 0.21f, 0.52f, 1.0f });
 
 		o_SquareEntity = square;
+
+		o_CameraEntity = o_ActiveScene->CreateEntity("Camera Entity");
+		o_CameraEntity.AddComponent<CameraComponent>(glm::ortho(-16.0f, 16.0f, -9.0f, 9.0f, -1.0f, 1.0f));
+
+		o_SecondCamera = o_ActiveScene->CreateEntity("Clip-Space Entity");
+		auto& cc = o_SecondCamera.AddComponent<CameraComponent>(glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f));
+		cc.Primary = false;
 	}
 
 	void EditorLayer::OnDetach()
@@ -41,7 +48,7 @@ namespace Orange
 	{
 		HZ_PROFILE_FUNCTION();
 
-		if (Orange::FramebufferSpecification spec = o_Framebuffer->GetSpecification();
+		if (FramebufferSpecification spec = o_Framebuffer->GetSpecification();
 			o_ViewportSize.x > 0.0f && o_ViewportSize.y > 0.0f &&
 			(spec.width != o_ViewportSize.x || spec.height != o_ViewportSize.y))
 		{
@@ -60,12 +67,8 @@ namespace Orange
 		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 		RenderCommand::Clear();
 
-		Renderer2D::BeginScene(o_CameraController.GetCamera());
-		
-		// update Scene
+		// update Scene （更新场景）
 		o_ActiveScene->OnUpdate(timestep);
-
-		Renderer2D::EndScene();
 
 		o_Framebuffer->Unbind();
 	}
@@ -74,13 +77,13 @@ namespace Orange
 	{
 		HZ_PROFILE_FUNCTION();
 
-		// Note: Switch this to true to enable dockspace
+		// 注意：将此项切换为 true 可启用 dockspace
 		static bool dockspaceOpen = true;
 		static bool opt_fullscreen_persistant = true;
 		bool opt_fullscreen = opt_fullscreen_persistant;
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-		// because it would be confusing to have two docking targets within each others.
+		// 我们使用 ImGuiWindowFlags_NoDocking 标志使父窗口无法停靠到
+		// 因为两个对接目标彼此之间会令人困惑。
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 		if (opt_fullscreen)
 		{
@@ -94,14 +97,14 @@ namespace Orange
 			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 		}
 
-		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
+		//当使用 ImGuiDockNodeFlags_PassthruCentralNode 时，DockSpace（） 将渲染我们的背景并处理直通孔，因此我们要求 Begin（） 不渲染背景。
 		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
 			window_flags |= ImGuiWindowFlags_NoBackground;
-		// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-		// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive, 
-		// all active windows docked into it will lose their parent and become undocked.
-		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise 
-		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+		// 重要提示：请注意，即使 Begin（） 返回 false（即 window 已折叠），我们也会继续。
+		// 这是因为我们希望保持 DockSpace（） 处于活动状态。如果 DockSpace（） 处于非活动状态，则
+		// 停靠到其中的所有活动窗口都将丢失其父窗口并变为未停靠状态。
+		// 否则，我们无法保留活动窗口和非活动停靠之间的停靠关系
+		// DockSpace / 设置的任何更改都会导致 Windows 陷入困境并且永远不可见。
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
 		ImGui::PopStyleVar();
@@ -121,9 +124,9 @@ namespace Orange
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				// Disabling fullscreen would allow the window to be moved to the front of other windows, 
-				// which we can't undo at the moment without finer window depth/z control.
-				//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
+				// 禁用全屏将允许将窗口移动到其他窗口的前面。
+				// 如果没有更精细的窗口深度 / z 控制，我们目前无法撤消。
+				// ImGui：：MenuItem（“Fullscreen”， NULL， & opt_fullscreen_persistant）;
 				if (ImGui::MenuItem("Exit")) Application::Get().Close();
 				ImGui::EndMenu();
 			}
@@ -147,6 +150,16 @@ namespace Orange
 			ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
 			ImGui::Separator();
 		}
+
+		ImGui::DragFloat3("Camera Transform",
+			glm::value_ptr(o_CameraEntity.GetComponent<TransformComponent>().Transform[3]));
+
+		if (ImGui::Checkbox("Camera A", &o_PrimaryCamera))
+		{
+			o_CameraEntity.GetComponent<CameraComponent>().Primary = o_PrimaryCamera;
+			o_SecondCamera.GetComponent<CameraComponent>().Primary = !o_PrimaryCamera;
+		}
+
 
 		ImGui::End();
 

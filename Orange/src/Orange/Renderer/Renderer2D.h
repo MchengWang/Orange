@@ -5,6 +5,8 @@
 #include "Orange/Renderer/Texture.h"
 #include "Orange/Renderer/SubTexture2D.h"
 
+#include "Orange/Renderer/Camera.h"
+
 namespace Orange
 {
 
@@ -14,6 +16,7 @@ namespace Orange
 		static void Init();
 		static void Shutdown();
 
+		static void BeginScene(const Camera& camera, const glm::mat4& transform);
 		static void BeginScene(const OrthographicCamera& camera);
 		static void EndScene();
 		static void Flush();

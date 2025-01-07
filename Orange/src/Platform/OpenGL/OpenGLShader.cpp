@@ -11,7 +11,7 @@ namespace Orange
 
 	static GLenum ShaderTypeFromString(const std::string& type)
 	{
-		if (type == "vertex")
+		if (type == "vertex" || type == "dot")
 			return GL_VERTEX_SHADER;
 		if (type == "fragment" || type == "pixel")
 			return GL_FRAGMENT_SHADER;

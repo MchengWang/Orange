@@ -2,7 +2,7 @@
 
 #include <memory>
 
-// Platform detection using predefined macros
+// 使用预定义宏进行平台检测
 #ifdef _WIN32
 	// Windows x64 / x86
 	#ifdef _WIN64
@@ -15,10 +15,10 @@
 
 #elif defined(__APPLE__) || defined(__MACH__)
 	#include <TargetConditionals.h>
-	/* TARGET_OS_MAC exists on all the platforms
-	* so we must check all of them (in this order)
-	* to ensure that we're running on MAC
-	* and not some other Apple platform */
+	/* TARGET_OS_MAC存在于所有平台上
+	* 所以我们必须检查所有这些 （按此顺序）
+	* 确保我们在 MAC 上运行
+	* 而不是其他 Apple 平台 */
 	#if TARGET_IPHONE_SIMULATOR == 1
 		#error "暂不支持 ios 模拟器!"
 	#elif TRAGET_OS_IPHONE == 1
@@ -28,7 +28,7 @@
 		#define OG_PLATFORM_MACOS
 		#error "暂不支持 MacOS 系统！"
 	#else
-		#error "位置的苹果平台！"
+		#error "未知的苹果平台！"
 	#endif
 #endif // _WIN32
 
@@ -71,7 +71,7 @@
 
 #define BIT(x) (1 << x)
 
-#define OG_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
+#define OG_BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 
 namespace Orange
 {

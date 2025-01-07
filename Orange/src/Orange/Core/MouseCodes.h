@@ -5,7 +5,7 @@ namespace Orange
 
 	typedef enum class MouseCode : uint16_t
 	{
-		// From glfw3.h
+		// ю╢вт glfw3.h
 		Button0 = 0,
 		Button1 = 1,
 		Button2 = 2,

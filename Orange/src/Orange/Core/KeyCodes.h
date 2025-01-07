@@ -5,7 +5,7 @@ namespace Orange
 
 	typedef enum class KeyCode : uint16_t
 	{
-		// From glfw3.h
+		// À´×Ô glfw3.h
 		Space = 32,
 		Apostrophe = 39, /* ' */
 		Comma = 44, /* , */
@@ -248,7 +248,7 @@ namespace Orange
 #define OG_KEY_F24             ::Orange::Key::F24
 #define OG_KEY_F25             ::Orange::Key::F25
 
-/* Keypad */
+/* ¼üÅÌ */
 #define OG_KEY_KP_0            ::Orange::Key::KP0
 #define OG_KEY_KP_1            ::Orange::Key::KP1
 #define OG_KEY_KP_2            ::Orange::Key::KP2
