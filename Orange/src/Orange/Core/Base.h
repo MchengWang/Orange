@@ -2,49 +2,7 @@
 
 #include <memory>
 
-// 使用预定义宏进行平台检测
-#ifdef _WIN32
-	// Windows x64 / x86
-	#ifdef _WIN64
-		// Windows x64
-		#define OG_PLATFORM_WINDOWS
-	#else
-		// Windows x86
-		#error "暂不支持构建 x86！"
-	#endif // _WIN64
-
-#elif defined(__APPLE__) || defined(__MACH__)
-	#include <TargetConditionals.h>
-	/* TARGET_OS_MAC存在于所有平台上
-	* 所以我们必须检查所有这些 （按此顺序）
-	* 确保我们在 MAC 上运行
-	* 而不是其他 Apple 平台 */
-	#if TARGET_IPHONE_SIMULATOR == 1
-		#error "暂不支持 ios 模拟器!"
-	#elif TRAGET_OS_IPHONE == 1
-		#define OG_PLATFORM_IOS
-		#error "暂不支持 ios 系统！"
-	#elif TRAGET_OS_MAX == 1
-		#define OG_PLATFORM_MACOS
-		#error "暂不支持 MacOS 系统！"
-	#else
-		#error "未知的苹果平台！"
-	#endif
-#endif // _WIN32
-
-//#ifdef OG_PLATFORM_WINDOWS
-//	#if OG_DYNAMIC_LINK
-//		#ifdef OG_BUILD_DLL
-//			#define ORANGE_API __declspec(dllexport)
-//		#else
-//			#define ORANGE_API __declspec(dllimport)
-//		#endif // OG_BUILD_DLL
-//	#else
-//		#define ORANGE_API
-//	#endif // OG_DYNAMIC_LINK
-//#else 
-//	#error orange仅支持Windows系统！
-//#endif // OG_PLATFORM_WINDOWS
+#include "Orange/Core/PlatformDetection.h"
 
 #ifdef OG_DEBUG
 	#if defined(OG_PLATFORM_WINDOWS)

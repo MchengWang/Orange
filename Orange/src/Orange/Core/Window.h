@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sstream>
+
 #include "Orange/Core/Base.h"
 #include "Orange/Events/Event.h"
 

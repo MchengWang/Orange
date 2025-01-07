@@ -10,6 +10,10 @@
 #include <iomanip>
 #include <string>
 #include <thread>
+#include <mutex>
+#include <sstream>
+
+#include "Orange/Core/Log.h"
 
 namespace Hazel {
 

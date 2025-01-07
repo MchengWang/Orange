@@ -108,17 +108,17 @@ void Sandbox2D::OnUpdate(Orange::Timestep timestep)
 	}
 
 
-	if (Orange::Input::IsMouseButtonPressed(OG_MOUSE_BUTTON_LEFT))
+	if (Orange::Input::IsMouseButtonPressed(Orange::Mouse::ButtonLeft))
 	{
-		auto [x, y] = Orange::Input::GetMousePosition();
+		glm::vec2& cs = Orange::Input::GetMousePosition();
 		auto width = Orange::Application::Get().GetWindow().GetWidth();
 		auto height = Orange::Application::Get().GetWindow().GetHeight();
 
 		auto bounds = o_CameraController.GetBounds();
 		auto pos = o_CameraController.GetCamera().GetPosition();
-		x = (x / width) * bounds.GetWidth() - bounds.GetWidth() * 0.5f;
-		y = bounds.GetHeight() * 0.5f - (y / height) * bounds.GetHeight();
-		o_Particle.Position = { x + pos.x, y + pos.y };
+		cs.x = (cs.x / width) * bounds.GetWidth() - bounds.GetWidth() * 0.5f;
+		cs.y = bounds.GetHeight() * 0.5f - (cs.y / height) * bounds.GetHeight();
+		o_Particle.Position = { cs.x + pos.x, cs.y + pos.y };
 		for (int i = 0; i < 5; i++)
 			o_ParticleSystem.Emit(o_Particle);
 	}

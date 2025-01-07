@@ -17,23 +17,23 @@ namespace Orange
 	{
 		HZ_PROFILE_FUNCTION();
 
-		if (Input::IsKeyPressed(OG_KEY_A))
+		if (Input::IsKeyPressed(Key::A))
 		{
 			o_CameraPostion.x -= cos(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
 			o_CameraPostion.y -= sin(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
 		}
-		else if (Input::IsKeyPressed(OG_KEY_D))
+		else if (Input::IsKeyPressed(Key::D))
 		{
 			o_CameraPostion.x += cos(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
 			o_CameraPostion.y += sin(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
 		}
 
-		if (Input::IsKeyPressed(OG_KEY_W))
+		if (Input::IsKeyPressed(Key::W))
 		{
 			o_CameraPostion.x += -sin(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
 			o_CameraPostion.y += cos(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
 		}
-		else if (Input::IsKeyPressed(OG_KEY_S))
+		else if (Input::IsKeyPressed(Key::S))
 		{
 			o_CameraPostion.x -= -sin(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
 			o_CameraPostion.y -= cos(glm::radians(o_CameraRotation) * o_CameraTranslationSpeed * timestep);
@@ -41,9 +41,9 @@ namespace Orange
 
 		if (o_Rotation)
 		{
-			if (Input::IsKeyPressed(OG_KEY_Q))
+			if (Input::IsKeyPressed(Key::Q))
 				o_CameraRotation += o_CameraRotationSpeed * timestep;
-			else if (Input::IsKeyPressed(OG_KEY_E))
+			else if (Input::IsKeyPressed(Key::E))
 				o_CameraRotation -= o_CameraRotationSpeed * timestep;
 
 			if (o_CameraRotation > 180.0f)

@@ -1,14 +1,14 @@
 #pragma once
 
 #include "Orange/Events/Event.h"
-#include "Orange/Core/Input.h"
+#include "Orange/Core/MouseCodes.h"
 
 namespace Orange
 {
 	class  MouseMovedEvent : public Event
 	{
 	public:
-		MouseMovedEvent(float x, float y)
+		MouseMovedEvent(const float x, const float y)
 		:o_MouseVecX(x), o_MouseVecY(y) {}
 
 		float GetVecX() const { return o_MouseVecX; }
@@ -31,7 +31,7 @@ namespace Orange
 	class MouseScrolledEvent : public Event
 	{
 	public:
-		MouseScrolledEvent(float offsetX, float offsetY)
+		MouseScrolledEvent(const float offsetX, const float offsetY)
 			:o_OffsetX(offsetX), o_OffsetY(offsetY) {}
 
 		float GetOffsetX() const { return o_OffsetX; }
@@ -59,7 +59,7 @@ namespace Orange
 		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 
 	protected:
-		MouseButtonEvent(MouseCode button)
+		MouseButtonEvent(const MouseCode button)
 			:o_Button(button) {}
 
 		MouseCode o_Button;
@@ -68,7 +68,7 @@ namespace Orange
 	class MouseButtonPressedEvent : public MouseButtonEvent
 	{
 	public:
-		MouseButtonPressedEvent(MouseCode button)
+		MouseButtonPressedEvent(const MouseCode button)
 			:MouseButtonEvent(button) {}
 
 		std::string ToString() const override

@@ -1,6 +1,7 @@
 #pragma once
-#include "ogpch.h"
+#include <functional>
 
+#include "Orange/Debug/Instrumentor.h"
 #include "Orange/Core/Base.h"
 
 namespace Orange

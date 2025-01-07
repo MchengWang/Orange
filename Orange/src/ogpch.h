@@ -1,5 +1,13 @@
 #pragma once
 
+#include "Orange/Core/PlatformDetection.h"
+
+#ifdef OG_PLATFORM_WINDOWS
+	#ifndef NOMINMAX
+		#define NOMINMAX
+	#endif // !NOMINMAX
+#endif // OG_PLATFORM_WINDOWS
+
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -12,6 +20,8 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+
+#include "Orange/Core/Base.h"
 
 #include "Orange/Core/Log.h"
 

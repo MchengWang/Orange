@@ -1,6 +1,6 @@
 # 二进制
 **/bin/
-!vendor/bin/premake/
+!vendor/premake/bin/
 bin-obj/
 
 # Orange 系统文件
