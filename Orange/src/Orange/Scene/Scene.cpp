@@ -57,6 +57,22 @@ namespace Orange
 
 	void Scene::OnUpdate(Timestep timestep)
 	{
+		// Update scripts
+		{
+			o_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+				{
+					if (!nsc.Instance)
+					{
+						nsc.InstantiateFunction();
+						nsc.Instance->o_Entity = Entity{ entity, this };
+						if (nsc.OnCreateFunction)
+							nsc.OnCreateFunction(nsc.Instance);
+					}
+					if (nsc.OnUpdateFunction)
+						nsc.OnUpdateFunction(nsc.Instance, timestep);
+				});
+		}
+
 		// Render 2D
 		Camera* mainCamera = nullptr;
 		glm::mat4* cameraTransform = nullptr;
