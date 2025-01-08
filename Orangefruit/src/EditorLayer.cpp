@@ -46,8 +46,8 @@ namespace Orange
 		public:
 			virtual void OnCreate() override
 			{
-				auto& transform = GetComponent<TransformComponent>().Transform;
-				transform[3][0] = rand() % 10 - 5.0f;
+				auto& translation = GetComponent<TransformComponent>().GetTransform();
+				translation[3][0] = rand() % 10 - 5.0f;
 			}
 
 			virtual void OnDestroy() override
@@ -57,18 +57,18 @@ namespace Orange
 
 			virtual void OnUpdate(Timestep timestep) override
 			{
-				auto& transform = GetComponent<TransformComponent>().Transform;
+				auto& translation = GetComponent<TransformComponent>().Translation;
 
 				float speed = 5.0f;
 
 				if (Input::IsKeyPressed(Key::A))
-					transform[3][0] -= speed * timestep;
+					translation.x -= speed * timestep;
 				if (Input::IsKeyPressed(Key::D))
-					transform[3][0] += speed * timestep;
+					translation.x += speed * timestep;
 				if (Input::IsKeyPressed(Key::W))
-					transform[3][1] += speed * timestep;
+					translation.y += speed * timestep;
 				if (Input::IsKeyPressed(Key::S))
-					transform[3][1] -= speed * timestep;
+					translation.y -= speed * timestep;
 			}
 
 		};
