@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Orange.h"
+#include "Panels/SceneHierarchyPanel.h"
 
 namespace Orange
 {
@@ -40,6 +41,9 @@ namespace Orange
 		glm::vec2 o_ViewportSize = { 0.0f, 0.0f };
 
 		glm::vec4 o_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
+
+		// Ãæ°å
+		SceneHierarchyPanel o_SceneHierarchyPanel;
 	};
 
 }

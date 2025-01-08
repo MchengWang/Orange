@@ -72,6 +72,8 @@ namespace Orange
 
 		o_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
 		o_SecondCamera.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+
+		o_SceneHierarchyPanel.SetContext(o_ActiveScene);
 	}
 
 	void EditorLayer::OnDetach()
@@ -170,7 +172,10 @@ namespace Orange
 			ImGui::EndMenuBar();
 		}
 
+		o_SceneHierarchyPanel.OnImGuiRender();
+
 		ImGui::Begin("Settings");
+
 		auto stats = Renderer2D::GetStats();
 		ImGui::Text("Renderer2D Stats:");
 		ImGui::Text("Draw Calls: %d", stats.DrawCalls);

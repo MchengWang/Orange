@@ -25,6 +25,7 @@ namespace Orange
 		uint32_t o_ViewportWidth = 0, o_ViewportHeight = 0;
 
 		friend class Entity;
+		friend class SceneHierarchyPanel;
 	};
 
 }

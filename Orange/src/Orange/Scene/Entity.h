@@ -9,18 +9,21 @@ namespace Orange
 		Entity() = default;
 		Entity(entt::entity handle, Scene* scene);
 		Entity(const Entity& other) = default;
+
 		template<typename T, typename... Args>
 		T& AddComponent(Args&&... args)
 		{
 			OG_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
 			return o_Scene->o_Registry.emplace<T>(o_EntityHandle, std::forward<Args>(args)...);
 		}
+
 		template<typename T>
 		T& GetComponent()
 		{
 			OG_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
 			return o_Scene->o_Registry.get<T>(o_EntityHandle);
 		}
+
 		template <typename T>
 		bool HasComponent()
 		{
@@ -28,15 +31,28 @@ namespace Orange
 			// 替代方法 all_of (检查实体是否是所有给定存储的一部分。) entt.hpp 中标注
 			return o_Scene->o_Registry.all_of<T>(o_EntityHandle);
 		}
+
 		template<typename T>
 		void RemoveComponent()
 		{
 			OG_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
 			o_Scene->o_Registry.remove<T>(o_EntityHandle);
 		}
+
 		operator bool() const { return o_EntityHandle != entt::null; }
+		operator uint32_t() const { return (uint32_t)o_EntityHandle; }
+
+		bool operator==(const Entity& other) const
+		{
+			return o_EntityHandle == other.o_EntityHandle && o_Scene == other.o_Scene;
+		}
+
+		bool operator!=(const Entity& other) const
+		{
+			return !(*this == other);
+		}
 	private:
-		entt::entity o_EntityHandle{ 0 };
+		entt::entity o_EntityHandle{ entt::null };
 		Scene* o_Scene = nullptr;
 	};
 }
