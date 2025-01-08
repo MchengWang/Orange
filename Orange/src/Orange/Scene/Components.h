@@ -56,7 +56,7 @@ namespace Orange
 	{
 		SceneCamera Camera;
 		bool Primary = true; // ¿¼ÂÇÇ¨ÒÆµ½ Scene
-		bool fixedAspectRatio = false;
+		bool FixedAspectRatio = false;
 
 		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
