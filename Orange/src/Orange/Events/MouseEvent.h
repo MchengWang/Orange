@@ -56,7 +56,7 @@ namespace Orange
 	public:
 		MouseCode GetMouseButton() const { return o_Button; }
 
-		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
+		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput | EventCategoryMouseButton)
 
 	protected:
 		MouseButtonEvent(const MouseCode button)

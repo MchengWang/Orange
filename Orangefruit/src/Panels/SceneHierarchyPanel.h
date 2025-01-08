@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Orange/Core/Base.h"
-#include "Orange/Core/Log.h"
 #include "Orange/Scene/Scene.h"
 #include "Orange/Scene/Entity.h"
 

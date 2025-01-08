@@ -6,6 +6,7 @@
 #include "Orange/Core/Application.h"
 #include "Orange/Core/Layer.h"
 #include "Orange/Core/Log.h"
+#include "Orange/Core/Assert.h"
 
 #include "Orange/Core/Timestep.h"
 

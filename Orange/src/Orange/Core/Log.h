@@ -2,10 +2,12 @@
 
 #include "Orange/Core/Base.h"
 
-#include <memory>
-
+// 这将忽略因引入额外头文件引发的所有警告
+#pragma warning(push, 0)
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
+#pragma warning(pop)
+
 
 namespace Orange
 {

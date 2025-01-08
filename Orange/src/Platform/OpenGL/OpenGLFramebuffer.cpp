@@ -1,5 +1,5 @@
 #include "ogpch.h"
-#include "OpenGLFrameBuffer.h"
+#include "Platform/OpenGL/OpenGLFramebuffer.h"
 
 #include <glad/glad.h>
 

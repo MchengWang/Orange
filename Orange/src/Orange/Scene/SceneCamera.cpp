@@ -11,22 +11,22 @@ namespace Orange
 		RecalculateProjection();
 	}
 
-	void SceneCamera::SetOrthographic(float size, float nearClip, float farClip)
-	{
-		o_ProjectionType = ProjectionType::Orthographic;
-		o_OrthographicSize = size;
-		o_OrthographicNear = nearClip;
-		o_OrthographicFar = farClip;
-
-		RecalculateProjection();
-	}
-
 	void SceneCamera::SetPerspective(float verticalFOV, float nearClip, float farClip)
 	{
 		o_ProjectionType = ProjectionType::Perspective;
 		o_PerspectiveFOV = verticalFOV;
 		o_PerspectiveNear = nearClip;
 		o_PerspectiveFar = farClip;
+
+		RecalculateProjection();
+	}
+
+	void SceneCamera::SetOrthographic(float size, float nearClip, float farClip)
+	{
+		o_ProjectionType = ProjectionType::Orthographic;
+		o_OrthographicSize = size;
+		o_OrthographicNear = nearClip;
+		o_OrthographicFar = farClip;
 
 		RecalculateProjection();
 	}

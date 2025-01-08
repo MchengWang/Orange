@@ -19,13 +19,8 @@
 #endif // OG_DEBUG
 
 
-#ifdef OG_ENABLE_ASSERTS
-	#define OG_CLIENT_ASSERT(x, ...) { if (!(x)) { OG_CLIENT_ERROR("∂œ—‘ ß∞‹: {0}", __VA_ARGS__); OG_DEBUGBREAK(); } } 
-	#define OG_CORE_ASSERT(x, ...) { if (!(x)) { OG_CORE_ERROR("∂œ—‘ ß∞‹: {0}", __VA_ARGS__); OG_DEBUGBREAK(); } } 
-#else 
-    #define OG_CLIENT_ASSERT(x, ...)  
-    #define OG_CORE_ASSERT(x, ...) 
-#endif // OG_ENABLE_ASSERTS
+#define OG_EXPAND_MACRO(x) x
+#define OG_STRINGIFY_MACRO(x) #x
 
 #define BIT(x) (1 << x)
 
@@ -51,3 +46,6 @@ namespace Orange
 		return std::make_shared<T>(std::forward<Args>(args)...);
 	}
 }
+
+#include "Orange/Core/Log.h"
+#include "Orange/Core/Assert.h"
