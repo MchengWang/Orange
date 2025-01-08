@@ -69,7 +69,7 @@ namespace Orange
 	public:
 		BufferLayout() {}
 
-		BufferLayout(const std::initializer_list<BufferElement>& elements) 
+		BufferLayout(std::initializer_list<BufferElement> elements) 
 		:o_Elements(elements)
 		{
 			CalculateOffsetsAndStride();

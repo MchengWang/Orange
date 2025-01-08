@@ -63,7 +63,7 @@ namespace Orange
 		{
 			if (o_Event.GetEventType() == T::GetStaticType())
 			{
-				o_Event.Handled = func(static_cast<T&>(o_Event));
+				o_Event.Handled |= func(static_cast<T&>(o_Event));
 				return true;
 			}
 
