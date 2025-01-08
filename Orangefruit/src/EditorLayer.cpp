@@ -34,10 +34,10 @@ namespace Orange
 
 		o_SquareEntity = square;
 
-		o_CameraEntity = o_ActiveScene->CreateEntity("Camera Entity");
+		o_CameraEntity = o_ActiveScene->CreateEntity("Camera A");
 		o_CameraEntity.AddComponent<CameraComponent>();
 
-		o_SecondCamera = o_ActiveScene->CreateEntity("Clip-Space Entity");
+		o_SecondCamera = o_ActiveScene->CreateEntity("Camera B");
 		auto& cc = o_SecondCamera.AddComponent<CameraComponent>();
 		cc.Primary = false;
 
@@ -177,7 +177,7 @@ namespace Orange
 
 		o_SceneHierarchyPanel.OnImGuiRender();
 
-		ImGui::Begin("Settings");
+		ImGui::Begin("Status");
 
 		auto stats = Renderer2D::GetStats();
 		ImGui::Text("Renderer2D Stats:");
@@ -185,32 +185,6 @@ namespace Orange
 		ImGui::Text("Quads: %d", stats.QuadCount);
 		ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
 		ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
-
-		if (o_SquareEntity)
-		{
-			ImGui::Separator();
-			auto& tag = o_SquareEntity.GetComponent<TagComponent>().Tag;
-			ImGui::Text("%s", tag.c_str());
-			auto& squareColor = o_SquareEntity.GetComponent<SpriteRendererComponent>().Color;
-			ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
-			ImGui::Separator();
-		}
-
-		ImGui::DragFloat3("Camera Transform",
-			glm::value_ptr(o_CameraEntity.GetComponent<TransformComponent>().Transform[3]));
-
-		if (ImGui::Checkbox("Camera A", &o_PrimaryCamera))
-		{
-			o_CameraEntity.GetComponent<CameraComponent>().Primary = o_PrimaryCamera;
-			o_SecondCamera.GetComponent<CameraComponent>().Primary = !o_PrimaryCamera;
-		}
-
-		{
-			auto& camera = o_SecondCamera.GetComponent<CameraComponent>().Camera;
-			float orthoSize = camera.GetOrthographicSize();
-			if (ImGui::DragFloat("Second Camera Ortho Size", &orthoSize))
-				camera.SetOrthographicSize(orthoSize);
-		}
 
 		ImGui::End();
 
