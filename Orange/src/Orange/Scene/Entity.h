@@ -1,6 +1,8 @@
 #pragma once
+
 #include "Scene.h"
 #include "entt.hpp"
+
 namespace Orange
 {
 	class Entity
@@ -14,7 +16,9 @@ namespace Orange
 		T& AddComponent(Args&&... args)
 		{
 			OG_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
-			return o_Scene->o_Registry.emplace<T>(o_EntityHandle, std::forward<Args>(args)...);
+			T& component = o_Scene->o_Registry.emplace<T>(o_EntityHandle, std::forward<Args>(args)...);
+			o_Scene->OnComponentAdded<T>(*this, component);
+			return component;
 		}
 
 		template<typename T>
@@ -40,6 +44,7 @@ namespace Orange
 		}
 
 		operator bool() const { return o_EntityHandle != entt::null; }
+		operator entt::entity() const { return o_EntityHandle; }
 		operator uint32_t() const { return (uint32_t)o_EntityHandle; }
 
 		bool operator==(const Entity& other) const
