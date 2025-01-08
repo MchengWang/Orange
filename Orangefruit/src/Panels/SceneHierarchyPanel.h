@@ -20,6 +20,7 @@ namespace Orange
 
 	private:
 		void DrawEntityNode(Entity entity);
+		void DrawComponents(Entity entity);
 
 	private:
 		Ref<Scene> o_Context;
