@@ -23,7 +23,7 @@ workspace "Orange"
 
 outdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
--- ��������ڸ��ļ��У��������Ŀ¼����Ŀ¼ 
+-- 引用路径
 IncludeDir = {}
 IncludeDir["GLFW"] = "%{wks.location}/Orange/vendor/GLFW/include"
 IncludeDir["Glad"] = "%{wks.location}/Orange/vendor/Glad/include"
@@ -31,12 +31,14 @@ IncludeDir["ImGui"] = "%{wks.location}/Orange/vendor/imgui"
 IncludeDir["glm"] = "%{wks.location}/Orange/vendor/glm"
 IncludeDir["stb_image"] = "%{wks.location}/Orange/vendor/stb_image"
 IncludeDir["entt"] = "%{wks.location}/Orange/vendor/entt/include"
+IncludeDir["yaml_cpp"] = "%{wks.location}/Orange/vendor/yaml-cpp/include"
 
 group "Dependencies"
 	include "vendor/premake"
 	include "Orange/vendor/GLFW"
 	include "Orange/vendor/Glad"
 	include "Orange/vendor/imgui"
+	include "Orange/vendor/yaml-cpp"
 group ""
 
 include "Orange"

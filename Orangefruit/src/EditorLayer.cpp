@@ -4,6 +4,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Orange/Scene/SceneSerializer.h"
+
 namespace Orange
 {
 
@@ -24,7 +26,7 @@ namespace Orange
 		o_Framebuffer = Framebuffer::Create(fbSpec);
 
 		o_ActiveScene = CreateRef<Scene>();
-
+#if 0
 		// Entity
 		auto square = o_ActiveScene->CreateEntity("Puzzle Square");
 		square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.52f, 0.21f, 0.52f, 1.0f });
@@ -75,7 +77,7 @@ namespace Orange
 
 		o_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
 		o_SecondCamera.AddComponent<NativeScriptComponent>().Bind<CameraController>();
-
+#endif
 		o_SceneHierarchyPanel.SetContext(o_ActiveScene);
 	}
 
@@ -175,8 +177,21 @@ namespace Orange
 				// 禁用全屏将允许将窗口移动到其他窗口的前面。
 				// 如果没有更精细的窗口深度 / z 控制，我们目前无法撤消。
 				// ImGui：：MenuItem（“Fullscreen”， NULL， & opt_fullscreen_persistant）;
+
+				if (ImGui::MenuItem("Serialize"))
+				{
+					SceneSerializer serializer(o_ActiveScene);
+					serializer.Serialize("assets/scenes/Example.orange");
+				}
+
+				if (ImGui::MenuItem("Deserialize"))
+				{
+					SceneSerializer serializer(o_ActiveScene);
+					serializer.Deserialize("assets/scenes/Example.orange");
+				}
+
 				if (ImGui::MenuItem("Exit")) Application::Get().Close();
-				ImGui::EndMenu();
+					ImGui::EndMenu();
 			}
 			ImGui::EndMenuBar();
 		}

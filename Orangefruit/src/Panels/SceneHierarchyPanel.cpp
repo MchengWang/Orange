@@ -35,7 +35,7 @@ namespace Orange
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
 			o_SelectionContext = {};
 
-		// Right-click on blank space
+		// ÔÚ¿Õ°×ÇøÓòÓÒ¼ü
 		if (ImGui::BeginPopupContextWindow())
 		{
 			if (ImGui::MenuItem("Create Empty Entity"))
