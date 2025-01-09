@@ -19,7 +19,8 @@ project "Orangefruit"
 		"%{wks.location}/Orange/src",
 		"%{wks.location}/Orange/vendor",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.entt}"
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.ImGuizmo}"
 	}
 
 	links

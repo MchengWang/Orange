@@ -49,6 +49,8 @@ namespace Orange
 
 		glm::vec4 o_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 
+		int o_GizmoType = -1;
+
 		// Ãæ°å
 		SceneHierarchyPanel o_SceneHierarchyPanel;
 	};

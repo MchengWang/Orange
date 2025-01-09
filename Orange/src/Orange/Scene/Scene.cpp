@@ -100,6 +100,19 @@ namespace Orange
 		}
 	}
 
+	Entity Scene::GetPrimaryCameraEntity()
+	{
+		auto view = o_Registry.view<CameraComponent>();
+		for (auto entity : view)
+		{
+			const auto& camera = view.get<CameraComponent>(entity);
+			if (camera.Primary)
+				return Entity{ entity, this };
+		}
+
+		return {};
+	}
+
 	template <typename T>
 	void Scene::OnComponentAdded(Entity entity, T& component)
 	{

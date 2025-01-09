@@ -17,3 +17,6 @@
 [submodule "Orange/vendor/yaml-cpp"]
 	path = Orange/vendor/yaml-cpp
 	url = https://github.com/TheCherno/yaml-cpp
+[submodule "Orange/vendor/ImGuizmo"]
+	path = Orange/vendor/ImGuizmo
+	url = https://github.com/thecherno/imguizmo
