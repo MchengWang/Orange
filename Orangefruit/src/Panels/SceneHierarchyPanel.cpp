@@ -18,6 +18,7 @@ namespace Orange
 	void SceneHierarchyPanel::SetContext(const Ref<Scene>& context)
 	{
 		o_Context = context;
+		o_SelectionContext = {};
 	}
 
 	void SceneHierarchyPanel::OnImGuiRender()

@@ -46,6 +46,7 @@ project "Orange"
 		"Glad",
 		"ImGui",
 		"yaml-cpp",
+		"User32.lib",
 		"opengl32.lib"
 	}
 

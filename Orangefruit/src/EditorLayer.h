@@ -20,6 +20,13 @@ namespace Orange
 		void OnEvent(Event& event) override;
 
 	private:
+		bool OnKeyPressed(KeyPressedEvent& event);
+
+		void NewScene();
+		void OpenScene();
+		void SaveSceneAs();
+
+	private:
 		OrthographicCameraController o_CameraController;
 
 		// ¡Ÿ ±

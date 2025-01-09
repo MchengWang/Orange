@@ -6,6 +6,8 @@
 
 #include "Orange/Scene/SceneSerializer.h"
 
+#include "Orange/Utils/PlatformUtils.h"
+
 namespace Orange
 {
 
@@ -178,17 +180,14 @@ namespace Orange
 				// 如果没有更精细的窗口深度 / z 控制，我们目前无法撤消。
 				// ImGui：：MenuItem（“Fullscreen”， NULL， & opt_fullscreen_persistant）;
 
-				if (ImGui::MenuItem("Serialize"))
-				{
-					SceneSerializer serializer(o_ActiveScene);
-					serializer.Serialize("assets/scenes/Example.orange");
-				}
+				if (ImGui::MenuItem("New", "Ctrl+N"))
+					NewScene();
 
-				if (ImGui::MenuItem("Deserialize"))
-				{
-					SceneSerializer serializer(o_ActiveScene);
-					serializer.Deserialize("assets/scenes/Example.orange");
-				}
+				if (ImGui::MenuItem("Open...", "Ctrl+O"))
+					OpenScene();
+
+				if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))
+					SaveSceneAs();
 
 				if (ImGui::MenuItem("Exit")) Application::Get().Close();
 					ImGui::EndMenu();
@@ -229,6 +228,76 @@ namespace Orange
 	void EditorLayer::OnEvent(Event& event)
 	{
 		o_CameraController.OnEvent(event);
+
+		EventDispatcher dispatcher(event);
+		dispatcher.Dispatch<KeyPressedEvent>(OG_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
+	}
+
+	bool EditorLayer::OnKeyPressed(KeyPressedEvent& event)
+	{
+		// 快捷键
+		if (event.GetRepeatCount() > 0)
+			return false;
+
+		bool control = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
+		bool shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
+		switch (event.GetKeyCode())
+		{
+			case Key::N :
+			{
+				if (control)
+					NewScene();
+
+				break;
+			}
+			case Key::O:
+			{
+				if (control)
+					OpenScene();
+
+				break;
+			}
+			case Key::S:
+			{
+				if (control && shift)
+					SaveSceneAs();
+
+				break;
+			}
+		}
+
+		return false;
+	}
+
+	void EditorLayer::NewScene()
+	{
+		o_ActiveScene = CreateRef<Scene>();
+		o_ActiveScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
+		o_SceneHierarchyPanel.SetContext(o_ActiveScene);
+	}
+
+	void EditorLayer::OpenScene()
+	{
+		std::string filepath = FileDialogs::OpenFile("Orange Scene (*.orange)\0*.orange\0");
+		if (!filepath.empty())
+		{
+			o_ActiveScene = CreateRef<Scene>();
+			o_ActiveScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
+			o_SceneHierarchyPanel.SetContext(o_ActiveScene);
+
+			SceneSerializer serializer(o_ActiveScene);
+			serializer.Deserialize(filepath);
+		}
+	}
+
+	void EditorLayer::SaveSceneAs()
+	{
+		std::string filepath = FileDialogs::SaveFile("Orange Scene (*.orange)\0*.orange\0");
+		if (!filepath.empty())
+		{
+			SceneSerializer serializer(o_ActiveScene);
+			serializer.Serialize(filepath);
+		}
 	}
 
 }
