@@ -278,25 +278,25 @@ namespace Orange
 
 	void EditorLayer::OpenScene()
 	{
-		std::string filepath = FileDialogs::OpenFile("Orange Scene (*.orange)\0*.orange\0");
-		if (!filepath.empty())
+		std::optional<std::string> filepath = FileDialogs::OpenFile("Orange Scene (*.orange)\0*.orange\0");
+		if (filepath)
 		{
 			o_ActiveScene = CreateRef<Scene>();
 			o_ActiveScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
 			o_SceneHierarchyPanel.SetContext(o_ActiveScene);
 
 			SceneSerializer serializer(o_ActiveScene);
-			serializer.Deserialize(filepath);
+			serializer.Deserialize(*filepath);
 		}
 	}
 
 	void EditorLayer::SaveSceneAs()
 	{
-		std::string filepath = FileDialogs::SaveFile("Orange Scene (*.orange)\0*.orange\0");
-		if (!filepath.empty())
+		std::optional<std::string> filepath = FileDialogs::SaveFile("Orange Scene (*.orange)\0*.orange\0");
+		if (filepath)
 		{
 			SceneSerializer serializer(o_ActiveScene);
-			serializer.Serialize(filepath);
+			serializer.Serialize(*filepath);
 		}
 	}
 
