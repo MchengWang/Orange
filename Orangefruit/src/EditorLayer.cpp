@@ -32,6 +32,8 @@ namespace Orange
 		o_Framebuffer = Framebuffer::Create(fbSpec);
 
 		o_ActiveScene = CreateRef<Scene>();
+
+		o_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 #if 0
 		// Entity
 		auto square = o_ActiveScene->CreateEntity("Puzzle Square");
@@ -103,6 +105,7 @@ namespace Orange
 			o_Framebuffer->Resize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
 			o_CameraController.OnResize(o_ViewportSize.x, o_ViewportSize.y);
 
+			o_EditorCamera.SetViewportSize(o_ViewportSize.x, o_ViewportSize.y);
 			o_ActiveScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
 		}
 
@@ -110,6 +113,7 @@ namespace Orange
 		if (o_ViewportFocused)
 			o_CameraController.OnUpdate(timestep);
 
+		o_EditorCamera.OnUpdate(timestep);
 
 		// äÖÈ¾
 		Renderer2D::ResetStats();
@@ -118,7 +122,7 @@ namespace Orange
 		RenderCommand::Clear();
 
 		// update Scene £¨¸üÐÂ³¡¾°£©
-		o_ActiveScene->OnUpdate(timestep);
+		o_ActiveScene->OnUpdateEditor(timestep, o_EditorCamera);
 
 		o_Framebuffer->Unbind();
 	}
@@ -235,11 +239,15 @@ namespace Orange
 			float windowHeight = (float)ImGui::GetWindowHeight();
 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
 
-			// Camera
-			auto cameraEntity = o_ActiveScene->GetPrimaryCameraEntity();
-			const auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
-			const glm::mat4& cameraProjection = camera.GetProjection();
-			glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
+			//Runtime Camera from entity
+			// auto cameraEntity = o_ActiveScene->GetPrimaryCameraEntity();
+			// const auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
+			// const glm::mat4& cameraProjection = camera.GetProjection();
+			// glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
+
+			// Editor camera
+			const glm::mat4& cameraProjection = o_EditorCamera.GetProjection();
+			glm::mat4 cameraView = o_EditorCamera.GetViewMatrix();;
 
 			// Entity transform
 			auto& tc = selectedEntity.GetComponent<TransformComponent>();
@@ -279,6 +287,7 @@ namespace Orange
 	void EditorLayer::OnEvent(Event& event)
 	{
 		o_CameraController.OnEvent(event);
+		o_EditorCamera.OnEvent(event);
 
 		EventDispatcher dispatcher(event);
 		dispatcher.Dispatch<KeyPressedEvent>(OG_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
