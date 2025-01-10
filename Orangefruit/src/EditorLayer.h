@@ -50,6 +50,7 @@ namespace Orange
 		bool o_ViewportFocused = false, o_ViewportHovered = false;
 
 		glm::vec2 o_ViewportSize = { 0.0f, 0.0f };
+		glm::vec2 o_ViewportBounds[2];
 
 		glm::vec4 o_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 

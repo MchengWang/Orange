@@ -27,7 +27,7 @@ namespace Orange
 		o_CheckerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
 
 		FramebufferSpecification fbSpec;
-		fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::Depth };
+		fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGET, FramebufferTextureFormat::Depth };
 		fbSpec.Width = 1280;
 		fbSpec.Height = 720;
 		o_Framebuffer = Framebuffer::Create(fbSpec);
@@ -124,6 +124,20 @@ namespace Orange
 
 		// update Scene £¨¸üÐÂ³¡¾°£©
 		o_ActiveScene->OnUpdateEditor(timestep, o_EditorCamera);
+
+		auto [mx, my] = ImGui::GetMousePos();
+		mx -= o_ViewportBounds[0].x;
+		my -= o_ViewportBounds[0].y;
+		glm::vec2 viewportSize = o_ViewportBounds[1] - o_ViewportBounds[0];
+		my = viewportSize.y - my;
+		int mouseX = (int)mx;
+		int mouseY = (int)my;
+
+		if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+		{
+			int pixelData = o_Framebuffer->ReadPixel(1, mouseX, mouseY);
+			OG_CORE_WARN("Pixel data = {0}", pixelData);
+		}
 
 		o_Framebuffer->Unbind();
 	}
