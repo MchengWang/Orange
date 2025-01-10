@@ -18,14 +18,19 @@ namespace Orange
 
 		virtual void Resize(uint32_t width, uint32_t height) override;
 
-		virtual uint32_t GetColorAttachmentRendererID() const override { return o_ColorAttachment; }
+		virtual uint32_t GetColorAttachmentRendererID(const uint32_t index = 0) const override {OG_CORE_ASSERT(index < o_ColorAttachments.size()); return o_ColorAttachments[index]; }
 
 		virtual const FramebufferSpecification& GetSpecification() const override { return o_Specification; }
 
 	private:
 		uint32_t o_RendererID = 0;
-		uint32_t o_ColorAttachment = 0, o_DepathAttachment = 0;
 		FramebufferSpecification o_Specification;
+
+		std::vector<FramebufferTextureSpecification> o_ColorAttachmentSpecifications;
+		FramebufferTextureSpecification o_DepthAttachmentSpecification = FramebufferTextureFormat::None;
+
+		std::vector<uint32_t> o_ColorAttachments;
+		uint32_t o_DepathAttachment = 0;
 	};
 
 }

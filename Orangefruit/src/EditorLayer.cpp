@@ -27,8 +27,9 @@ namespace Orange
 		o_CheckerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
 
 		FramebufferSpecification fbSpec;
-		fbSpec.width = 1280;
-		fbSpec.height = 720;
+		fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::Depth };
+		fbSpec.Width = 1280;
+		fbSpec.Height = 720;
 		o_Framebuffer = Framebuffer::Create(fbSpec);
 
 		o_ActiveScene = CreateRef<Scene>();
@@ -100,7 +101,7 @@ namespace Orange
 
 		if (FramebufferSpecification spec = o_Framebuffer->GetSpecification();
 			o_ViewportSize.x > 0.0f && o_ViewportSize.y > 0.0f &&
-			(spec.width != o_ViewportSize.x || spec.height != o_ViewportSize.y))
+			(spec.Width != o_ViewportSize.x || spec.Height != o_ViewportSize.y))
 		{
 			o_Framebuffer->Resize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
 			o_CameraController.OnResize(o_ViewportSize.x, o_ViewportSize.y);
