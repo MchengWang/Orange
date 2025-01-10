@@ -233,6 +233,7 @@ namespace Orange
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("Viewport");
+		auto viewportOffset = ImGui::GetCursorPos(); // Includes to tab bar
 
 		o_ViewportFocused = ImGui::IsWindowFocused();
 		o_ViewportHovered = ImGui::IsWindowHovered();
@@ -243,6 +244,15 @@ namespace Orange
 		uint64_t textureID = o_Framebuffer->GetColorAttachmentRendererID();
 		ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{o_ViewportSize.x, o_ViewportSize.y}, ImVec2{0, 1}, ImVec2{1, 0});
 		
+		auto windowSize = ImGui::GetWindowSize();
+		ImVec2 minBound = ImGui::GetWindowPos();
+		minBound.x += viewportOffset.x;
+		minBound.y += viewportOffset.y;
+
+		ImVec2 maxBound = { minBound.x + windowSize.x, minBound.y + windowSize.y };
+		o_ViewportBounds[0] = { minBound.x, minBound.y };
+		o_ViewportBounds[1] = { maxBound.x, maxBound.y };
+
 		// Gizmos
 		Entity selectedEntity = o_SceneHierarchyPanel.GetSelectedEntity();
 		if (selectedEntity && o_GizmoType != -1)
