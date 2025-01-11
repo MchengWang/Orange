@@ -230,6 +230,7 @@ namespace Orange
 		}
 
 		o_SceneHierarchyPanel.OnImGuiRender();
+		o_ContentBrowserPanel.OnImGuiRender();
 
 		ImGui::Begin("Status");
 

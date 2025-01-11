@@ -2,6 +2,7 @@
 
 #include "Orange.h"
 #include "Panels/SceneHierarchyPanel.h"
+#include "Panels/ContentBrowserPanel.h"
 
 #include "Orange/Renderer/EditorCamera.h"
 
@@ -61,6 +62,7 @@ namespace Orange
 
 		// Ãæ°å
 		SceneHierarchyPanel o_SceneHierarchyPanel;
+		ContentBrowerPanel o_ContentBrowserPanel;
 	};
 
 }
