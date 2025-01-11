@@ -15,7 +15,8 @@ namespace Orange
 {
 	Application* Application::o_Instance = nullptr;
 
-	Application::Application(const std::string& name)
+	Application::Application(const std::string& name, ApplicationCommandLineArgs args)
+		: o_CommandLineArgs(args)
 	{
 		HZ_PROFILE_FUNCTION();
 

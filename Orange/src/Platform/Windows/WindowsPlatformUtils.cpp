@@ -11,7 +11,7 @@
 
 namespace Orange {
 
-	std::optional<std::string> FileDialogs::OpenFile(const char* filter)
+	std::string FileDialogs::OpenFile(const char* filter)
 	{
 		OPENFILENAMEA ofn;
 		CHAR szFile[260] = { 0 };
@@ -30,10 +30,10 @@ namespace Orange {
 		if (GetOpenFileNameA(&ofn) == TRUE)
 			return ofn.lpstrFile;
 
-		return std::nullopt;
+		return std::string();
 	}
 
-	std::optional<std::string> FileDialogs::SaveFile(const char* filter)
+	std::string FileDialogs::SaveFile(const char* filter)
 	{
 		OPENFILENAMEA ofn;
 		CHAR szFile[260] = { 0 };
@@ -49,13 +49,13 @@ namespace Orange {
 		ofn.nFilterIndex = 1;
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
 
-		// Sets the default extension by extracting it from the filter
+		// 通过从过滤器中提取默认扩展名来设置默认扩展名
 		ofn.lpstrDefExt = strchr(filter, '\0') + 1;
 
 		if (GetSaveFileNameA(&ofn) == TRUE)
 			return ofn.lpstrFile;
 
-		return std::nullopt;
+		return std::string();
 	}
 
 }

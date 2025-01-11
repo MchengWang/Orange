@@ -136,7 +136,7 @@ namespace Orange
 
 		bool multisample = o_Specification.Samples > 1;
 
-		// Attachments
+		// 附件
 		if (o_ColorAttachmentSpecifications.size())
 		{
 			o_ColorAttachments.resize(o_ColorAttachmentSpecifications.size());
@@ -177,7 +177,7 @@ namespace Orange
 		}
 		else if (o_ColorAttachments.empty())
 		{
-			// Onlt depth-pass
+			// 仅深度通道
 			glDrawBuffer(GL_NONE);
 		}
 
@@ -201,7 +201,7 @@ namespace Orange
 	{
 		if (width == 0 || height == 0 || width > s_MaxFramebufferSize || height > s_MaxFramebufferSize)
 		{
-			OG_CORE_WARN("Attempted to resize framebuffer to {0}, {1}", width, height);
+			OG_CORE_WARN("尝试将帧缓冲大小调整为 {0}、{1}", width, height);
 			return;
 		}
 

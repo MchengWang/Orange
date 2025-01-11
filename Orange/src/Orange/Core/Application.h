@@ -16,10 +16,23 @@ int main(int argc, char** argv);
 
 namespace Orange
 {
+
+	struct ApplicationCommandLineArgs
+	{
+		int Count = 0;
+		char** Args = nullptr;
+
+		const char* operator[](int index) const
+		{
+			OG_CORE_ASSERT(index < Count);
+			return Args[index];
+		}
+	};
+
 	class Application 
 	{
 	public:
-		Application(const std::string& name = "Orange App");
+		Application(const std::string& name = "Orange App", ApplicationCommandLineArgs args = ApplicationCommandLineArgs());
 		virtual ~Application();
 
 		void OnEvent(Event& e);
@@ -35,12 +48,15 @@ namespace Orange
 
 		static Application& Get() { return *o_Instance; }
 
+		ApplicationCommandLineArgs GetCommandLineArgs() const { return o_CommandLineArgs; }
+
 	private:
 		void Run();
 		bool OnWindowClose(WindowCloseEvent& event); // 窗口关闭事件
 		bool OnWindowResized(WindowResizeEvent& event); // 窗口尺寸修改事件
 
 	private:
+		ApplicationCommandLineArgs o_CommandLineArgs;
 		Scope<Window> o_Window;
 		ImGuiLayer* o_ImGuiLayer;
 		bool o_Running = true;
@@ -54,5 +70,6 @@ namespace Orange
 	};
 
 	// 在客户端定义
-	Application* CreateApplication();
+	Application* CreateApplication(ApplicationCommandLineArgs args);
+
 }

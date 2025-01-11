@@ -6,27 +6,103 @@
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <shaderc/shaderc.hpp>
+#include <spirv_cross/spirv_cross.hpp>
+#include <spirv_cross/spirv_glsl.hpp>
+
+#include "Orange/Core/Timer.h"
+
 namespace Orange
 {
 
-	static GLenum ShaderTypeFromString(const std::string& type)
-	{
-		if (type == "vertex" || type == "dot")
-			return GL_VERTEX_SHADER;
-		if (type == "fragment" || type == "pixel")
-			return GL_FRAGMENT_SHADER;
+	namespace Utils {
 
-		OG_CORE_ASSERT(false, "未知的着色器类型！");
-		return 0;
+		static GLenum ShaderTypeFromString(const std::string& type)
+		{
+			if (type == "vertex" || type == "dot")
+				return GL_VERTEX_SHADER;
+			if (type == "fragment" || type == "pixel")
+				return GL_FRAGMENT_SHADER;
+
+			OG_CORE_ASSERT(false, "Unknown shader type!");
+			return 0;
+		}
+
+		static shaderc_shader_kind GLShaderStageToShaderC(GLenum stage)
+		{
+			switch (stage)
+			{
+			case GL_VERTEX_SHADER:   return shaderc_glsl_vertex_shader;
+			case GL_FRAGMENT_SHADER: return shaderc_glsl_fragment_shader;
+			}
+			OG_CORE_ASSERT(false);
+			return (shaderc_shader_kind)0;
+		}
+
+		static const char* GLShaderStageToString(GLenum stage)
+		{
+			switch (stage)
+			{
+			case GL_VERTEX_SHADER:   return "GL_VERTEX_SHADER";
+			case GL_FRAGMENT_SHADER: return "GL_FRAGMENT_SHADER";
+			}
+			OG_CORE_ASSERT(false);
+			return nullptr;
+		}
+
+		static const char* GetCacheDirectory()
+		{
+			// TODO: 确保 assets 目录有效
+			return "assets/cache/shader/opengl";
+		}
+
+		static void CreateCacheDirectoryIfNeeded()
+		{
+			std::string cacheDirectory = GetCacheDirectory();
+			if (!std::filesystem::exists(cacheDirectory))
+				std::filesystem::create_directories(cacheDirectory);
+		}
+
+		static const char* GLShaderStageCachedOpenGLFileExtension(uint32_t stage)
+		{
+			switch (stage)
+			{
+			case GL_VERTEX_SHADER:    return ".cached_opengl.vert";
+			case GL_FRAGMENT_SHADER:  return ".cached_opengl.frag";
+			}
+			OG_CORE_ASSERT(false);
+			return "";
+		}
+
+		static const char* GLShaderStageCachedVulkanFileExtension(uint32_t stage)
+		{
+			switch (stage)
+			{
+			case GL_VERTEX_SHADER:    return ".cached_vulkan.vert";
+			case GL_FRAGMENT_SHADER:  return ".cached_vulkan.frag";
+			}
+			OG_CORE_ASSERT(false);
+			return "";
+		}
+
+
 	}
 
 	OpenGLShader::OpenGLShader(const std::string& filepath)
+		: o_FilePath(filepath)
 	{
 		HZ_PROFILE_FUNCTION();
 
 		std::string source = ReadFile(filepath);
 		auto shaderSources = PreProcess(source);
-		Compile(shaderSources);
+
+		{
+			Timer timer;
+			CompileOrGetVulkanBinaries(shaderSources);
+			CompileOrGetOpenGLBinaries();
+			CreateProgram();
+			OG_CORE_WARN("Shader creation took {0} ms", timer.ElapsedMillis());
+		}
 
 		// 从文件中抽取名称
 		auto lastSlash = filepath.find_last_of("/\\");
@@ -44,7 +120,10 @@ namespace Orange
 		std::unordered_map<GLenum, std::string> sources;
 		sources[GL_VERTEX_SHADER] = vertexSrc;
 		sources[GL_FRAGMENT_SHADER] = fragmentSrc;
-		Compile(sources);
+
+		CompileOrGetVulkanBinaries(sources);
+		CompileOrGetOpenGLBinaries();
+		CreateProgram();
 	}
 
 	OpenGLShader::~OpenGLShader()
@@ -98,94 +177,197 @@ namespace Orange
 			OG_CORE_ASSERT((eol != std::string::npos), "语法错误！");
 			size_t begin = pos + typeTokenLength + 1; // 着色器类型名称的开头（在 “#type” 关键字之后）
 			std::string type = source.substr(begin, eol - begin);
-			OG_CORE_ASSERT(ShaderTypeFromString(type), "指定的着色器类型无效！");
+			OG_CORE_ASSERT(Utils::ShaderTypeFromString(type), "指定的着色器类型无效！");
 
 			size_t nextLinePos = source.find_first_not_of("\r\n", eol); // 着色器类型声明行之后的着色器代码开始 
 			OG_CORE_ASSERT((nextLinePos != std::string::npos), "语法错误！"); // 下一个着色器类型声明行的开头
 			pos = source.find(typeToken, nextLinePos);
-			shaderSources[ShaderTypeFromString(type)] = source.substr(nextLinePos, pos - (nextLinePos == std::string::npos ?
+			shaderSources[Utils::ShaderTypeFromString(type)] = source.substr(nextLinePos, pos - (nextLinePos == std::string::npos ?
 				source.size() - 1 : nextLinePos));
 		}
 
 		return shaderSources;
 	}
 
-	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
+	void OpenGLShader::CompileOrGetVulkanBinaries(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
-		HZ_PROFILE_FUNCTION();
-
 		GLuint program = glCreateProgram();
-		OG_CORE_ASSERT((shaderSources.size() <= 2), "我们现在仅支持2个着色器！顶点(vertex, dot),片段(fragment, pixel)");
-		std::array<GLenum, 2> glShaderIDs;
-		int glShaderIDIndex = 0;
-		for (auto& kv : shaderSources)
+
+		shaderc::Compiler compiler;
+		shaderc::CompileOptions options;
+		options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_2);
+		const bool optimize = true;
+		if (optimize)
+			options.SetOptimizationLevel(shaderc_optimization_level_performance);
+
+		std::filesystem::path cacheDirectory = Utils::GetCacheDirectory();
+
+		auto& shaderData = o_VulkanSPIRV;
+		shaderData.clear();
+		for (auto&& [stage, source] : shaderSources)
 		{
-			GLenum type = kv.first;
-			const std::string& source = kv.second;
+			std::filesystem::path shaderFilePath = o_FilePath;
+			std::filesystem::path cachedPath = cacheDirectory / (shaderFilePath.filename().string() + Utils::GLShaderStageCachedVulkanFileExtension(stage));
 
-			GLuint shader = glCreateShader(type);
-
-			const GLchar* sourceCStr = source.c_str();
-			glShaderSource(shader, 1, &sourceCStr, 0);
-
-			glCompileShader(shader);
-
-			GLint isCompiled = 0;
-			glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
-			if (isCompiled == GL_FALSE)
+			std::ifstream in(cachedPath, std::ios::in | std::ios::binary);
+			if (in.is_open())
 			{
-				GLint maxLength = 0;
-				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+				in.seekg(0, std::ios::end);
+				auto size = in.tellg();
+				in.seekg(0, std::ios::beg);
 
-				std::vector<GLchar> infoLog(maxLength);
-				glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);
-
-				glDeleteShader(shader);
-
-				OG_CORE_ERROR("{0}", infoLog.data());
-				OG_CORE_ASSERT(false, "着色器编译失败！");
-				break;
+				auto& data = shaderData[stage];
+				data.resize(size / sizeof(uint32_t));
+				in.read((char*)data.data(), size);
 			}
+			else
+			{
+				shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(source, Utils::GLShaderStageToShaderC(stage), o_FilePath.c_str(), options);
+				if (module.GetCompilationStatus() != shaderc_compilation_status_success)
+				{
+					OG_CORE_ERROR(module.GetErrorMessage());
+					OG_CORE_ASSERT(false);
+				}
 
-			glAttachShader(program, shader);
-			glShaderIDs[glShaderIDIndex++] = shader;
+				shaderData[stage] = std::vector<uint32_t>(module.cbegin(), module.cend());
+
+				std::ofstream out(cachedPath, std::ios::out | std::ios::binary);
+				if (out.is_open())
+				{
+					auto& data = shaderData[stage];
+					out.write((char*)data.data(), data.size() * sizeof(uint32_t));
+					out.flush();
+					out.close();
+				}
+			}
 		}
 
-		o_RendererID = program;
+		for (auto&& [stage, data] : shaderData)
+			Reflect(stage, data);
+	}
 
-		// 链接我们的程序
+	void OpenGLShader::CompileOrGetOpenGLBinaries()
+	{
+		auto& shaderData = o_OpenGLSPIRV;
+
+		shaderc::Compiler compiler;
+		shaderc::CompileOptions options;
+		options.SetTargetEnvironment(shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
+		const bool optimize = false;
+		if (optimize)
+			options.SetOptimizationLevel(shaderc_optimization_level_performance);
+
+		std::filesystem::path cacheDirectory = Utils::GetCacheDirectory();
+
+		shaderData.clear();
+		o_OpenGLSourceCode.clear();
+		for (auto&& [stage, spirv] : o_VulkanSPIRV)
+		{
+			std::filesystem::path shaderFilePath = o_FilePath;
+			std::filesystem::path cachedPath = cacheDirectory / (shaderFilePath.filename().string() + Utils::GLShaderStageCachedOpenGLFileExtension(stage));
+
+			std::ifstream in(cachedPath, std::ios::in | std::ios::binary);
+			if (in.is_open())
+			{
+				in.seekg(0, std::ios::end);
+				auto size = in.tellg();
+				in.seekg(0, std::ios::beg);
+
+				auto& data = shaderData[stage];
+				data.resize(size / sizeof(uint32_t));
+				in.read((char*)data.data(), size);
+			}
+			else
+			{
+				spirv_cross::CompilerGLSL glslCompiler(spirv);
+				o_OpenGLSourceCode[stage] = glslCompiler.compile();
+				auto& source = o_OpenGLSourceCode[stage];
+
+				shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(source, Utils::GLShaderStageToShaderC(stage), o_FilePath.c_str());
+				if (module.GetCompilationStatus() != shaderc_compilation_status_success)
+				{
+					OG_CORE_ERROR(module.GetErrorMessage());
+					OG_CORE_ASSERT(false);
+				}
+
+				shaderData[stage] = std::vector<uint32_t>(module.cbegin(), module.cend());
+
+				std::ofstream out(cachedPath, std::ios::out | std::ios::binary);
+				if (out.is_open())
+				{
+					auto& data = shaderData[stage];
+					out.write((char*)data.data(), data.size() * sizeof(uint32_t));
+					out.flush();
+					out.close();
+				}
+			}
+		}
+	}
+
+	void OpenGLShader::CreateProgram()
+	{
+		GLuint program = glCreateProgram();
+
+		std::vector<GLuint> shaderIDs;
+		for (auto&& [stage, spirv] : o_OpenGLSPIRV)
+		{
+			GLuint shaderID = shaderIDs.emplace_back(glCreateShader(stage));
+			glShaderBinary(1, &shaderID, GL_SHADER_BINARY_FORMAT_SPIR_V, spirv.data(), spirv.size() * sizeof(uint32_t));
+			glSpecializeShader(shaderID, "main", 0, nullptr, nullptr);
+			glAttachShader(program, shaderID);
+		}
+
 		glLinkProgram(program);
 
-		// 请注意此处的不同函数：glGetProgram* 而不是 glGetShader*。
-		GLint isLinked = 0;
-		glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
+		GLint isLinked;
+		glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
 		if (isLinked == GL_FALSE)
 		{
-			GLint maxLength = 0;
+			GLint maxLength;
 			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
 
-			// maxLength 包括 NULL 字符
 			std::vector<GLchar> infoLog(maxLength);
-			glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
+			glGetProgramInfoLog(program, maxLength, &maxLength, infoLog.data());
+			OG_CORE_ERROR("着色器链接失败 （{0}）：\n{1}", o_FilePath, infoLog.data());
 
-			// 我们不再需要这个程序了。
 			glDeleteProgram(program);
 
-			for (auto id : glShaderIDs)
+			for (auto id : shaderIDs)
 				glDeleteShader(id);
-
-			OG_CORE_ERROR("{0}", infoLog.data());
-			OG_CORE_ASSERT(false, "着色器链接失败！");
-			return;
 		}
 
-		for (auto id : glShaderIDs)
+		for (auto id : shaderIDs)
 		{
 			glDetachShader(program, id);
 			glDeleteShader(id);
 		}
+
+		o_RendererID = program;
 	}
 
+	void OpenGLShader::Reflect(GLenum stage, const std::vector<uint32_t>& shaderData)
+	{
+		spirv_cross::Compiler compiler(shaderData);
+		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+
+		OG_CORE_TRACE("OpenGLShader::Reflect - {0} {1}", Utils::GLShaderStageToString(stage), o_FilePath);
+		OG_CORE_TRACE("    {0} 统一缓冲区", resources.uniform_buffers.size());
+		OG_CORE_TRACE("    {0} 资源", resources.sampled_images.size());
+
+		OG_CORE_TRACE("Uniform buffers:");
+		for (const auto& resource : resources.uniform_buffers)
+		{
+			const auto& bufferType = compiler.get_type(resource.base_type_id);
+			uint32_t bufferSize = compiler.get_declared_struct_size(bufferType);
+			uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+			int memberCount = bufferType.member_types.size();
+
+			OG_CORE_TRACE("  {0}", resource.name);
+			OG_CORE_TRACE("    大小 = {0}", bufferSize);
+			OG_CORE_TRACE("    绑定 = {0}", binding);
+			OG_CORE_TRACE("    成员 = {0}", memberCount);
+		}
+	}
 	void OpenGLShader::Bind() const
 	{
 		HZ_PROFILE_FUNCTION();

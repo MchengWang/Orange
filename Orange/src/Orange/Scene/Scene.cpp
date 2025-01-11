@@ -143,7 +143,8 @@ namespace Orange
 	template <>
 	void Scene::OnComponentAdded<CameraComponent>(Entity entity, CameraComponent& component)
 	{
-		component.Camera.SetViewportSize(o_ViewportWidth, o_ViewportHeight);
+		if (o_ViewportWidth > 0 && o_ViewportHeight > 0)
+			component.Camera.SetViewportSize(o_ViewportWidth, o_ViewportHeight);
 	}
 
 	template <>

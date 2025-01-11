@@ -33,6 +33,7 @@ namespace Orange
 
 	void SceneCamera::SetViewportSize(uint32_t width, uint32_t height)
 	{
+		OG_CORE_ASSERT(width > 0 && height > 0);
 		o_AspectRatio = (float)width / (float)height;
 		RecalculateProjection();
 	}

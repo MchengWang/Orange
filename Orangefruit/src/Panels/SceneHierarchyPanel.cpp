@@ -9,8 +9,8 @@
 
 #include <cstring>
 
-/* The Microsoft C++ compiler is non-compliant with the C++ standard and needs
- * the following definition to disable a security warning on std::strncpy().
+/* Microsoft C++ 编译器不符合 C++ 标准和需求
+ * 以下定义用于禁用 std：：strncpy（） 上的安全警告。
  */
 #ifdef _MSVC_LANG
 	#define _CRT_SECURE_NO_WARNINGS
@@ -243,7 +243,7 @@ namespace Orange
 				if (!o_SelectionContext.HasComponent<CameraComponent>())
 					o_SelectionContext.AddComponent<CameraComponent>();
 				else
-					OG_CORE_WARN("This entity already has the Camera Component!");
+					OG_CORE_WARN("此实体已具有 Camera Component！");
 
 				ImGui::CloseCurrentPopup();
 			}
@@ -253,7 +253,7 @@ namespace Orange
 				if (!o_SelectionContext.HasComponent<SpriteRendererComponent>())
 					o_SelectionContext.AddComponent<SpriteRendererComponent>();
 				else
-					OG_CORE_WARN("This entity already has the Sprite Renderer Component!");
+					OG_CORE_WARN("此实体已具有 Sprite Renderer Component！");
 
 				ImGui::CloseCurrentPopup();
 			}

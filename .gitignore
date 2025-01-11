@@ -12,3 +12,8 @@ bin-obj/
 **.vcxproj
 **.vcxproj.filters
 **.vcxproj.user
+
+# 文件夹
+Orange/vendor/VulkanSDK
+Orangefruit/assets/cache
+scripts/__pycache__

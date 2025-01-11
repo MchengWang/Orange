@@ -34,6 +34,14 @@ namespace Orange
 
 		o_ActiveScene = CreateRef<Scene>();
 
+		auto commandLineArgs = Application::Get().GetCommandLineArgs();
+		if (commandLineArgs.Count > 1)
+		{
+			auto sceneFilePath = commandLineArgs[1];
+			SceneSerializer serializer(o_ActiveScene);
+			serializer.Deserialize(sceneFilePath);
+		}
+
 		o_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 #if 0
 		// Entity
@@ -122,10 +130,10 @@ namespace Orange
 		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 		RenderCommand::Clear();
 
-		// Clear our entity ID attachment to -1
+		// 将我们的实体 ID 附件清除为 -1
 		o_Framebuffer->ClearAttachment(1, -1);
 
-		// update Scene （更新场景）
+		// 更新场景
 		o_ActiveScene->OnUpdateEditor(timestep, o_EditorCamera);
 
 		auto [mx, my] = ImGui::GetMousePos();
@@ -281,8 +289,8 @@ namespace Orange
 
 			// Snapping 
 			bool snap = Input::IsKeyPressed(Key::LeftControl);
-			float snapValue = 0.5f; // Snap to 0.5m for translation / scale
-			// Snap to 45 degrees for rotation
+			float snapValue = 0.5f; // 捕捉到 0.5m 进行平移/缩放
+			// 捕捉到 45 度进行旋转
 			if (o_GizmoType == ImGuizmo::OPERATION::ROTATE)
 				snapValue = 45.0f;
 
@@ -390,25 +398,25 @@ namespace Orange
 
 	void EditorLayer::OpenScene()
 	{
-		std::optional<std::string> filepath = FileDialogs::OpenFile("Orange Scene (*.orange)\0*.orange\0");
-		if (filepath)
+		std::string filepath = FileDialogs::OpenFile("Orange Scene (*.orange)\0*.orange\0");
+		if (!filepath.empty())
 		{
 			o_ActiveScene = CreateRef<Scene>();
 			o_ActiveScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
 			o_SceneHierarchyPanel.SetContext(o_ActiveScene);
 
 			SceneSerializer serializer(o_ActiveScene);
-			serializer.Deserialize(*filepath);
+			serializer.Deserialize(filepath);
 		}
 	}
 
 	void EditorLayer::SaveSceneAs()
 	{
-		std::optional<std::string> filepath = FileDialogs::SaveFile("Orange Scene (*.orange)\0*.orange\0");
-		if (filepath)
+		std::string filepath = FileDialogs::SaveFile("Orange Scene (*.orange)\0*.orange\0");
+		if (!filepath.empty())
 		{
 			SceneSerializer serializer(o_ActiveScene);
-			serializer.Serialize(*filepath);
+			serializer.Serialize(filepath);
 		}
 	}
 

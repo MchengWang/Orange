@@ -3,7 +3,7 @@
 #include "Orange/Renderer/Shader.h"
 #include <glm/glm.hpp>
 
-// TODO: REMOVE!
+// TODO: É¾³ý!
 typedef unsigned int GLenum;
 
 namespace Orange
@@ -41,10 +41,20 @@ namespace Orange
 	private:
 		std::string ReadFile(const std::string& filepath);
 		std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);
-		void Compile(const std::unordered_map<GLenum, std::string>& shaderSource);
+
+		void CompileOrGetVulkanBinaries(const std::unordered_map<GLenum, std::string>& shaderSources);
+		void CompileOrGetOpenGLBinaries();
+		void CreateProgram();
+		void Reflect(GLenum stage, const std::vector<uint32_t>& shaderData);
 
 	private:
 		uint32_t o_RendererID;
+		std::string o_FilePath;
 		std::string o_Name;
+
+		std::unordered_map<GLenum, std::vector<uint32_t>> o_VulkanSPIRV;
+		std::unordered_map<GLenum, std::vector<uint32_t>> o_OpenGLSPIRV;
+
+		std::unordered_map<GLenum, std::string> o_OpenGLSourceCode;
 	};
 }

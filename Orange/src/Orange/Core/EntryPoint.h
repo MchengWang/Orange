@@ -1,9 +1,10 @@
 #pragma once
 #include "Orange/Core/Base.h"
+#include "Orange/Core/Application.h"
 
 #ifdef OG_PLATFORM_WINDOWS
 
-extern Orange::Application* Orange::CreateApplication();
+extern Orange::Application* Orange::CreateApplication(ApplicationCommandLineArgs args);
 
 int main(int argc, char** argv)
 {
@@ -11,7 +12,7 @@ int main(int argc, char** argv)
 	OG_CORE_WARN("初始化日志！");
 
 	HZ_PROFILE_BEGIN_SESSION("Startup", "OrangePf-Startup.json");
-	auto app = Orange::CreateApplication();
+	auto app = Orange::CreateApplication({ argc, argv });
 	HZ_PROFILE_END_SESSION();
 
 	HZ_PROFILE_BEGIN_SESSION("Runtime", "OrangePf-Runtime.json");

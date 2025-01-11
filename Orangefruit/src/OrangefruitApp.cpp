@@ -9,8 +9,8 @@ namespace Orange
 	class Orangefruit : public Orange::Application
 	{
 	public:
-		Orangefruit()
-			: Application("Orangefruit")
+		Orangefruit(ApplicationCommandLineArgs args)
+			: Application("Orangefruit", args)
 		{
 			PushLayer(new EditorLayer());
 		}
@@ -22,8 +22,8 @@ namespace Orange
 
 	};
 
-	Application* CreateApplication()
+	Application* CreateApplication(ApplicationCommandLineArgs args)
 	{
-		return new Orangefruit();
+		return new Orangefruit(args);
 	}
 }

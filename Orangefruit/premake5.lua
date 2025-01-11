@@ -2,7 +2,7 @@ project "Orangefruit"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "on"
+	staticruntime "off"
 
 	targetdir ("%{wks.location}/bin/" .. outdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/bin-obj/" .. outdir .. "/%{prj.name}")
