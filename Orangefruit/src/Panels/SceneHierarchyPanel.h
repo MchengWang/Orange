@@ -18,6 +18,7 @@ namespace Orange
 		void OnImGuiRender();
 
 		Entity GetSelectedEntity() const { return o_SelectionContext; }
+		void SetSelectedEntity(Entity entity);
 
 	private:
 		void DrawEntityNode(Entity entity);
