@@ -122,6 +122,9 @@ namespace Orange
 		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 		RenderCommand::Clear();
 
+		// Clear our entity ID attachment to -1
+		o_Framebuffer->ClearAttachment(1, -1);
+
 		// update Scene £¨¸üÐÂ³¡¾°£©
 		o_ActiveScene->OnUpdateEditor(timestep, o_EditorCamera);
 
@@ -136,7 +139,7 @@ namespace Orange
 		if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
 		{
 			int pixelData = o_Framebuffer->ReadPixel(1, mouseX, mouseY);
-			OG_CORE_WARN("Pixel data = {0}", pixelData);
+			o_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, o_ActiveScene.get());
 		}
 
 		o_Framebuffer->Unbind();
@@ -222,6 +225,11 @@ namespace Orange
 
 		ImGui::Begin("Status");
 
+		std::string name = "None";
+		if (o_HoveredEntity)
+			name = o_HoveredEntity.GetComponent<TagComponent>().Tag;
+		ImGui::Text("Hovered Entity: %s", name.c_str());
+
 		auto stats = Renderer2D::GetStats();
 		ImGui::Text("Renderer2D Stats:");
 		ImGui::Text("Draw Calls: %d", stats.DrawCalls);
@@ -233,7 +241,11 @@ namespace Orange
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("Viewport");
-		auto viewportOffset = ImGui::GetCursorPos(); // Includes to tab bar
+		auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+		auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+		auto viewportOffset = ImGui::GetWindowPos();
+		o_ViewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
+		o_ViewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
 
 		o_ViewportFocused = ImGui::IsWindowFocused();
 		o_ViewportHovered = ImGui::IsWindowHovered();
@@ -243,15 +255,6 @@ namespace Orange
 		o_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 		uint64_t textureID = o_Framebuffer->GetColorAttachmentRendererID();
 		ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{o_ViewportSize.x, o_ViewportSize.y}, ImVec2{0, 1}, ImVec2{1, 0});
-		
-		auto windowSize = ImGui::GetWindowSize();
-		ImVec2 minBound = ImGui::GetWindowPos();
-		minBound.x += viewportOffset.x;
-		minBound.y += viewportOffset.y;
-
-		ImVec2 maxBound = { minBound.x + windowSize.x, minBound.y + windowSize.y };
-		o_ViewportBounds[0] = { minBound.x, minBound.y };
-		o_ViewportBounds[1] = { maxBound.x, maxBound.y };
 
 		// Gizmos
 		Entity selectedEntity = o_SceneHierarchyPanel.GetSelectedEntity();
@@ -260,9 +263,7 @@ namespace Orange
 			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
 
-			float windowWidth = (float)ImGui::GetWindowWidth();
-			float windowHeight = (float)ImGui::GetWindowHeight();
-			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+			ImGuizmo::SetRect(o_ViewportBounds[0].x, o_ViewportBounds[0].y, o_ViewportBounds[1].x - o_ViewportBounds[0].x, o_ViewportBounds[1].y - o_ViewportBounds[0].y);
 
 			//Runtime Camera from entity
 			// auto cameraEntity = o_ActiveScene->GetPrimaryCameraEntity();

@@ -41,6 +41,8 @@ namespace Orange
 		Entity o_CameraEntity;
 		Entity o_SecondCamera;
 
+		Entity o_HoveredEntity;
+
 		bool o_PrimaryCamera = true;
 
 		EditorCamera o_EditorCamera;

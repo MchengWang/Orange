@@ -16,11 +16,11 @@ namespace Orange
 		case ShaderDataType::Float4:   return GL_FLOAT;
 		case ShaderDataType::Mat3:     return GL_FLOAT;
 		case ShaderDataType::Mat4:     return GL_FLOAT;
-		case ShaderDataType::Int:      return GL_FLOAT;
-		case ShaderDataType::Int2:     return GL_FLOAT;
-		case ShaderDataType::Int3:     return GL_FLOAT;
-		case ShaderDataType::Int4:     return GL_FLOAT;
-		case ShaderDataType::Bool:     return GL_FLOAT;
+		case ShaderDataType::Int:      return GL_INT;
+		case ShaderDataType::Int2:     return GL_INT;
+		case ShaderDataType::Int3:     return GL_INT;
+		case ShaderDataType::Int4:     return GL_INT;
+		case ShaderDataType::Bool:     return GL_BOOL;
 		}
 
 		OG_CORE_ASSERT(false, "未知的着色器数据类型！");
@@ -64,7 +64,6 @@ namespace Orange
 		glBindVertexArray(o_RendererID);
 		vertexBuffer->Bind();
 
-		uint32_t index = 0;
 		const auto& layout = vertexBuffer->GetLayout();
 		for (const auto& element : layout)
 		{
@@ -74,6 +73,17 @@ namespace Orange
 			case ShaderDataType::Float2:
 			case ShaderDataType::Float3:
 			case ShaderDataType::Float4:
+			{
+				glEnableVertexAttribArray(o_VertexBufferIndex);
+				glVertexAttribPointer(o_VertexBufferIndex,
+					element.GetComponentCount(),
+					ShaderDataTypeToOpenGLBaseType(element.Type),
+					element.Normalized ? GL_TRUE : GL_FALSE,
+					layout.GetStride(),
+					(const void*)element.Offset);
+				o_VertexBufferIndex++;
+				break;
+			}
 			case ShaderDataType::Int:
 			case ShaderDataType::Int2:
 			case ShaderDataType::Int3:
@@ -81,10 +91,9 @@ namespace Orange
 			case ShaderDataType::Bool:
 			{
 				glEnableVertexAttribArray(o_VertexBufferIndex);
-				glVertexAttribPointer(o_VertexBufferIndex,
+				glVertexAttribIPointer(o_VertexBufferIndex,
 					element.GetComponentCount(),
 					ShaderDataTypeToOpenGLBaseType(element.Type),
-					element.Normalized ? GL_TRUE : GL_FALSE,
 					layout.GetStride(),
 					(const void*)element.Offset);
 				o_VertexBufferIndex++;
