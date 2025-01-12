@@ -137,8 +137,9 @@ namespace Orange
 
 	static void SerializeEntity(YAML::Emitter& out, Entity entity)
 	{
+		OG_CORE_ASSERT(entity.HasComponent<IDComponent>());
 		out << YAML::BeginMap; // Entity
-		out << YAML::Key << "Entity" << YAML::Value << "12837192831273"; // TODO: Entity ID goes here
+		out << YAML::Key << "Entity" << YAML::Value << entity.GetUUID(); // TODO: Entity ID goes here
 
 		if (entity.HasComponent<TagComponent>())
 		{
@@ -241,13 +242,13 @@ namespace Orange
 		{
 			for (auto entity : entities)
 			{
-				uint64_t uuid = entity["Entity"].as<uint64_t>(); // TODO
+				uint64_t uuid = entity["Entity"].as<uint64_t>();
 				std::string name;
 				auto tagComponent = entity["TagComponent"];
 				if (tagComponent)
 					name = tagComponent["Tag"].as<std::string>();
 				OG_CORE_TRACE("Deserialized entity with ID = {0}, name = {1}", uuid, name);
-				Entity deserializedEntity = o_Scene->CreateEntity(name);
+				Entity deserializedEntity = o_Scene->CreateEntityWithUUID(uuid, name);
 				auto transformComponent = entity["TransformComponent"];
 				if (transformComponent)
 				{

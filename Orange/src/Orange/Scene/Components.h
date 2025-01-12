@@ -1,17 +1,25 @@
 #pragma once
 
+#include "SceneCamera.h"
+#include "Orange/Core/UUID.h"
+#include "Orange/Renderer/Texture.h"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
-#include "SceneCamera.h"
-#include "ScriptableEntity.h"
-#include "Orange/Renderer/Texture.h"
-
 namespace Orange
 {
+
+	struct IDComponent
+	{
+		UUID ID;
+
+		IDComponent() = default;
+		IDComponent(const IDComponent&) = default;
+	};
 
 	struct TagComponent
 	{
@@ -65,6 +73,9 @@ namespace Orange
 		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
 	};
+
+	// Forward declaration
+	class ScriptableEntity;
 
 	struct NativeScriptComponent
 	{

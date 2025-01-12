@@ -1,6 +1,9 @@
 #pragma once
 
+#include "Orange/Core/UUID.h"
 #include "Scene.h"
+#include "Components.h"
+
 #include "entt.hpp"
 
 namespace Orange
@@ -46,6 +49,8 @@ namespace Orange
 		operator bool() const { return o_EntityHandle != entt::null; }
 		operator entt::entity() const { return o_EntityHandle; }
 		operator uint32_t() const { return (uint32_t)o_EntityHandle; }
+
+		UUID GetUUID() { return GetComponent<IDComponent>().ID; }
 
 		bool operator==(const Entity& other) const
 		{

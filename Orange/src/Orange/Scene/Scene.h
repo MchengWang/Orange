@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Orange/Core/Timestep.h"
+#include "Orange/Core/UUID.h"
 #include "Orange/Renderer/EditorCamera.h"
 
 #include "entt.hpp"
@@ -19,6 +20,7 @@ namespace Orange
 		~Scene();
 
 		Entity CreateEntity(const std::string& name = std::string());
+		Entity CreateEntityWithUUID(UUID uuid, const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
 
 		void OnRuntimeStart();
