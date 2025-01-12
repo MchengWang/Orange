@@ -32,33 +32,38 @@ namespace Orange
 		o_SelectionContext = {};
 	}
 
+		
 	void SceneHierarchyPanel::OnImGuiRender()
 	{
 		ImGui::Begin("Scene Hierarchy");
 
-		// entt::base_registry 丢弃了 each方法 但是 skypjack 说可以像使用组件那样使用视图
-		// 来自于 https://github.com/skypjack/entt/issues/1116
-		for (auto& entt : o_Context->o_Registry.view<entt::entity>())
+		if (o_Context)
 		{
-			Entity entity{ entt , o_Context.get() };
-			DrawEntityNode(entity);
+			// entt::base_registry 丢弃了 each方法 但是 skypjack 说可以像使用组件那样使用视图
+			// 来自于 https://github.com/skypjack/entt/issues/1116
+			for (auto& entt : o_Context->o_Registry.view<entt::entity>())
+			{
+				Entity entity{ entt , o_Context.get() };
+				DrawEntityNode(entity);
+			}
+
+			if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
+				o_SelectionContext = {};
+
+			// Right-click on blank space
+			if (ImGui::BeginPopupContextWindow(0, 1))
+			{
+				if (ImGui::MenuItem("Create Empty Entity"))
+					o_Context->CreateEntity("Empty Entity");
+
+				ImGui::EndPopup();
+			}
+
 		}
-
-		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
-			o_SelectionContext = {};
-
-		// 在空白区域右键
-		if (ImGui::BeginPopupContextWindow())
-		{
-			if (ImGui::MenuItem("Create Empty Entity"))
-				o_Context->CreateEntity("Empty Entity");
-
-			ImGui::EndPopup();
-		}
-
 		ImGui::End();
 
 		ImGui::Begin("Properties");
+
 		if (o_SelectionContext)
 		{
 			DrawComponents(o_SelectionContext);
@@ -402,7 +407,7 @@ namespace Orange
 
 		DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [](auto& component) {
 			ImGui::DragFloat2("Offset", glm::value_ptr(component.Offset));
-			ImGui::DragFloat2("Size", glm::value_ptr(component.Offset));
+			ImGui::DragFloat2("Size", glm::value_ptr(component.Size));
 			ImGui::DragFloat("Density", &component.Density, 0.01f, 0.0f, 1.0f);
 			ImGui::DragFloat("Friction", &component.Friction, 0.01f, 0.0f, 1.0f);
 			ImGui::DragFloat("Restitution", &component.Restitution, 0.01f, 0.0f, 1.0f);

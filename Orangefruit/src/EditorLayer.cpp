@@ -99,7 +99,6 @@ namespace Orange
 		o_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
 		o_SecondCamera.AddComponent<NativeScriptComponent>().Bind<CameraController>();
 #endif
-		o_SceneHierarchyPanel.SetContext(o_ActiveScene);
 	}
 
 	void EditorLayer::OnDetach()
@@ -414,9 +413,20 @@ namespace Orange
 			}
 			case Key::S:
 			{
-				if (control && shift)
-					SaveSceneAs();
+				if (control)
+				{
+					if (shift)
+						SaveSceneAs();
+					else
+						SaveScene();
+				}
 
+				break;
+			}
+			case Key::D:
+			{
+				if (control)
+					OnDuplicateEntity();
 				break;
 			}
 
@@ -454,6 +464,8 @@ namespace Orange
 		o_ActiveScene = CreateRef<Scene>();
 		o_ActiveScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
 		o_SceneHierarchyPanel.SetContext(o_ActiveScene);
+
+		o_EditorScenePath = std::filesystem::path();
 	}
 
 	void EditorLayer::OpenScene()
@@ -467,6 +479,9 @@ namespace Orange
 
 	void EditorLayer::OpenScene(const std::filesystem::path& path)
 	{
+		if (o_SceneState != SceneState::Edit)
+			OnSceneStop();
+
 		if (path.extension().string() != ".orange")
 		{
 			OG_CLIENT_WARN("Count not load {0} - not a scene file", path.filename().string());
@@ -477,10 +492,21 @@ namespace Orange
 		SceneSerializer serializer(newScene);
 		if (serializer.Deserialize(path.string()))
 		{
-			o_ActiveScene = newScene;
-			o_ActiveScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
-			o_SceneHierarchyPanel.SetContext(o_ActiveScene);
+			o_EditorScene = newScene;
+			o_EditorScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
+			o_SceneHierarchyPanel.SetContext(o_EditorScene);
+
+			o_ActiveScene = o_EditorScene;
+			o_EditorScenePath = path;
 		}
+	}
+
+	void EditorLayer::SaveScene()
+	{
+		if (!o_EditorScenePath.empty())
+			SerializeScene(o_ActiveScene, o_EditorScenePath);
+		else
+			SaveSceneAs();
 	}
 
 	void EditorLayer::SaveSceneAs()
@@ -488,21 +514,45 @@ namespace Orange
 		std::string filepath = FileDialogs::SaveFile("Orange Scene (*.orange)\0*.orange\0");
 		if (!filepath.empty())
 		{
-			SceneSerializer serializer(o_ActiveScene);
-			serializer.Serialize(filepath);
+			SerializeScene(o_ActiveScene, filepath);
+			o_EditorScenePath = filepath;
 		}
+	}
+
+	void EditorLayer::SerializeScene(Ref<Scene> scene, const std::filesystem::path& path)
+	{
+		SceneSerializer serializer(scene);
+		serializer.Serialize(path.string());
 	}
 
 	void EditorLayer::OnScenePlay()
 	{
 		o_SceneState = SceneState::Play;
+
+		o_ActiveScene = Scene::Copy(o_EditorScene);
 		o_ActiveScene->OnRuntimeStart();
+
+		o_SceneHierarchyPanel.SetContext(o_ActiveScene);
 	}
 
 	void EditorLayer::OnSceneStop()
 	{
 		o_SceneState = SceneState::Edit;
+
 		o_ActiveScene->OnRuntimeStop();
+		o_ActiveScene = o_EditorScene;
+
+		o_SceneHierarchyPanel.SetContext(o_ActiveScene);
+	}
+
+	void EditorLayer::OnDuplicateEntity()
+	{
+		if (o_SceneState != SceneState::Edit)
+			return;
+
+		Entity selectedEntity = o_SceneHierarchyPanel.GetSelectedEntity();
+		if (selectedEntity)
+			o_EditorScene->DuplicateEntity(selectedEntity);
 	}
 
 }

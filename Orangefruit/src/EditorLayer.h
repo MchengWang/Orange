@@ -29,10 +29,15 @@ namespace Orange
 		void NewScene();
 		void OpenScene();
 		void OpenScene(const std::filesystem::path& path);
+		void SaveScene();
 		void SaveSceneAs();
+
+		void SerializeScene(Ref<Scene> scene, const std::filesystem::path& path);
 
 		void OnScenePlay();
 		void OnSceneStop();
+
+		void OnDuplicateEntity();
 
 		// UI Panels
 		void UI_Toolbar();
@@ -46,6 +51,8 @@ namespace Orange
 		Ref<Framebuffer> o_Framebuffer;
 
 		Ref<Scene> o_ActiveScene;
+		Ref<Scene> o_EditorScene;
+		std::filesystem::path o_EditorScenePath;
 		Entity o_SquareEntity;
 		Entity o_CameraEntity;
 		Entity o_SecondCamera;

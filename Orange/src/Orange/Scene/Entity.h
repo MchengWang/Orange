@@ -24,6 +24,14 @@ namespace Orange
 			return component;
 		}
 
+		template <typename T, typename... Args>
+		T& AddOrReplaceComponent(Args&&... args)
+		{
+			T& component = o_Scene->o_Registry.emplace_or_replace<T>(o_EntityHandle, std::forward<Args>(args)...);
+			o_Scene->OnComponentAdded<T>(*this, component);
+			return component;
+		}
+
 		template<typename T>
 		T& GetComponent()
 		{
@@ -51,6 +59,7 @@ namespace Orange
 		operator uint32_t() const { return (uint32_t)o_EntityHandle; }
 
 		UUID GetUUID() { return GetComponent<IDComponent>().ID; }
+		const std::string& GetName() { return GetComponent<TagComponent>().Tag; }
 
 		bool operator==(const Entity& other) const
 		{
