@@ -149,7 +149,7 @@ namespace Orange
 		o_PhysicsWorld = nullptr;
 	}
 
-	void Scene::OnUpdateRuntime(Timestep timestep)
+	void Scene::OnUpdateRuntime(Timestep ts)
 	{
 		// Update scripts
 		{
@@ -162,18 +162,18 @@ namespace Orange
 						nsc.Instance->o_Entity = Entity{ entity, this };
 						nsc.Instance->OnCreate();
 					}
-					
-					nsc.Instance->OnUpdate(timestep);
+
+					nsc.Instance->OnUpdate(ts);
 				});
 		}
 
-		// Physics 
+		// Physics
 		{
 			const int32_t velocityIterations = 6;
 			const int32_t positionIterations = 2;
-			o_PhysicsWorld->Step(timestep, velocityIterations, positionIterations);
+			o_PhysicsWorld->Step(ts, velocityIterations, positionIterations);
 
-			// Retrieve transform form Box2D
+			// Retrieve transform from Box2D
 			auto view = o_Registry.view<Rigidbody2DComponent>();
 			for (auto e : view)
 			{
@@ -211,6 +211,39 @@ namespace Orange
 		{
 			Renderer2D::BeginScene(*mainCamera, cameraTransform);
 
+			// Draw sprites
+			{
+				auto group = o_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+				for (auto entity : group)
+				{
+					auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+
+					Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+				}
+			}
+
+			// Draw circles
+			{
+				auto view = o_Registry.view<TransformComponent, CircleRendererComponent>();
+				for (auto entity : view)
+				{
+					auto [transform, circle] = view.get<TransformComponent, CircleRendererComponent>(entity);
+
+					Renderer2D::DrawCircle(transform.GetTransform(), circle.Color, circle.Thickness, circle.Fade, (int)entity);
+				}
+			}
+
+			Renderer2D::EndScene();
+		}
+
+	}
+
+	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
+	{
+		Renderer2D::BeginScene(camera);
+
+		// Draw sprites
+		{
 			auto group = o_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
 			for (auto entity : group)
 			{
@@ -218,21 +251,17 @@ namespace Orange
 
 				Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
 			}
-
-			Renderer2D::EndScene();
 		}
-	}
 
-	void Scene::OnUpdateEditor(Timestep timestep, EditorCamera& camera)
-	{
-		Renderer2D::BeginScene(camera);
-
-		auto group = o_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-		for (auto entity : group)
+		// Draw circles
 		{
-			auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+			auto view = o_Registry.view<TransformComponent, CircleRendererComponent>();
+			for (auto entity : view)
+			{
+				auto [transform, circle] = view.get<TransformComponent, CircleRendererComponent>(entity);
 
-			Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+				Renderer2D::DrawCircle(transform.GetTransform(), circle.Color, circle.Thickness, circle.Fade, (int)entity);
+			}
 		}
 
 		Renderer2D::EndScene();
@@ -259,6 +288,7 @@ namespace Orange
 		Entity newEntity = CreateEntity(name);
 		CopyComponentIfExists<TransformComponent>(newEntity, entity);
 		CopyComponentIfExists<SpriteRendererComponent>(newEntity, entity);
+		CopyComponentIfExists<CircleRendererComponent>(newEntity, entity);
 		CopyComponentIfExists<CameraComponent>(newEntity, entity);
 		CopyComponentIfExists<NativeScriptComponent>(newEntity, entity);
 		CopyComponentIfExists<Rigidbody2DComponent>(newEntity, entity);
@@ -306,6 +336,11 @@ namespace Orange
 	void Scene::OnComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component)
 	{
 
+	}
+
+	template<>
+	void Scene::OnComponentAdded<CircleRendererComponent>(Entity entity, CircleRendererComponent& component)
+	{
 	}
 
 	template <>
