@@ -20,3 +20,6 @@
 [submodule "Orange/vendor/ImGuizmo"]
 	path = Orange/vendor/ImGuizmo
 	url = https://github.com/thecherno/imguizmo
+[submodule "Orange/vendor/Box2D"]
+	path = Orange/vendor/Box2D
+	url = https://github.com/TheCherno/Box2D

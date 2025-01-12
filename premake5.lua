@@ -26,6 +26,7 @@ outdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 group "Dependencies"
 	include "vendor/premake"
+	include "Orange/vendor/Box2D"
 	include "Orange/vendor/GLFW"
 	include "Orange/vendor/Glad"
 	include "Orange/vendor/imgui"

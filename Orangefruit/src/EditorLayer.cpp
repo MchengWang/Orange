@@ -496,11 +496,13 @@ namespace Orange
 	void EditorLayer::OnScenePlay()
 	{
 		o_SceneState = SceneState::Play;
+		o_ActiveScene->OnRuntimeStart();
 	}
 
 	void EditorLayer::OnSceneStop()
 	{
 		o_SceneState = SceneState::Edit;
+		o_ActiveScene->OnRuntimeStop();
 	}
 
 }
