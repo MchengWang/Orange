@@ -2,6 +2,8 @@
 
 #include <filesystem>
 
+#include "Orange/Renderer/Texture.h"
+
 namespace Orange
 {
 
@@ -14,6 +16,9 @@ namespace Orange
 
 	private:
 		std::filesystem::path o_CurrentDirectory;
+
+		Ref<Texture2D> o_DirectoryIcon;
+		Ref<Texture2D> o_FileIcon;
 	};
 
 }

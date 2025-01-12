@@ -15,6 +15,8 @@
 namespace Orange
 {
 
+	extern const std::filesystem::path g_AssetPath;
+
 	EditorLayer::EditorLayer()
 		:Layer("Sandbox2D"), o_CameraController(1280.0f / 720.0f), o_SquareColor({ 0.2f, 0.3f, 0.8f, 1.0f })
 	{
@@ -265,6 +267,17 @@ namespace Orange
 		uint64_t textureID = o_Framebuffer->GetColorAttachmentRendererID();
 		ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{o_ViewportSize.x, o_ViewportSize.y}, ImVec2{0, 1}, ImVec2{1, 0});
 
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+			{
+				const wchar_t* path = (const wchar_t*)payload->Data;
+				OpenScene(std::filesystem::path(g_AssetPath) / path);
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
 		// Gizmos
 		Entity selectedEntity = o_SceneHierarchyPanel.GetSelectedEntity();
 		if (selectedEntity && o_GizmoType != -1)
@@ -402,13 +415,18 @@ namespace Orange
 		std::string filepath = FileDialogs::OpenFile("Orange Scene (*.orange)\0*.orange\0");
 		if (!filepath.empty())
 		{
-			o_ActiveScene = CreateRef<Scene>();
-			o_ActiveScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
-			o_SceneHierarchyPanel.SetContext(o_ActiveScene);
-
-			SceneSerializer serializer(o_ActiveScene);
-			serializer.Deserialize(filepath);
+			OpenScene(filepath);
 		}
+	}
+
+	void EditorLayer::OpenScene(const std::filesystem::path& path)
+	{
+		o_ActiveScene = CreateRef<Scene>();
+		o_ActiveScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
+		o_SceneHierarchyPanel.SetContext(o_ActiveScene);
+
+		SceneSerializer serializer(o_ActiveScene);
+		serializer.Deserialize(path.string());
 	}
 
 	void EditorLayer::SaveSceneAs()
