@@ -27,6 +27,8 @@ namespace Orange
 		HZ_PROFILE_FUNCTION();
 
 		o_CheckerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
+		o_IconPlay = Texture2D::Create("Resources/Icons/PlayButton.png");
+		o_IconStop = Texture2D::Create("Resources/Icons/StopButton.png");
 
 		FramebufferSpecification fbSpec;
 		fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGET, FramebufferTextureFormat::Depth };
@@ -120,12 +122,6 @@ namespace Orange
 			o_ActiveScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
 		}
 
-		// 更新
-		if (o_ViewportFocused)
-			o_CameraController.OnUpdate(timestep);
-
-		o_EditorCamera.OnUpdate(timestep);
-
 		// 渲染
 		Renderer2D::ResetStats();
 		o_Framebuffer->Bind();
@@ -135,8 +131,24 @@ namespace Orange
 		// 将我们的实体 ID 附件清除为 -1
 		o_Framebuffer->ClearAttachment(1, -1);
 
-		// 更新场景
-		o_ActiveScene->OnUpdateEditor(timestep, o_EditorCamera);
+		switch (o_SceneState)
+		{
+			case Orange::EditorLayer::SceneState::Edit:
+			{
+				if (o_ViewportFocused)
+					o_CameraController.OnUpdate(timestep);
+
+				o_EditorCamera.OnUpdate(timestep);
+
+				o_ActiveScene->OnUpdateEditor(timestep, o_EditorCamera);
+				break;
+			}
+			case Orange::EditorLayer::SceneState::Play:
+			{
+				o_ActiveScene->OnUpdateRuntime(timestep);
+				break;
+			}
+		}
 
 		auto [mx, my] = ImGui::GetMousePos();
 		mx -= o_ViewportBounds[0].x;
@@ -327,8 +339,39 @@ namespace Orange
 		}
 		
 		ImGui::End();
+
 		ImGui::PopStyleVar();
 
+		UI_Toolbar();
+
+		ImGui::End();
+	}
+
+	void EditorLayer::UI_Toolbar()
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+		auto& colors = ImGui::GetStyle().Colors;
+		const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
+		const auto& buttonActive = colors[ImGuiCol_ButtonActive];
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
+
+		ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+		
+		float size = ImGui::GetWindowHeight() - 4.0f;
+		Ref<Texture2D> icon = o_SceneState == SceneState::Edit ? o_IconPlay : o_IconStop;
+		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
+		if (ImGui::ImageButton((ImTextureID)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0))
+		{
+			if (o_SceneState == SceneState::Edit)
+				OnScenePlay();
+			else if (o_SceneState == SceneState::Play)
+				OnSceneStop();
+		}
+		ImGui::PopStyleVar(2);
+		ImGui::PopStyleColor(3);
 		ImGui::End();
 	}
 
@@ -421,12 +464,20 @@ namespace Orange
 
 	void EditorLayer::OpenScene(const std::filesystem::path& path)
 	{
-		o_ActiveScene = CreateRef<Scene>();
-		o_ActiveScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
-		o_SceneHierarchyPanel.SetContext(o_ActiveScene);
+		if (path.extension().string() != ".orange")
+		{
+			OG_CLIENT_WARN("Count not load {0} - not a scene file", path.filename().string());
+			return;
+		}
 
-		SceneSerializer serializer(o_ActiveScene);
-		serializer.Deserialize(path.string());
+		Ref<Scene> newScene = CreateRef<Scene>();
+		SceneSerializer serializer(newScene);
+		if (serializer.Deserialize(path.string()))
+		{
+			o_ActiveScene = newScene;
+			o_ActiveScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
+			o_SceneHierarchyPanel.SetContext(o_ActiveScene);
+		}
 	}
 
 	void EditorLayer::SaveSceneAs()
@@ -437,6 +488,16 @@ namespace Orange
 			SceneSerializer serializer(o_ActiveScene);
 			serializer.Serialize(filepath);
 		}
+	}
+
+	void EditorLayer::OnScenePlay()
+	{
+		o_SceneState = SceneState::Play;
+	}
+
+	void EditorLayer::OnSceneStop()
+	{
+		o_SceneState = SceneState::Edit;
 	}
 
 }

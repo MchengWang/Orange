@@ -31,6 +31,12 @@ namespace Orange
 		void OpenScene(const std::filesystem::path& path);
 		void SaveSceneAs();
 
+		void OnScenePlay();
+		void OnSceneStop();
+
+		// UI Panels
+		void UI_Toolbar();
+
 	private:
 		OrthographicCameraController o_CameraController;
 
@@ -61,9 +67,19 @@ namespace Orange
 
 		int o_GizmoType = -1;
 
+		enum class SceneState
+		{
+			Edit = 0, Play = 1
+		};
+
+		SceneState o_SceneState = SceneState::Edit;
+
 		// Ãæ°å
 		SceneHierarchyPanel o_SceneHierarchyPanel;
 		ContentBrowerPanel o_ContentBrowserPanel;
+
+		// Editor resources
+		Ref<Texture2D> o_IconPlay, o_IconStop;
 	};
 
 }
