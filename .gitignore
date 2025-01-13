@@ -17,3 +17,4 @@ bin-obj/
 Orange/vendor/VulkanSDK
 Orangefruit/assets/cache
 scripts/__pycache__
+Orange/vendor/Glad
