@@ -1,13 +1,12 @@
 #include "ogpch.h"
 #include "Scene.h"
+#include "Entity.h"
 
 #include "Components.h"
 #include "ScriptableEntity.h"
 #include "Orange/Renderer/Renderer2D.h"
 
 #include <glm/glm.hpp>
-
-#include "Entity.h"
 
 // Box2D
 #include "box2d/b2_world.h"
@@ -301,12 +300,6 @@ namespace Orange {
 		return {};
 	}
 
-	template<typename T>
-	void Scene::OnComponentAdded(Entity entity, T& component)
-	{
-		// static_assert(false);
-	}
-
 	void Scene::OnPhysics2DStart()
 	{
 		o_PhysicsWorld = new b2World({ 0.0f, -9.8f });
@@ -395,6 +388,12 @@ namespace Orange {
 		}
 
 		Renderer2D::EndScene();
+	}
+
+	template<typename T>
+	void Scene::OnComponentAdded(Entity entity, T& component)
+	{
+		static_assert(sizeof(T) == 0);
 	}
 
 	template<>

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <memory>
 #include "Orange/Renderer/Buffer.h"
+
+#include <memory>
 
 namespace Orange
 {

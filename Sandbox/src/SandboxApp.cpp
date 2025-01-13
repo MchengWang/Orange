@@ -8,7 +8,8 @@
 class Sandbox : public Orange::Application
 {
 public:
-	Sandbox()
+	Sandbox(const Orange::ApplicationSpecification& specification)
+		: Orange::Application(specification)
 	{
 		PushLayer(new Sandbox2D());
 	}
@@ -20,7 +21,11 @@ public:
 
 };
 
-Orange::Application* Orange::CreateApplication()
+Orange::Application* Orange::CreateApplication(Orange::ApplicationCommandLineArgs args)
 {
-	return new Sandbox();
+	ApplicationSpecification spec;
+	spec.Name = "Sandbox";
+	spec.WorkingDirectory = "../Hazelnut";
+	spec.CommandLineArgs = args;
+	return new Sandbox(spec);
 }

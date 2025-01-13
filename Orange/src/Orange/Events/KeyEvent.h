@@ -22,22 +22,25 @@ namespace Orange
 	class KeyPressedEvent : public KeyEvent
 	{
 	public:
-		KeyPressedEvent(const KeyCode keycode, uint16_t repeatCount)
-		:KeyEvent(keycode), o_RepeatCount(repeatCount) {}
+		KeyPressedEvent(const KeyCode keycode)
+			:KeyEvent(keycode) {}
 
-		uint16_t GetRepeatCount() const { return o_RepeatCount; }
+		KeyPressedEvent(const KeyCode keycode, bool isRepeat = false)
+		:KeyEvent(keycode), o_IsRepeat(isRepeat) {}
+
+		bool IsRepeat() const { return o_IsRepeat; }
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "键盘按下事件: " << o_KeyCode << " (重复: " << o_RepeatCount << " 次)";
+			ss << "键盘按下事件: " << o_KeyCode << " (重复= " << o_IsRepeat << " 次)";
 			return ss.str();
 		}
 
 		EVENT_CLASS_TYPE(KeyPressed)
 
 	private:
-		uint16_t o_RepeatCount;
+		bool o_IsRepeat;
 	};
 
 	class KeyReleasedEvent : public KeyEvent

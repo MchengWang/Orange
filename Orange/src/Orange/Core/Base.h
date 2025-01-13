@@ -1,8 +1,8 @@
 #pragma once
 
-#include <memory>
-
 #include "Orange/Core/PlatformDetection.h"
+
+#include <memory>
 
 #ifdef OG_DEBUG
 	#if defined(OG_PLATFORM_WINDOWS)

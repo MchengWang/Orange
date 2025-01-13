@@ -9,21 +9,19 @@ namespace Orange
 	class Orangefruit : public Orange::Application
 	{
 	public:
-		Orangefruit(ApplicationCommandLineArgs args)
-			: Application("Orangefruit", args)
+		Orangefruit(const ApplicationSpecification& spec)
+			: Application(spec)
 		{
 			PushLayer(new EditorLayer());
-		}
-
-		~Orangefruit()
-		{
-
 		}
 
 	};
 
 	Application* CreateApplication(ApplicationCommandLineArgs args)
 	{
-		return new Orangefruit(args);
+		ApplicationSpecification spec;
+		spec.Name = "Orangefruit";
+		spec.CommandLineArgs = args;
+		return new Orangefruit(spec);
 	}
 }

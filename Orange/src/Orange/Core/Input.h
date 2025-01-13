@@ -1,9 +1,9 @@
 #pragma once
 
-#include <glm/glm.hpp>
-
 #include "Orange/Core/KeyCodes.h"
 #include "Orange/Core/MouseCodes.h"
+
+#include <glm/glm.hpp>
 
 namespace Orange
 {

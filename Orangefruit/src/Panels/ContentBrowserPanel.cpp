@@ -43,8 +43,7 @@ namespace Orange
 		for (auto& directoryEntity : std::filesystem::directory_iterator(o_CurrentDirectory))
 		{
 			const auto& path = directoryEntity.path();
-			auto relativePath = std::filesystem::relative(path, g_AssetPath);
-			std::string filenameString = relativePath.filename().string();
+			std::string filenameString = path.filename().string();
 			
 			ImGui::PushID(filenameString.c_str());
 			Ref<Texture2D> icon = directoryEntity.is_directory() ? o_DirectoryIcon : o_FileIcon;
@@ -53,6 +52,7 @@ namespace Orange
 
 			if (ImGui::BeginDragDropSource())
 			{ 
+				auto relativePath = std::filesystem::relative(path, g_AssetPath);
 				const wchar_t* itemPath = relativePath.c_str();
 				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", itemPath, (wcslen(itemPath) + 1) * sizeof(wchar_t));
 				ImGui::EndDragDropSource();

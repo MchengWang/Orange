@@ -4,6 +4,8 @@
 ///// Copy from TheCherno //////
 ////////////////////////////////
 
+#include "Orange/Core/Log.h"
+
 #include <algorithm>
 #include <chrono>
 #include <fstream>
@@ -12,8 +14,6 @@
 #include <thread>
 #include <mutex>
 #include <sstream>
-
-#include "Orange/Core/Log.h"
 
 namespace Hazel {
 

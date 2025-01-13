@@ -1,9 +1,9 @@
 #pragma once
 
-#include <xhash>
-
 namespace Orange
 {
+
+	template <typename T> struct hash;
 
 	class UUID
 	{
@@ -28,7 +28,7 @@ namespace std
 	{
 		std::size_t operator()(const Orange::UUID& uuid) const
 		{
-			return hash<uint64_t>()((uint64_t)uuid);
+			return (uint64_t)uuid;
 		}
 	};
 

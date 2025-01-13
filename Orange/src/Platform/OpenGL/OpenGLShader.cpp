@@ -1,5 +1,6 @@
 #include "ogpch.h"
 #include "Platform/OpenGL/OpenGLShader.h"
+#include "Orange/Core/Timer.h"
 
 #include <fstream>
 
@@ -9,8 +10,6 @@
 #include <shaderc/shaderc.hpp>
 #include <spirv_cross/spirv_cross.hpp>
 #include <spirv_cross/spirv_glsl.hpp>
-
-#include "Orange/Core/Timer.h"
 
 namespace Orange
 {

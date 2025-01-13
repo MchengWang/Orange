@@ -1,8 +1,9 @@
 #pragma once
-#include <functional>
 
 #include "Orange/Debug/Instrumentor.h"
 #include "Orange/Core/Base.h"
+
+#include <functional>
 
 namespace Orange
 {

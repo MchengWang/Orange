@@ -1,8 +1,8 @@
 #pragma once
 
-#include <filesystem>
-
 #include "Orange/Renderer/Texture.h"
+
+#include <filesystem>
 
 namespace Orange
 {

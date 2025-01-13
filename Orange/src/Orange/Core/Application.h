@@ -29,10 +29,18 @@ namespace Orange
 		}
 	};
 
+	struct ApplicationSpecification
+	{
+		std::string Name = "Orange Application";
+		std::string WorkingDirectory;
+		ApplicationCommandLineArgs CommandLineArgs;
+	};
+
+
 	class Application 
 	{
 	public:
-		Application(const std::string& name = "Orange App", ApplicationCommandLineArgs args = ApplicationCommandLineArgs());
+		Application(const ApplicationSpecification& specification);
 		virtual ~Application();
 
 		void OnEvent(Event& e);
@@ -48,7 +56,7 @@ namespace Orange
 
 		static Application& Get() { return *o_Instance; }
 
-		ApplicationCommandLineArgs GetCommandLineArgs() const { return o_CommandLineArgs; }
+		const ApplicationSpecification& GetSpecification() const { return o_Specification; }
 
 	private:
 		void Run();
@@ -56,7 +64,7 @@ namespace Orange
 		bool OnWindowResized(WindowResizeEvent& event); // 窗口尺寸修改事件
 
 	private:
-		ApplicationCommandLineArgs o_CommandLineArgs;
+		ApplicationSpecification o_Specification;
 		Scope<Window> o_Window;
 		ImGuiLayer* o_ImGuiLayer;
 		bool o_Running = true;

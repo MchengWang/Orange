@@ -9,21 +9,25 @@
 
 #include "Input.h"
 
-#include <GLFW/glfw3.h>
+#include "Orange/Utils/PlatformUtils.h"
 
 namespace Orange
 {
 	Application* Application::o_Instance = nullptr;
 
-	Application::Application(const std::string& name, ApplicationCommandLineArgs args)
-		: o_CommandLineArgs(args)
+	Application::Application(const ApplicationSpecification& specification)
+		: o_Specification(specification)
 	{
 		HZ_PROFILE_FUNCTION();
 
 		OG_CORE_ASSERT(!o_Instance, "Application 实例已经存在！")
 		o_Instance = this;
 
-		o_Window = Window::Create(WindowProps(name));
+		// Set working directory here
+		if (!o_Specification.WorkingDirectory.empty())
+			std::filesystem::current_path(o_Specification.WorkingDirectory);
+		o_Window = Window::Create(WindowProps(o_Specification.Name));
+
 		o_Window->SetEventCallback(OG_BIND_EVENT_FN(Application::OnEvent));
 
 		Renderer::Init();
@@ -84,7 +88,7 @@ namespace Orange
 		{
 			HZ_PROFILE_SCOPE("RunLoop");
 
-			float time = (float)glfwGetTime();
+			float time = Time::GetTime();
 			Timestep timestep = time - o_LastFrameTime;
 			o_LastFrameTime = time;
 

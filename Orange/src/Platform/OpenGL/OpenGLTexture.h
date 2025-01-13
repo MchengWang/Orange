@@ -17,6 +17,9 @@ namespace Orange
 		virtual uint32_t GetWidth() const override { return o_Width; }
 		virtual uint32_t GetHeight() const override { return o_Height; }
 		virtual uint32_t GetRendererID() const override { return o_RendererID; }
+
+		virtual const std::string& GetPath() const override { return o_Path; }
+
 		virtual void SetData(void* data, uint32_t size) override;
 
 		virtual void Bind(uint32_t slot = 0) const override;	
@@ -25,7 +28,7 @@ namespace Orange
 
 		virtual bool operator==(const Texture& other) const override
 		{
-			return o_RendererID == ((OpenGLTexture2D&)other).o_RendererID;
+			return o_RendererID == other.GetRendererID();
 		}
 
 	private:

@@ -1,5 +1,6 @@
 #include "ogpch.h"
 #include "Orange/Utils/PlatformUtils.h"
+#include "Orange/Core/Application.h"
 
 #include <commdlg.h>
 #include <GLFW/glfw3.h>
@@ -7,9 +8,12 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
-#include "Orange/Core/Application.h"
-
 namespace Orange {
+
+	float Time::GetTime()
+	{
+		return glfwGetTime();
+	}
 
 	std::string FileDialogs::OpenFile(const char* filter)
 	{
