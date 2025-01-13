@@ -37,6 +37,7 @@ namespace Orange
 		void SerializeScene(Ref<Scene> scene, const std::filesystem::path& path);
 
 		void OnScenePlay();
+		void OnSceneSimulate();
 		void OnSceneStop();
 
 		void OnDuplicateEntity();
@@ -80,7 +81,7 @@ namespace Orange
 
 		enum class SceneState
 		{
-			Edit = 0, Play = 1
+			Edit = 0, Play = 1, Simulate = 2
 		};
 
 		SceneState o_SceneState = SceneState::Edit;
@@ -90,7 +91,7 @@ namespace Orange
 		ContentBrowerPanel o_ContentBrowserPanel;
 
 		// Editor resources
-		Ref<Texture2D> o_IconPlay, o_IconStop;
+		Ref<Texture2D> o_IconPlay, o_IconSimulate, o_IconStop;
 	};
 
 }

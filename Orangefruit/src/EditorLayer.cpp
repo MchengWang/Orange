@@ -12,13 +12,12 @@
 
 #include "Orange/Math/Math.h"
 
-namespace Orange
-{
+namespace Orange {
 
 	extern const std::filesystem::path g_AssetPath;
 
 	EditorLayer::EditorLayer()
-		:Layer("Sandbox2D"), o_CameraController(1280.0f / 720.0f), o_SquareColor({ 0.2f, 0.3f, 0.8f, 1.0f })
+		: Layer("EditorLayer"), o_CameraController(1280.0f / 720.0f), o_SquareColor({ 0.2f, 0.3f, 0.8f, 1.0f })
 	{
 	}
 
@@ -28,6 +27,7 @@ namespace Orange
 
 		o_CheckerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
 		o_IconPlay = Texture2D::Create("Resources/Icons/PlayButton.png");
+		o_IconSimulate = Texture2D::Create("Resources/Icons/SimulateButton.png");
 		o_IconStop = Texture2D::Create("Resources/Icons/StopButton.png");
 
 		FramebufferSpecification fbSpec;
@@ -36,7 +36,8 @@ namespace Orange
 		fbSpec.Height = 720;
 		o_Framebuffer = Framebuffer::Create(fbSpec);
 
-		o_ActiveScene = CreateRef<Scene>();
+		o_EditorScene = CreateRef<Scene>();
+		o_ActiveScene = o_EditorScene;
 
 		auto commandLineArgs = Application::Get().GetCommandLineArgs();
 		if (commandLineArgs.Count > 1)
@@ -47,10 +48,11 @@ namespace Orange
 		}
 
 		o_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
+
 #if 0
 		// Entity
-		auto square = o_ActiveScene->CreateEntity("Puzzle Square");
-		square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.52f, 0.21f, 0.52f, 1.0f });
+		auto square = o_ActiveScene->CreateEntity("Green Square");
+		square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
 
 		auto redSquare = o_ActiveScene->CreateEntity("Red Square");
 		redSquare.AddComponent<SpriteRendererComponent>(glm::vec4{ 1.0f, 0.0f, 0.0f, 1.0f });
@@ -69,31 +71,29 @@ namespace Orange
 		public:
 			virtual void OnCreate() override
 			{
-				auto& translation = GetComponent<TransformComponent>().GetTransform();
-				translation[3][0] = rand() % 10 - 5.0f;
+				auto& translation = GetComponent<TransformComponent>().Translation;
+				translation.x = rand() % 10 - 5.0f;
 			}
 
 			virtual void OnDestroy() override
 			{
-
 			}
 
-			virtual void OnUpdate(Timestep timestep) override
+			virtual void OnUpdate(Timestep ts) override
 			{
 				auto& translation = GetComponent<TransformComponent>().Translation;
 
 				float speed = 5.0f;
 
 				if (Input::IsKeyPressed(Key::A))
-					translation.x -= speed * timestep;
+					translation.x -= speed * ts;
 				if (Input::IsKeyPressed(Key::D))
-					translation.x += speed * timestep;
+					translation.x += speed * ts;
 				if (Input::IsKeyPressed(Key::W))
-					translation.y += speed * timestep;
+					translation.y += speed * ts;
 				if (Input::IsKeyPressed(Key::S))
-					translation.y -= speed * timestep;
+					translation.y -= speed * ts;
 			}
-
 		};
 
 		o_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
@@ -106,47 +106,54 @@ namespace Orange
 		HZ_PROFILE_FUNCTION();
 	}
 
-	void EditorLayer::OnUpdate(Timestep timestep)
+	void EditorLayer::OnUpdate(Timestep ts)
 	{
 		HZ_PROFILE_FUNCTION();
 
+		// Resize
 		if (FramebufferSpecification spec = o_Framebuffer->GetSpecification();
-			o_ViewportSize.x > 0.0f && o_ViewportSize.y > 0.0f &&
+			o_ViewportSize.x > 0.0f && o_ViewportSize.y > 0.0f && // zero sized framebuffer is invalid
 			(spec.Width != o_ViewportSize.x || spec.Height != o_ViewportSize.y))
 		{
 			o_Framebuffer->Resize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
 			o_CameraController.OnResize(o_ViewportSize.x, o_ViewportSize.y);
-
 			o_EditorCamera.SetViewportSize(o_ViewportSize.x, o_ViewportSize.y);
 			o_ActiveScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
 		}
 
-		// 渲染
+		// Render
 		Renderer2D::ResetStats();
 		o_Framebuffer->Bind();
-		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 		RenderCommand::Clear();
 
-		// 将我们的实体 ID 附件清除为 -1
+		// Clear our entity ID attachment to -1
 		o_Framebuffer->ClearAttachment(1, -1);
 
 		switch (o_SceneState)
 		{
-			case Orange::EditorLayer::SceneState::Edit:
-			{
-				if (o_ViewportFocused)
-					o_CameraController.OnUpdate(timestep);
+		case SceneState::Edit:
+		{
+			if (o_ViewportFocused)
+				o_CameraController.OnUpdate(ts);
 
-				o_EditorCamera.OnUpdate(timestep);
+			o_EditorCamera.OnUpdate(ts);
 
-				o_ActiveScene->OnUpdateEditor(timestep, o_EditorCamera);
-				break;
-			}
-			case Orange::EditorLayer::SceneState::Play:
-			{
-				o_ActiveScene->OnUpdateRuntime(timestep);
-				break;
-			}
+			o_ActiveScene->OnUpdateEditor(ts, o_EditorCamera);
+			break;
+		}
+		case SceneState::Simulate:
+		{
+			o_EditorCamera.OnUpdate(ts);
+
+			o_ActiveScene->OnUpdateSimulation(ts, o_EditorCamera);
+			break;
+		}
+		case SceneState::Play:
+		{
+			o_ActiveScene->OnUpdateRuntime(ts);
+			break;
+		}
 		}
 
 		auto [mx, my] = ImGui::GetMousePos();
@@ -172,13 +179,14 @@ namespace Orange
 	{
 		HZ_PROFILE_FUNCTION();
 
-		// 注意：将此项切换为 true 可启用 dockspace
+		// Note: Switch this to true to enable dockspace
 		static bool dockspaceOpen = true;
 		static bool opt_fullscreen_persistant = true;
 		bool opt_fullscreen = opt_fullscreen_persistant;
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-		// 我们使用 ImGuiWindowFlags_NoDocking 标志使父窗口无法停靠到
-		// 因为两个对接目标彼此之间会令人困惑。
+
+		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+		// because it would be confusing to have two docking targets within each others.
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 		if (opt_fullscreen)
 		{
@@ -192,14 +200,15 @@ namespace Orange
 			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 		}
 
-		//当使用 ImGuiDockNodeFlags_PassthruCentralNode 时，DockSpace（） 将渲染我们的背景并处理直通孔，因此我们要求 Begin（） 不渲染背景。
+		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
 		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
 			window_flags |= ImGuiWindowFlags_NoBackground;
-		// 重要提示：请注意，即使 Begin（） 返回 false（即 window 已折叠），我们也会继续。
-		// 这是因为我们希望保持 DockSpace（） 处于活动状态。如果 DockSpace（） 处于非活动状态，则
-		// 停靠到其中的所有活动窗口都将丢失其父窗口并变为未停靠状态。
-		// 否则，我们无法保留活动窗口和非活动停靠之间的停靠关系
-		// DockSpace / 设置的任何更改都会导致 Windows 陷入困境并且永远不可见。
+
+		// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+		// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive, 
+		// all active windows docked into it will lose their parent and become undocked.
+		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise 
+		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
 		ImGui::PopStyleVar();
@@ -212,7 +221,6 @@ namespace Orange
 		ImGuiStyle& style = ImGui::GetStyle();
 		float minWinSizeX = style.WindowMinSize.x;
 		style.WindowMinSize.x = 370.0f;
-
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 		{
 			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
@@ -225,10 +233,9 @@ namespace Orange
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				// 禁用全屏将允许将窗口移动到其他窗口的前面。
-				// 如果没有更精细的窗口深度 / z 控制，我们目前无法撤消。
-				// ImGui：：MenuItem（“Fullscreen”， NULL， & opt_fullscreen_persistant）;
-
+				// Disabling fullscreen would allow the window to be moved to the front of other windows, 
+				// which we can't undo at the moment without finer window depth/z control.
+				//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);1
 				if (ImGui::MenuItem("New", "Ctrl+N"))
 					NewScene();
 
@@ -239,15 +246,16 @@ namespace Orange
 					SaveSceneAs();
 
 				if (ImGui::MenuItem("Exit")) Application::Get().Close();
-					ImGui::EndMenu();
+				ImGui::EndMenu();
 			}
+
 			ImGui::EndMenuBar();
 		}
 
 		o_SceneHierarchyPanel.OnImGuiRender();
 		o_ContentBrowserPanel.OnImGuiRender();
 
-		ImGui::Begin("Status");
+		ImGui::Begin("Stats");
 
 		std::string name = "None";
 		if (o_HoveredEntity)
@@ -281,8 +289,9 @@ namespace Orange
 
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		o_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+
 		uint64_t textureID = o_Framebuffer->GetColorAttachmentRendererID();
-		ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{o_ViewportSize.x, o_ViewportSize.y}, ImVec2{0, 1}, ImVec2{1, 0});
+		ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ o_ViewportSize.x, o_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 		if (ImGui::BeginDragDropTarget())
 		{
@@ -291,7 +300,6 @@ namespace Orange
 				const wchar_t* path = (const wchar_t*)payload->Data;
 				OpenScene(std::filesystem::path(g_AssetPath) / path);
 			}
-
 			ImGui::EndDragDropTarget();
 		}
 
@@ -304,7 +312,9 @@ namespace Orange
 
 			ImGuizmo::SetRect(o_ViewportBounds[0].x, o_ViewportBounds[0].y, o_ViewportBounds[1].x - o_ViewportBounds[0].x, o_ViewportBounds[1].y - o_ViewportBounds[0].y);
 
-			//Runtime Camera from entity
+			// Camera
+
+			// Runtime camera from entity
 			// auto cameraEntity = o_ActiveScene->GetPrimaryCameraEntity();
 			// const auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
 			// const glm::mat4& cameraProjection = camera.GetProjection();
@@ -312,16 +322,16 @@ namespace Orange
 
 			// Editor camera
 			const glm::mat4& cameraProjection = o_EditorCamera.GetProjection();
-			glm::mat4 cameraView = o_EditorCamera.GetViewMatrix();;
+			glm::mat4 cameraView = o_EditorCamera.GetViewMatrix();
 
 			// Entity transform
 			auto& tc = selectedEntity.GetComponent<TransformComponent>();
 			glm::mat4 transform = tc.GetTransform();
 
-			// Snapping 
+			// Snapping
 			bool snap = Input::IsKeyPressed(Key::LeftControl);
-			float snapValue = 0.5f; // 捕捉到 0.5m 进行平移/缩放
-			// 捕捉到 45 度进行旋转
+			float snapValue = 0.5f; // Snap to 0.5m for translation/scale
+			// Snap to 45 degrees for rotation
 			if (o_GizmoType == ImGuizmo::OPERATION::ROTATE)
 				snapValue = 45.0f;
 
@@ -342,9 +352,9 @@ namespace Orange
 				tc.Scale = scale;
 			}
 		}
-		
-		ImGui::End();
 
+
+		ImGui::End();
 		ImGui::PopStyleVar();
 
 		UI_Toolbar();
@@ -357,111 +367,140 @@ namespace Orange
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-
 		auto& colors = ImGui::GetStyle().Colors;
-
 		const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
 		const auto& buttonActive = colors[ImGuiCol_ButtonActive];
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
 
 		ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-		
-		float size = ImGui::GetWindowHeight() - 4.0f;
-		Ref<Texture2D> icon = o_SceneState == SceneState::Edit ? o_IconPlay : o_IconStop;
-		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
-		if (ImGui::ImageButton((ImTextureID)icon->GetRendererID(), ImVec2(20.0f, 20.0f)))
-		{
-			if (o_SceneState == SceneState::Edit)
-				OnScenePlay();
-			else if (o_SceneState == SceneState::Play)
-				OnSceneStop();
-		}
 
+		bool toolbarEnabled = (bool)o_ActiveScene;
+
+		ImVec4 tintColor = ImVec4(1, 1, 1, 1);
+		if (!toolbarEnabled)
+			tintColor.w = 0.5f;
+
+		float size = ImGui::GetWindowHeight() - 4.0f;
+		{
+			Ref<Texture2D> icon = (o_SceneState == SceneState::Edit || o_SceneState == SceneState::Simulate) ? o_IconPlay : o_IconStop;
+			ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
+			if (ImGui::ImageButton((ImTextureID)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
+			{
+				if (o_SceneState == SceneState::Edit || o_SceneState == SceneState::Simulate)
+					OnScenePlay();
+				else if (o_SceneState == SceneState::Play)
+					OnSceneStop();
+			}
+		}
+		ImGui::SameLine();
+		{
+			Ref<Texture2D> icon = (o_SceneState == SceneState::Edit || o_SceneState == SceneState::Play) ? o_IconSimulate : o_IconStop;		//ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
+			if (ImGui::ImageButton((ImTextureID)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
+			{
+				if (o_SceneState == SceneState::Edit || o_SceneState == SceneState::Play)
+					OnSceneSimulate();
+				else if (o_SceneState == SceneState::Simulate)
+					OnSceneStop();
+			}
+		}
 		ImGui::PopStyleVar(2);
 		ImGui::PopStyleColor(3);
 		ImGui::End();
 	}
 
-	void EditorLayer::OnEvent(Event& event)
+	void EditorLayer::OnEvent(Event& e)
 	{
-		o_CameraController.OnEvent(event);
-		o_EditorCamera.OnEvent(event);
+		o_CameraController.OnEvent(e);
+		o_EditorCamera.OnEvent(e);
 
-		EventDispatcher dispatcher(event);
+		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<KeyPressedEvent>(OG_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
 		dispatcher.Dispatch<MouseButtonPressedEvent>(OG_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
 	}
 
-	bool EditorLayer::OnKeyPressed(KeyPressedEvent& event)
+	bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
 	{
-		// 快捷键
-		if (event.GetRepeatCount() > 0)
+		// Shortcuts
+		if (e.GetRepeatCount() > 0)
 			return false;
 
 		bool control = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
 		bool shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
-		switch (event.GetKeyCode())
+
+		switch (e.GetKeyCode())
 		{
-			case Key::N :
-			{
-				if (control)
-					NewScene();
+		case Key::N:
+		{
+			if (control)
+				NewScene();
 
-				break;
-			}
-			case Key::O:
-			{
-				if (control)
-					OpenScene();
+			break;
+		}
+		case Key::O:
+		{
+			if (control)
+				OpenScene();
 
-				break;
-			}
-			case Key::S:
+			break;
+		}
+		case Key::S:
+		{
+			if (control)
 			{
-				if (control)
-				{
-					if (shift)
-						SaveSceneAs();
-					else
-						SaveScene();
-				}
-
-				break;
-			}
-			case Key::D:
-			{
-				if (control)
-					OnDuplicateEntity();
-				break;
+				if (shift)
+					SaveSceneAs();
+				else
+					SaveScene();
 			}
 
-			// Gizmos
-			case Key::Q:
-				o_GizmoType = -1;
-				break;
-			case Key::W:
-				o_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
-				break;
-			case Key::E:
-				o_GizmoType = ImGuizmo::OPERATION::ROTATE;
-				break;
-			case Key::R:
-				o_GizmoType = ImGuizmo::OPERATION::SCALE;
-				break;
+			break;
 		}
 
-		return false;
+		// Scene Commands
+		case Key::D:
+		{
+			if (control)
+				OnDuplicateEntity();
+
+			break;
+		}
+
+		// Gizmos
+		case Key::Q:
+		{
+			if (!ImGuizmo::IsUsing())
+				o_GizmoType = -1;
+			break;
+		}
+		case Key::W:
+		{
+			if (!ImGuizmo::IsUsing())
+				o_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+			break;
+		}
+		case Key::E:
+		{
+			if (!ImGuizmo::IsUsing())
+				o_GizmoType = ImGuizmo::OPERATION::ROTATE;
+			break;
+		}
+		case Key::R:
+		{
+			if (!ImGuizmo::IsUsing())
+				o_GizmoType = ImGuizmo::OPERATION::SCALE;
+			break;
+		}
+		}
 	}
 
-	bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
+	bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 	{
-		if (event.GetMouseButton() == Mouse::ButtonLeft)
+		if (e.GetMouseButton() == Mouse::ButtonLeft)
 		{
 			if (o_ViewportHovered && !ImGuizmo::IsOver() && !Input::IsKeyPressed(Key::LeftAlt))
 				o_SceneHierarchyPanel.SetSelectedEntity(o_HoveredEntity);
 		}
-
 		return false;
 	}
 
@@ -470,12 +509,16 @@ namespace Orange
 		if (o_SceneState == SceneState::Play)
 		{
 			Entity camera = o_ActiveScene->GetPrimaryCameraEntity();
+			if (!camera)
+				return;
+
 			Renderer2D::BeginScene(camera.GetComponent<CameraComponent>().Camera, camera.GetComponent<TransformComponent>().GetTransform());
 		}
 		else
 		{
 			Renderer2D::BeginScene(o_EditorCamera);
 		}
+
 		if (o_ShowPhysicsColliders)
 		{
 			// Box Colliders
@@ -484,31 +527,38 @@ namespace Orange
 				for (auto entity : view)
 				{
 					auto [tc, bc2d] = view.get<TransformComponent, BoxCollider2DComponent>(entity);
+
 					glm::vec3 translation = tc.Translation + glm::vec3(bc2d.Offset, 0.001f);
 					glm::vec3 scale = tc.Scale * glm::vec3(bc2d.Size * 2.0f, 1.0f);
+
 					glm::mat4 transform = glm::translate(glm::mat4(1.0f), translation)
 						* glm::rotate(glm::mat4(1.0f), tc.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f))
 						* glm::scale(glm::mat4(1.0f), scale);
+
 					Renderer2D::DrawRect(transform, glm::vec4(0, 1, 0, 1));
 				}
 			}
+
 			// Circle Colliders
 			{
 				auto view = o_ActiveScene->GetAllEntitiesWith<TransformComponent, CircleCollider2DComponent>();
 				for (auto entity : view)
 				{
 					auto [tc, cc2d] = view.get<TransformComponent, CircleCollider2DComponent>(entity);
+
 					glm::vec3 translation = tc.Translation + glm::vec3(cc2d.Offset, 0.001f);
 					glm::vec3 scale = tc.Scale * glm::vec3(cc2d.Radius * 2.0f);
+
 					glm::mat4 transform = glm::translate(glm::mat4(1.0f), translation)
 						* glm::scale(glm::mat4(1.0f), scale);
+
 					Renderer2D::DrawCircle(transform, glm::vec4(0, 1, 0, 1), 0.01f);
 				}
 			}
 		}
+
 		Renderer2D::EndScene();
 	}
-
 
 	void EditorLayer::NewScene()
 	{
@@ -521,11 +571,9 @@ namespace Orange
 
 	void EditorLayer::OpenScene()
 	{
-		std::string filepath = FileDialogs::OpenFile("Orange Scene (*.orange)\0*.orange\0");
+		std::string filepath = FileDialogs::OpenFile("Hazel Scene (*.hazel)\0*.hazel\0");
 		if (!filepath.empty())
-		{
 			OpenScene(filepath);
-		}
 	}
 
 	void EditorLayer::OpenScene(const std::filesystem::path& path)
@@ -533,9 +581,9 @@ namespace Orange
 		if (o_SceneState != SceneState::Edit)
 			OnSceneStop();
 
-		if (path.extension().string() != ".orange")
+		if (path.extension().string() != ".hazel")
 		{
-			OG_CLIENT_WARN("Count not load {0} - not a scene file", path.filename().string());
+			OG_CLIENT_WARN("Could not load {0} - not a scene file", path.filename().string());
 			return;
 		}
 
@@ -562,7 +610,7 @@ namespace Orange
 
 	void EditorLayer::SaveSceneAs()
 	{
-		std::string filepath = FileDialogs::SaveFile("Orange Scene (*.orange)\0*.orange\0");
+		std::string filepath = FileDialogs::SaveFile("Hazel Scene (*.hazel)\0*.hazel\0");
 		if (!filepath.empty())
 		{
 			SerializeScene(o_ActiveScene, filepath);
@@ -578,6 +626,9 @@ namespace Orange
 
 	void EditorLayer::OnScenePlay()
 	{
+		if (o_SceneState == SceneState::Simulate)
+			OnSceneStop();
+
 		o_SceneState = SceneState::Play;
 
 		o_ActiveScene = Scene::Copy(o_EditorScene);
@@ -586,11 +637,30 @@ namespace Orange
 		o_SceneHierarchyPanel.SetContext(o_ActiveScene);
 	}
 
+	void EditorLayer::OnSceneSimulate()
+	{
+		if (o_SceneState == SceneState::Play)
+			OnSceneStop();
+
+		o_SceneState = SceneState::Simulate;
+
+		o_ActiveScene = Scene::Copy(o_EditorScene);
+		o_ActiveScene->OnSimulationStart();
+
+		o_SceneHierarchyPanel.SetContext(o_ActiveScene);
+	}
+
 	void EditorLayer::OnSceneStop()
 	{
+		OG_CORE_ASSERT(o_SceneState == SceneState::Play || o_SceneState == SceneState::Simulate);
+
+		if (o_SceneState == SceneState::Play)
+			o_ActiveScene->OnRuntimeStop();
+		else if (o_SceneState == SceneState::Simulate)
+			o_ActiveScene->OnSimulationStop();
+
 		o_SceneState = SceneState::Edit;
 
-		o_ActiveScene->OnRuntimeStop();
 		o_ActiveScene = o_EditorScene;
 
 		o_SceneHierarchyPanel.SetContext(o_ActiveScene);
