@@ -122,6 +122,8 @@ namespace Orange {
 
 	void Scene::OnRuntimeStart()
 	{
+		o_IsRunning = true;
+
 		OnPhysics2DStart();
 
 		// Scripting
@@ -141,6 +143,8 @@ namespace Orange {
 
 	void Scene::OnRuntimeStop()
 	{
+		o_IsRunning = false;
+
 		OnPhysics2DStop();
 
 		ScriptEngine::OnRuntimeStop();

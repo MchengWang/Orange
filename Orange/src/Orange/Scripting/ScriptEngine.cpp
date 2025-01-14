@@ -159,6 +159,7 @@ namespace Orange {
 
 		std::unordered_map<std::string, Ref<ScriptClass>> EntityClasses;
 		std::unordered_map<UUID, Ref<ScriptInstance>> EntityInstances;
+		std::unordered_map<UUID, ScriptFieldMap> EntityScriptFields;
 		// Runtime
 		Scene* SceneContext = nullptr;
 	};
@@ -280,8 +281,19 @@ namespace Orange {
 		const auto& sc = entity.GetComponent<ScriptComponent>();
 		if (ScriptEngine::EntityClassExists(sc.ClassName))
 		{
+			UUID entityID = entity.GetUUID();
+
 			Ref<ScriptInstance> instance = CreateRef<ScriptInstance>(sed_Data->EntityClasses[sc.ClassName], entity);
-			sed_Data->EntityInstances[entity.GetUUID()] = instance;
+			sed_Data->EntityInstances[entityID] = instance;
+
+			// Copy field values
+			if (sed_Data->EntityScriptFields.find(entityID) != sed_Data->EntityScriptFields.end())
+			{
+				const ScriptFieldMap& fieldMap = sed_Data->EntityScriptFields.at(entityID);
+				for (const auto& [name, fieldInstance] : fieldMap)
+					instance->SetFieldValueInternal(name, fieldInstance.o_Buffer);
+			}
+
 			instance->InvokeOnCreate();
 		}
 	}
@@ -307,6 +319,13 @@ namespace Orange {
 		return it->second;
 	}
 
+	Ref<ScriptClass> ScriptEngine::GetEntityClass(const std::string& name)
+	{
+		if (sed_Data->EntityClasses.find(name) == sed_Data->EntityClasses.end())
+			return nullptr;
+		return sed_Data->EntityClasses.at(name);
+	}
+
 	void ScriptEngine::OnRuntimeStop()
 	{
 		sed_Data->SceneContext = nullptr;
@@ -318,6 +337,13 @@ namespace Orange {
 		return sed_Data->EntityClasses;
 	}
 	
+	ScriptFieldMap& ScriptEngine::GetScriptFieldMap(Entity entity)
+	{
+		OG_CORE_ASSERT(entity);
+		UUID entityID = entity.GetUUID();
+		return sed_Data->EntityScriptFields[entityID];
+	}
+
 	void ScriptEngine::LoadAssemblyClasses()
 	{
 		sed_Data->EntityClasses.clear();

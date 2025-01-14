@@ -36,6 +36,38 @@ namespace Orange {
 		MonoClassField* ClassField;
 	};
 
+	// ScriptField + data storage
+	struct ScriptFieldInstance
+	{
+		ScriptField Field;
+		ScriptFieldInstance()
+		{
+			memset(o_Buffer, 0, sizeof(o_Buffer));
+		}
+
+		template<typename T>
+		T GetValue()
+		{
+			static_assert(sizeof(T) <= 8, "Type too large!");
+			return *(T*)o_Buffer;
+		}
+
+		template<typename T>
+		void SetValue(T value)
+		{
+			static_assert(sizeof(T) <= 8, "Type too large!");
+			memcpy(o_Buffer, &value, sizeof(T));
+		}
+
+	private:
+		uint8_t o_Buffer[8];
+		friend class ScriptEngine;
+		friend class ScriptInstance;
+
+	};
+
+	using ScriptFieldMap = std::unordered_map<std::string, ScriptFieldInstance>;
+
 	class ScriptClass
 	{
 	public:
@@ -72,6 +104,8 @@ namespace Orange {
 		template <typename T>
 		T GetFieldValue(const std::string& name)
 		{
+			static_assert(sizeof(T) <= 8, "Type too large!");
+
 			bool success = GetFieldValueInternal(name, o_FieldValueBuffer);
 			if (!success)
 				return T();
@@ -80,8 +114,10 @@ namespace Orange {
 		}
 
 		template <typename T>
-		void SetFieldValue(const std::string& name, const T& value)
+		void SetFieldValue(const std::string& name, T value)
 		{
+			static_assert(sizeof(T) <= 8, "Type too large!");
+
 			SetFieldValueInternal(name, &value);
 		}
 
@@ -98,6 +134,9 @@ namespace Orange {
 		MonoMethod* o_OnUpdateMethod = nullptr;
 
 		inline static char o_FieldValueBuffer[8];
+
+		friend class ScriptEngine;
+		friend struct ScriptFieldInstance;
 	};
 
 	class ScriptEngine
@@ -119,7 +158,9 @@ namespace Orange {
 		static Scene* GetSceneContext();
 		static Ref<ScriptInstance> GetEntityScriptInstance(UUID entityID);
 
+		static Ref<ScriptClass> GetEntityClass(const std::string& name);
 		static std::unordered_map<std::string, Ref<ScriptClass>> GetEntityClasses();
+		static ScriptFieldMap& GetScriptFieldMap(Entity entity);
 
 		static MonoImage* GetCoreAssemblyImage();
 

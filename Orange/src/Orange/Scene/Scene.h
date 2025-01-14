@@ -42,6 +42,8 @@ namespace Orange
 
 		Entity GetPrimaryCameraEntity();
 
+		bool IsRunning() const { return o_IsRunning; }
+
 		template <typename... Components>
 		auto GetAllEntitiesWith()
 		{
@@ -60,6 +62,7 @@ namespace Orange
 	private:
 		entt::registry o_Registry;
 		uint32_t o_ViewportWidth = 0, o_ViewportHeight = 0;
+		bool o_IsRunning = false;
 
 		b2World* o_PhysicsWorld = nullptr;
 
