@@ -2,6 +2,7 @@
 **/bin/
 !vendor/premake/bin/
 bin-obj/
+Intermediates/
 
 # Orange 系统文件
 *.log
@@ -12,9 +13,11 @@ bin-obj/
 **.vcxproj
 **.vcxproj.filters
 **.vcxproj.user
+**.csproj
 
 # 文件夹
 Orange/vendor/VulkanSDK
 Orangefruit/assets/cache
 scripts/__pycache__
 Orange/vendor/Glad
+2D

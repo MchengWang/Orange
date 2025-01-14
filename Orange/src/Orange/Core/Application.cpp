@@ -6,6 +6,7 @@
 #include "Orange/Core/Log.h"
 
 #include "Orange/Renderer/Renderer.h"
+#include "Orange/Scripting/ScriptEngine.h"
 
 #include "Input.h"
 
@@ -31,6 +32,7 @@ namespace Orange
 		o_Window->SetEventCallback(OG_BIND_EVENT_FN(Application::OnEvent));
 
 		Renderer::Init();
+		ScriptEngine::Init();
 
 		o_ImGuiLayer = new ImGuiLayer();
 		PushOverLayer(o_ImGuiLayer);
@@ -40,6 +42,7 @@ namespace Orange
 	{
 		HZ_PROFILE_FUNCTION();
 
+		ScriptEngine::Shutdown();
 		Renderer::Shutdown();
 	}
 

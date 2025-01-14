@@ -33,6 +33,15 @@ group "Dependencies"
 	include "Orange/vendor/yaml-cpp"
 group ""
 
-include "Orange"
-include "Orangefruit"
-include "Sandbox"
+group "Core"
+	include "Orange"
+	include "Orange-scriptCode"
+group ""
+
+group "Tools"
+	include "Orangefruit"
+group ""
+
+group "Misc"
+	include "Sandbox"
+group ""
