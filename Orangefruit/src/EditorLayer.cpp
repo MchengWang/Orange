@@ -537,7 +537,7 @@ namespace Orange {
 
 	void EditorLayer::OpenScene()
 	{
-		std::string filepath = FileDialogs::OpenFile("Hazel Scene (*.hazel)\0*.hazel\0");
+		std::string filepath = FileDialogs::OpenFile("Orange Scene (*.orange)\0*.orange\0");
 		if (!filepath.empty())
 			OpenScene(filepath);
 	}
@@ -547,7 +547,7 @@ namespace Orange {
 		if (o_SceneState != SceneState::Edit)
 			OnSceneStop();
 
-		if (path.extension().string() != ".hazel")
+		if (path.extension().string() != ".orange")
 		{
 			OG_CLIENT_WARN("Could not load {0} - not a scene file", path.filename().string());
 			return;
@@ -576,7 +576,7 @@ namespace Orange {
 
 	void EditorLayer::SaveSceneAs()
 	{
-		std::string filepath = FileDialogs::SaveFile("Hazel Scene (*.hazel)\0*.hazel\0");
+		std::string filepath = FileDialogs::SaveFile("Orange Scene (*.orange)\0*.orange\0");
 		if (!filepath.empty())
 		{
 			SerializeScene(o_ActiveScene, filepath);

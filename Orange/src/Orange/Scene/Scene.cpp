@@ -4,6 +4,7 @@
 
 #include "Components.h"
 #include "ScriptableEntity.h"
+#include "Orange/Scripting/ScriptEngine.h"
 #include "Orange/Renderer/Renderer2D.h"
 
 #include <glm/glm.hpp>
@@ -107,22 +108,42 @@ namespace Orange {
 		entity.AddComponent<TransformComponent>();
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
+
+		o_EntityMap[uuid] = entity;
+
 		return entity;
 	}
 
 	void Scene::DestroyEntity(Entity entity)
 	{
 		o_Registry.destroy(entity);
+		o_EntityMap.erase(entity.GetUUID());
 	}
 
 	void Scene::OnRuntimeStart()
 	{
 		OnPhysics2DStart();
+
+		// Scripting
+		{
+			ScriptEngine::OnRuntimeStart(this);
+
+			// Instantiate all script entities
+			auto view = o_Registry.view<ScriptComponent>();
+			
+			for (auto e : view)
+			{
+				Entity entity = { e, this };
+				ScriptEngine::OnCreateEntity(entity);
+			}
+		}
 	}
 
 	void Scene::OnRuntimeStop()
 	{
 		OnPhysics2DStop();
+
+		ScriptEngine::OnRuntimeStop();
 	}
 
 	void Scene::OnSimulationStart()
@@ -139,6 +160,14 @@ namespace Orange {
 	{
 		// Update scripts
 		{
+			// C# Entity OnUpdate
+			auto view = o_Registry.view<ScriptComponent>();
+			for (auto e : view)
+			{
+				Entity entity = { e, this };
+				ScriptEngine::OnUpdateEntity(entity, ts);
+			}
+
 			o_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
 				{
 					// TODO: Move to Scene::OnScenePlay
@@ -300,6 +329,15 @@ namespace Orange {
 		return {};
 	}
 
+	Entity Scene::GetEntityByUUID(UUID uuid)
+	{
+		// TODO(Yan): Maybe should be assert
+		if (o_EntityMap.find(uuid) != o_EntityMap.end())
+			return { o_EntityMap.at(uuid), this };
+
+		return {};
+	}
+
 	void Scene::OnPhysics2DStart()
 	{
 		o_PhysicsWorld = new b2World({ 0.0f, -9.8f });
@@ -411,6 +449,11 @@ namespace Orange {
 	{
 		if (o_ViewportWidth > 0 && o_ViewportHeight > 0)
 			component.Camera.SetViewportSize(o_ViewportWidth, o_ViewportHeight);
+	}
+
+	template<>
+	void Scene::OnComponentAdded<ScriptComponent>(Entity entity, ScriptComponent& component)
+	{
 	}
 
 	template<>

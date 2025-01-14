@@ -1,10 +1,10 @@
-project "Orange-scriptCode"
+project "Orange-scriptCore"
 	kind "SharedLib"
 	language "C#"
 	dotnetframework "4.7.2"
 	
-	targetdir ("%{wks.location}/Orangefruit/Resources/Scripts")
-	objdir ("%{wks.location}/Orangefruit/Resources/Scripts/Intermediates")
+	targetdir ("../Orangefruit/Resources/Scripts")
+	objdir ("../Orangefruit/Resources/Scripts/Intermediates")
 
 	files
 	{

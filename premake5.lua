@@ -35,7 +35,7 @@ group ""
 
 group "Core"
 	include "Orange"
-	include "Orange-scriptCode"
+	include "Orange-scriptCore"
 group ""
 
 group "Tools"

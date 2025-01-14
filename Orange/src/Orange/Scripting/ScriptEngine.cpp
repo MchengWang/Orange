@@ -94,7 +94,15 @@ namespace Orange {
 		MonoAssembly* CoreAssembly = nullptr;
 		MonoImage* CoreAssemblyImage = nullptr;
 
+		MonoAssembly* AppAssembly = nullptr;
+		MonoImage* AppAssemblyImage = nullptr;
+
 		ScriptClass EntityClass;
+
+		std::unordered_map<std::string, Ref<ScriptClass>> EntityClasses;
+		std::unordered_map<UUID, Ref<ScriptInstance>> EntityInstances;
+		// Runtime
+		Scene* SceneContext = nullptr;
 	};
 
 	static ScriptEngineData* sed_Data = nullptr;
@@ -104,13 +112,18 @@ namespace Orange {
 		sed_Data = new ScriptEngineData();
 
 		InitMono();
-		LoadAssembly("Resources/Scripts/Orange-scriptCode.dll");
 
+		LoadAssembly("Resources/Scripts/Orange-scriptCore.dll");
+		LoadAppAssembly("SandboxProject/Assets/Scripts/Binaries/Sandbox.dll");
+		LoadAssemblyClasses();
+
+
+		ScriptGlue::RegisterComponents();
 		ScriptGlue::RegisterFunctions();
 
-		// Retrieve and instantiate class (with constructor)
-		sed_Data->EntityClass = ScriptClass("Orange", "Entity");
-
+		// Retrieve and instantiate class 
+		sed_Data->EntityClass = ScriptClass("Orange", "Entity", true);
+#if 0
 		MonoObject* instance = sed_Data->EntityClass.Instantiate();
 
 		// Call method
@@ -139,7 +152,8 @@ namespace Orange {
 		void* stringParam = monoString;
 		sed_Data->EntityClass.InvokeMethod(instance, printCustomMessageFunc, &stringParam);
 
-		//OG_CORE_ASSERT(false);
+		OG_CORE_ASSERT(false);
+#endif
 	}
 
 	void ScriptEngine::Shutdown()
@@ -164,10 +178,10 @@ namespace Orange {
 	{
 		// NOTE(Yan): mono is a little confusing to shutdown, so maybe come back to this
 
-		// mono_domain_unload(s_Data->AppDomain);
+		// mono_domain_unload(sed_Data->AppDomain);
 		sed_Data->AppDomain = nullptr;
 
-		// mono_jit_cleanup(s_Data->RootDomain);
+		// mono_jit_cleanup(sed_Data->RootDomain);
 		sed_Data->RootDomain = nullptr;
 	}
 
@@ -180,7 +194,99 @@ namespace Orange {
 		// Move this maybe
 		sed_Data->CoreAssembly = Utils::LoadMonoAssembly(filepath);
 		sed_Data->CoreAssemblyImage = mono_assembly_get_image(sed_Data->CoreAssembly);
-		// Utils::PrintAssemblyTypes(s_Data->CoreAssembly);
+		// Utils::PrintAssemblyTypes(sed_Data->CoreAssembly);
+	}
+
+	void ScriptEngine::LoadAppAssembly(const std::filesystem::path& filepath)
+	{
+		// Move this maybe
+		sed_Data->AppAssembly = Utils::LoadMonoAssembly(filepath);
+		auto assemb = sed_Data->AppAssembly;
+		sed_Data->AppAssemblyImage = mono_assembly_get_image(sed_Data->AppAssembly);
+		auto assembi = sed_Data->AppAssemblyImage;
+		// Utils::PrintAssemblyTypes(sed_Data->AppAssembly);
+	}
+
+	void ScriptEngine::OnRuntimeStart(Scene* scene)
+	{
+		sed_Data->SceneContext = scene;
+	}
+
+	bool ScriptEngine::EntityClassExists(const std::string& fullClassName)
+	{
+		return sed_Data->EntityClasses.find(fullClassName) != sed_Data->EntityClasses.end();
+	}
+	
+	void ScriptEngine::OnCreateEntity(Entity entity)
+	{
+		const auto& sc = entity.GetComponent<ScriptComponent>();
+		if (ScriptEngine::EntityClassExists(sc.ClassName))
+		{
+			Ref<ScriptInstance> instance = CreateRef<ScriptInstance>(sed_Data->EntityClasses[sc.ClassName], entity);
+			sed_Data->EntityInstances[entity.GetUUID()] = instance;
+			instance->InvokeOnCreate();
+		}
+	}
+	
+	void ScriptEngine::OnUpdateEntity(Entity entity, Timestep ts)
+	{
+		UUID entityUUID = entity.GetUUID();
+		OG_CORE_ASSERT(sed_Data->EntityInstances.find(entityUUID) != sed_Data->EntityInstances.end());
+		Ref<ScriptInstance> instance = sed_Data->EntityInstances[entityUUID];
+		instance->InvokeOnUpdate((float)ts);
+	}
+	
+	Scene* ScriptEngine::GetSceneContext()
+	{
+		return sed_Data->SceneContext;
+	}
+	
+	void ScriptEngine::OnRuntimeStop()
+	{
+		sed_Data->SceneContext = nullptr;
+		sed_Data->EntityInstances.clear();
+	}
+	
+	std::unordered_map<std::string, Ref<ScriptClass>> ScriptEngine::GetEntityClasses()
+	{
+		return sed_Data->EntityClasses;
+	}
+	
+	void ScriptEngine::LoadAssemblyClasses()
+	{
+		sed_Data->EntityClasses.clear();
+
+		const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(sed_Data->AppAssemblyImage, MONO_TABLE_TYPEDEF);
+		int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
+		MonoClass* entityClass = mono_class_from_name(sed_Data->CoreAssemblyImage, "Orange", "Entity");
+
+		for (int32_t i = 0; i < numTypes; i++)
+		{
+			uint32_t cols[MONO_TYPEDEF_SIZE];
+			mono_metadata_decode_row(typeDefinitionsTable, i, cols, MONO_TYPEDEF_SIZE);
+
+			const char* nameSpace = mono_metadata_string_heap(sed_Data->AppAssemblyImage, cols[MONO_TYPEDEF_NAMESPACE]);
+			const char* name = mono_metadata_string_heap(sed_Data->AppAssemblyImage, cols[MONO_TYPEDEF_NAME]);
+			std::string fullName;
+			if (strlen(nameSpace) != 0)
+				fullName = fmt::format("{}.{}", nameSpace, name);
+			else
+				fullName = name;
+
+			MonoClass* monoClass = mono_class_from_name(sed_Data->AppAssemblyImage, nameSpace, name);
+
+			if (monoClass == entityClass)
+				continue;
+
+			bool isEntity = mono_class_is_subclass_of(monoClass, entityClass, false);
+			if (isEntity)
+				sed_Data->EntityClasses[fullName] = CreateRef<ScriptClass>(nameSpace, name);
+		}
+	}
+	
+	MonoImage* ScriptEngine::GetCoreAssemblyImage()
+	{
+		return sed_Data->CoreAssemblyImage;
 	}
 
 	MonoObject* ScriptEngine::InstantiateClass(MonoClass* monoClass)
@@ -190,10 +296,10 @@ namespace Orange {
 		return instance;
 	}
 
-	ScriptClass::ScriptClass(const std::string& classNamespace, const std::string& className)
+	ScriptClass::ScriptClass(const std::string& classNamespace, const std::string& className, bool isCore)
 		: o_ClassNamespace(classNamespace), o_ClassName(className)
 	{
-		o_MonoClass = mono_class_from_name(sed_Data->CoreAssemblyImage, classNamespace.c_str(), className.c_str());
+		o_MonoClass = mono_class_from_name(isCore ? sed_Data->CoreAssemblyImage : sed_Data->AppAssemblyImage, classNamespace.c_str(), className.c_str());
 	}
 
 	MonoObject* ScriptClass::Instantiate()
@@ -209,6 +315,37 @@ namespace Orange {
 	MonoObject* ScriptClass::InvokeMethod(MonoObject* instance, MonoMethod* method, void** params)
 	{
 		return mono_runtime_invoke(method, instance, params, nullptr);
+	}
+
+	ScriptInstance::ScriptInstance(Ref<ScriptClass> scriptClass, Entity entity)
+		: o_ScriptClass(scriptClass)
+	{
+		o_Instance = scriptClass->Instantiate();
+		o_Constructor = sed_Data->EntityClass.GetMethod(".ctor", 1);
+		o_OnCreateMethod = scriptClass->GetMethod("OnCreate", 0);
+		o_OnUpdateMethod = scriptClass->GetMethod("OnUpdate", 1);
+		// Call Entity constructor
+		{
+			UUID entityID = entity.GetUUID();
+			void* param = &entityID;
+			o_ScriptClass->InvokeMethod(o_Instance, o_Constructor, &param);
+		}
+	
+	}
+	
+	void ScriptInstance::InvokeOnCreate()
+	{
+		if (o_OnCreateMethod)
+			o_ScriptClass->InvokeMethod(o_Instance, o_OnCreateMethod);
+	}
+	
+	void ScriptInstance::InvokeOnUpdate(float ts)
+	{
+		if (o_OnUpdateMethod)
+		{
+			void* param = &ts;
+			o_ScriptClass->InvokeMethod(o_Instance, o_OnUpdateMethod, &param);
+		}
 	}
 
 }

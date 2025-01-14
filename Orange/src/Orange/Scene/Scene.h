@@ -38,6 +38,8 @@ namespace Orange
 
 		void DuplicateEntity(Entity entity);
 
+		Entity GetEntityByUUID(UUID uuid);
+
 		Entity GetPrimaryCameraEntity();
 
 		template <typename... Components>
@@ -60,6 +62,8 @@ namespace Orange
 		uint32_t o_ViewportWidth = 0, o_ViewportHeight = 0;
 
 		b2World* o_PhysicsWorld = nullptr;
+
+		std::unordered_map<UUID, entt::entity> o_EntityMap;
 
 		friend class Entity;
 		friend class SceneHierarchyPanel;
