@@ -5,6 +5,7 @@
 
 #include <filesystem>
 #include <string>
+#include <map>
 
 extern "C" {
 	typedef struct _MonoClass MonoClass;
@@ -12,9 +13,28 @@ extern "C" {
 	typedef struct _MonoMethod MonoMethod;
 	typedef struct _MonoAssembly MonoAssembly;
 	typedef struct _MonoImage MonoImage;
+	typedef struct _MonoClassField MonoClassField;
 }
 
 namespace Orange {
+
+	enum class ScriptFieldType
+	{
+		None = 0,
+		Float, Double,
+		Bool, Char, Byte, Short, Int, Long,
+		UByte, UShort, UInt, ULong,
+		Vector2, Vector3, Vector4,
+		Entity
+	};
+
+	struct ScriptField
+	{
+		ScriptFieldType Type;
+		std::string Name;
+
+		MonoClassField* ClassField;
+	};
 
 	class ScriptClass
 	{
@@ -26,11 +46,17 @@ namespace Orange {
 		MonoMethod* GetMethod(const std::string& name, int parameterCount);
 		MonoObject* InvokeMethod(MonoObject* instance, MonoMethod* method, void** params = nullptr);
 
+		const std::map<std::string, ScriptField>& GetFields() const { return o_Fields; }
+
 	private:
 		std::string o_ClassNamespace;
 		std::string o_ClassName;
 
+		std::map<std::string, ScriptField> o_Fields;
+
 		MonoClass* o_MonoClass = nullptr;
+
+		friend class ScriptEngine;
 	};
 
 	class ScriptInstance
@@ -41,6 +67,28 @@ namespace Orange {
 		void InvokeOnCreate();
 		void InvokeOnUpdate(float ts);
 
+		Ref<ScriptClass> GetScriptClass() { return o_ScriptClass; }
+
+		template <typename T>
+		T GetFieldValue(const std::string& name)
+		{
+			bool success = GetFieldValueInternal(name, o_FieldValueBuffer);
+			if (!success)
+				return T();
+
+			return *(T*)o_FieldValueBuffer;
+		}
+
+		template <typename T>
+		void SetFieldValue(const std::string& name, const T& value)
+		{
+			SetFieldValueInternal(name, &value);
+		}
+
+	private:
+		bool GetFieldValueInternal(const std::string& name, void* buffer);
+		bool SetFieldValueInternal(const std::string& name, const void* value);
+
 	private:
 		Ref<ScriptClass> o_ScriptClass;
 
@@ -48,6 +96,8 @@ namespace Orange {
 		MonoMethod* o_Constructor = nullptr;
 		MonoMethod* o_OnCreateMethod = nullptr;
 		MonoMethod* o_OnUpdateMethod = nullptr;
+
+		inline static char o_FieldValueBuffer[8];
 	};
 
 	class ScriptEngine
@@ -67,6 +117,8 @@ namespace Orange {
 		static void OnUpdateEntity(Entity entity, Timestep ts);
 
 		static Scene* GetSceneContext();
+		static Ref<ScriptInstance> GetEntityScriptInstance(UUID entityID);
+
 		static std::unordered_map<std::string, Ref<ScriptClass>> GetEntityClasses();
 
 		static MonoImage* GetCoreAssemblyImage();
