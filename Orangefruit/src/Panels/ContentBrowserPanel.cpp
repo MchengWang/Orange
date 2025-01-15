@@ -2,16 +2,15 @@
 
 #include "ContentBrowserPanel.h"
 
+#include "Orange/Project/Project.h"
+
 #include <imgui/imgui.h>
 
 namespace Orange
 {
 
-	// Once we hace projects, change this
-	extern const std::filesystem::path g_AssetPath = "assets";
-
 	ContentBrowerPanel::ContentBrowerPanel()
-		: o_CurrentDirectory(g_AssetPath)
+		: o_BaseDirectory(Project::GetAssetDirectory()), o_CurrentDirectory(o_BaseDirectory)
 	{
 		o_DirectoryIcon = Texture2D::Create("Resources/Icons/ContentBrowser/DirectoryIcon.png");
 		o_FileIcon = Texture2D::Create("Resources/Icons/ContentBrowser/FileIcon.png");
@@ -21,7 +20,7 @@ namespace Orange
 	{
 		ImGui::Begin("Content Browser");
 
-		if (o_CurrentDirectory != std::filesystem::path(g_AssetPath))
+		if (o_CurrentDirectory != std::filesystem::path(o_BaseDirectory))
 		{
 			if (ImGui::Button("<-"))
 			{
@@ -52,7 +51,7 @@ namespace Orange
 
 			if (ImGui::BeginDragDropSource())
 			{ 
-				auto relativePath = std::filesystem::relative(path, g_AssetPath);
+				std::filesystem::path relativePath(path);
 				const wchar_t* itemPath = relativePath.c_str();
 				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", itemPath, (wcslen(itemPath) + 1) * sizeof(wchar_t));
 				ImGui::EndDragDropSource();

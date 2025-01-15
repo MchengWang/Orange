@@ -28,6 +28,10 @@ namespace Orange
 
 		void OnOverlayRender();
 
+		void NewProject();
+		void OpenProject(const std::filesystem::path& path);
+		void SaveProject();
+
 		void NewScene();
 		void OpenScene();
 		void OpenScene(const std::filesystem::path& path);
@@ -89,7 +93,7 @@ namespace Orange
 
 		// Ãæ°å
 		SceneHierarchyPanel o_SceneHierarchyPanel;
-		ContentBrowerPanel o_ContentBrowserPanel;
+		Scope<ContentBrowerPanel> o_ContentBrowserPanel;
 
 		// Editor resources
 		Ref<Texture2D> o_IconPlay, o_IconPause, o_IconStep, o_IconSimulate, o_IconStop;

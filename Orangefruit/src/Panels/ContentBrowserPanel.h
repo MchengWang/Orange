@@ -15,6 +15,7 @@ namespace Orange
 		void OnImGuiRender();
 
 	private:
+		std::filesystem::path o_BaseDirectory;
 		std::filesystem::path o_CurrentDirectory;
 
 		Ref<Texture2D> o_DirectoryIcon;

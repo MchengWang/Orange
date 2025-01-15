@@ -22,6 +22,8 @@
 #include "Orange/Scene/ScriptableEntity.h"
 #include "Orange/Scene/Components.h"
 
+#include "Orange/Project/Project.h"
+
 // ---------äÖÈ¾Æ÷----------
 #include "Orange/Renderer/Renderer.h"
 #include "Orange/Renderer/Renderer2D.h"
