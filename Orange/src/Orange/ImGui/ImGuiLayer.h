@@ -24,6 +24,8 @@ namespace Orange {
 		void BlockEvents(bool block) { o_BlockEvents = block; }
 
 		void SetDarkThemeColors();
+
+		uint32_t GetActiveWidgetID() const;
 	private:
 		bool o_BlockEvents = true;
 		float m_Time = 0.0f;

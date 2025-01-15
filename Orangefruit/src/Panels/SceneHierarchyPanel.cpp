@@ -2,6 +2,7 @@
 #include "Orange/Scene/Components.h"
 
 #include "Orange/Scripting/ScriptEngine.h"
+#include "Orange/UI/UI.h"
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
@@ -334,9 +335,13 @@ namespace Orange
 
 				if (!scriptClassExists)
 					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.2f, 0.3f, 1.0f));
+				UI::ScopedStyleColor textColor(ImGuiCol_Text, ImVec4(0.9f, 0.2f, 0.3f, 1.0f), !scriptClassExists);
 
 				if (ImGui::InputText("Class", buffer, sizeof(buffer)))
+				{
 					component.ClassName = buffer;
+					return;
+				}
 
 				// Fields
 				bool sceneRunning = scene->IsRunning();
@@ -399,9 +404,6 @@ namespace Orange
 						}
 					}
 				}
-
-				if (!scriptClassExists)
-					ImGui::PopStyleColor();
 			});
 
 		DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](auto& component)

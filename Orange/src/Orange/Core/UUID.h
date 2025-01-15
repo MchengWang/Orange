@@ -12,6 +12,8 @@ namespace Orange
 		UUID(uint64_t uuid);
 		UUID(const UUID&) = default;
 
+		uint64_t Get() { return o_UUID; }
+
 		operator uint64_t() const { return o_UUID; }
 	private:
 		uint64_t o_UUID;

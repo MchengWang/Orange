@@ -3,6 +3,7 @@
 #include "Orange/Utils/PlatformUtils.h"
 #include "Orange/Math/Math.h"
 #include "Orange/Scripting/ScriptEngine.h"
+#include "Orange/Renderer/Font.h"
 
 #include <imgui/imgui.h>
 
@@ -16,6 +17,7 @@ namespace Orange {
 	EditorLayer::EditorLayer()
 		: Layer("EditorLayer"), o_CameraController(1280.0f / 720.0f), o_SquareColor({ 0.2f, 0.3f, 0.8f, 1.0f })
 	{
+		Font font("assets/fonts/opensans/OpenSans-Regular.ttf");
 	}
 
 	void EditorLayer::OnAttach()
@@ -47,7 +49,11 @@ namespace Orange {
 		else
 		{
 			// TODO(Yan): prompt the user to select a directory
-			NewProject();
+			// NewProject();
+			// If no project is opened, close Hazelnut
+			// NOTE: this is while we don't have a new project path
+			if (!OpenProject())
+				Application::Get().Close();
 		}
 
 		o_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
@@ -187,20 +193,21 @@ namespace Orange {
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				// Disabling fullscreen would allow the window to be moved to the front of other windows, 
-				// which we can't undo at the moment without finer window depth/z control.
-				//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);1
-				if (ImGui::MenuItem("New", "Ctrl+N"))
+				if (ImGui::MenuItem("Open Project...", "Ctrl+O"))
+					OpenProject();
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("New Scene", "Ctrl+N"))
 					NewScene();
 
-				if (ImGui::MenuItem("Open...", "Ctrl+O"))
-					OpenScene();
-
-				if (ImGui::MenuItem("Save", "Ctrl+S"))
+				if (ImGui::MenuItem("Save Scene", "Ctrl+S"))
 					SaveScene();
 
-				if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))
+				if (ImGui::MenuItem("Save Scene As...", "Ctrl+Shift+S"))
 					SaveSceneAs();
+
+				ImGui::Separator();
 
 				if (ImGui::MenuItem("Exit"))
 					Application::Get().Close();
@@ -224,10 +231,12 @@ namespace Orange {
 
 		ImGui::Begin("Stats");
 
+#if 0
 		std::string name = "None";
 		if (o_HoveredEntity)
 			name = o_HoveredEntity.GetComponent<TagComponent>().Tag;
 		ImGui::Text("Hovered Entity: %s", name.c_str());
+#endif
 
 		auto stats = Renderer2D::GetStats();
 		ImGui::Text("Renderer2D Stats:");
@@ -446,7 +455,7 @@ namespace Orange {
 			case Key::O:
 			{
 				if (control)
-					OpenScene();
+					OpenProject();
 
 				break;
 			}
@@ -501,6 +510,19 @@ namespace Orange {
 				{
 					if (!ImGuizmo::IsUsing())
 						o_GizmoType = ImGuizmo::OPERATION::SCALE;
+				}
+				break;
+			}
+			case Key::Delete:
+			{
+				if (Application::Get().GetImGuiLayer()->GetActiveWidgetID() == 0)
+				{
+					Entity selectedEntity = o_SceneHierarchyPanel.GetSelectedEntity();
+					if (selectedEntity)
+					{
+						o_SceneHierarchyPanel.SetSelectedEntity({});
+						o_ActiveScene->DestroyEntity(selectedEntity);
+					}
 				}
 				break;
 			}
@@ -591,10 +613,21 @@ namespace Orange {
 	{
 		if (Project::Load(path))
 		{
+			ScriptEngine::Init();
+
 			auto startScenePath = Project::GetAssetFileSystemPath(Project::GetActive()->GetConfig().StartScene);
 			OpenScene(startScenePath);
 			o_ContentBrowserPanel = CreateScope<ContentBrowerPanel>();
 		}
+	}
+
+	bool EditorLayer::OpenProject()
+	{
+		std::string filepath = FileDialogs::OpenFile("Orange Project (*.oproj)\0*.oproj\0");
+		if (filepath.empty())
+			return false;
+		OpenProject(filepath);
+		return true;
 	}
 
 	void EditorLayer::SaveProject()
@@ -721,7 +754,10 @@ namespace Orange {
 
 		Entity selectedEntity = o_SceneHierarchyPanel.GetSelectedEntity();
 		if (selectedEntity)
-			o_EditorScene->DuplicateEntity(selectedEntity);
+		{
+			Entity newEntity = o_EditorScene->DuplicateEntity(selectedEntity);
+			o_SceneHierarchyPanel.SetSelectedEntity(newEntity);
+		}
 	}
 
 }

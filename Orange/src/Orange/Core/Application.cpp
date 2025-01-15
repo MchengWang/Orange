@@ -32,7 +32,6 @@ namespace Orange
 		o_Window->SetEventCallback(OG_BIND_EVENT_FN(Application::OnEvent));
 
 		Renderer::Init();
-		ScriptEngine::Init();
 
 		o_ImGuiLayer = new ImGuiLayer();
 		PushOverLayer(o_ImGuiLayer);

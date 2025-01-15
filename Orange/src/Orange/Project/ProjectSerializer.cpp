@@ -47,7 +47,7 @@ namespace Orange {
 		}
 		catch (YAML::ParserException e)
 		{
-			OG_CORE_ERROR("Failed to load project file '{0}'\n     {1}", filepath, e.what());
+			//OG_CORE_ERROR("Failed to load project file '{0}'\n     {1}", filepath, e.what());
 			return false;
 		}
 

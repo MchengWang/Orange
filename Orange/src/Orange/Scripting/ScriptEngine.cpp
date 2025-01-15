@@ -132,7 +132,11 @@ namespace Orange {
 		Scope<filewatch::FileWatch<std::string>> AppAssemblyFileWatcher;
 		bool AssemblyReloadPending = false;
 
+#ifdef HZ_DEBUG
 		bool EnableDebugging = true;
+#else
+		bool EnableDebugging = false;
+#endif
 
 		// Runtime
 		Scene* SceneContext = nullptr;
@@ -321,7 +325,7 @@ namespace Orange {
 		}
 		else
 		{
-			OG_CORE_ERROR("Could not find ScriptInstance for entity {}", entityUUID);
+			OG_CORE_ERROR("Could not find ScriptInstance for entity {}", entityUUID.Get());
 		}
 	}
 	

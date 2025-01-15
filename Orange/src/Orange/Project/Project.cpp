@@ -17,7 +17,7 @@ namespace Orange {
 		ProjectSerializer serializer(project);
 		if (serializer.Deserialize(path))
 		{
-			project->m_ProjectDirectory = path.parent_path();
+			project->o_ProjectDirectory = path.parent_path();
 			o_ActiveProject = project;
 			return o_ActiveProject;
 		}
@@ -29,7 +29,7 @@ namespace Orange {
 		ProjectSerializer serializer(o_ActiveProject);
 		if (serializer.Serialize(path))
 		{
-			o_ActiveProject->m_ProjectDirectory = path.parent_path();
+			o_ActiveProject->o_ProjectDirectory = path.parent_path();
 			return true;
 		}
 		return false;
