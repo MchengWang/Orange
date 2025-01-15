@@ -437,6 +437,11 @@ namespace Orange {
 		return sed_Data->EntityInstances.at(uuid)->GetManagedObject();
 	}
 
+	MonoString* ScriptEngine::CreateString(const char* string)
+	{
+		return mono_string_new(sed_Data->AppDomain, string);
+	}
+
 	MonoObject* ScriptEngine::InstantiateClass(MonoClass* monoClass)
 	{
 		MonoObject* instance = mono_object_new(sed_Data->AppDomain, monoClass);
