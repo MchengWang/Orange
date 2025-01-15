@@ -355,6 +355,19 @@ namespace Orange {
 			out << YAML::EndMap; // CircleCollider2DComponent
 		}
 
+		if (entity.HasComponent<TextComponent>())
+		{
+			out << YAML::Key << "TextComponent";
+			out << YAML::BeginMap; // TextComponent
+			auto& textComponent = entity.GetComponent<TextComponent>();
+			out << YAML::Key << "TextString" << YAML::Value << textComponent.TextString;
+			// TODO: textComponent.FontAsset
+			out << YAML::Key << "Color" << YAML::Value << textComponent.Color;
+			out << YAML::Key << "Kerning" << YAML::Value << textComponent.Kerning;
+			out << YAML::Key << "LineSpacing" << YAML::Value << textComponent.LineSpacing;
+			out << YAML::EndMap; // TextComponent
+		}
+
 		out << YAML::EndMap; // Entity
 	}
 

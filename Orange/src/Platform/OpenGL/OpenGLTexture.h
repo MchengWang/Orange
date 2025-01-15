@@ -10,9 +10,11 @@ namespace Orange
 	class OpenGLTexture2D : public Texture2D
 	{
 	public:
-		OpenGLTexture2D(uint32_t width, uint32_t height);
+		OpenGLTexture2D(const TextureSpecification& specification);
 		OpenGLTexture2D(const std::string& path);
 		virtual ~OpenGLTexture2D();
+
+		virtual const TextureSpecification& GetSpecification() const override { return o_Specification; }
 
 		virtual uint32_t GetWidth() const override { return o_Width; }
 		virtual uint32_t GetHeight() const override { return o_Height; }
@@ -32,6 +34,8 @@ namespace Orange
 		}
 
 	private:
+		TextureSpecification o_Specification;
+
 		std::string o_Path;
 		bool o_IsLoaded = false;
 		uint32_t o_Width, o_Height;

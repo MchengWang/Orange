@@ -3,6 +3,7 @@
 #include "SceneCamera.h"
 #include "Orange/Core/UUID.h"
 #include "Orange/Renderer/Texture.h"
+#include "Orange/Renderer/Font.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -157,6 +158,15 @@ namespace Orange
 		CircleCollider2DComponent(const CircleCollider2DComponent&) = default;
 	};
 
+	struct TextComponent
+	{
+		std::string TextString;
+		Ref<Font> FontAsset = Font::GetDefault();
+		glm::vec4 Color{ 1.0f };
+		float Kerning = 0.0f;
+		float LineSpacing = 0.0f;
+	};
+
 	template<typename... Component>
 	struct ComponentGroup
 	{
@@ -165,6 +175,6 @@ namespace Orange
 	using AllComponents =
 		ComponentGroup<TransformComponent, SpriteRendererComponent, CircleRendererComponent, 
 		CameraComponent, ScriptComponent, NativeScriptComponent, 
-		Rigidbody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent>;
+		Rigidbody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent, TextComponent>;;
 
 }

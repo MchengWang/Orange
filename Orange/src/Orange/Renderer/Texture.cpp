@@ -7,12 +7,12 @@
 namespace Orange
 { 
 
-	Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height)
+	Ref<Texture2D> Texture2D::Create(const TextureSpecification& specification)
 	{
 		switch (Renderer::GetAPI())
 		{
 		case RendererAPI::API::None: OG_CORE_ASSERT(false, "当前渲染接口：None 暂不支持！"); return nullptr;
-		case RendererAPI::API::OpenGL: return CreateRef<OpenGLTexture2D>(width, height);
+		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLTexture2D>(specification);
 		}
 
 		OG_CORE_ASSERT(false, "未知的渲染器接口！");

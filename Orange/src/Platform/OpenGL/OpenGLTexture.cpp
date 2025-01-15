@@ -6,8 +6,34 @@
 namespace Orange
 {
 
-	OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height)
-		:o_Width(width), o_Height(height)
+	namespace Utils {
+		static GLenum HazelImageFormatToGLDataFormat(ImageFormat format)
+		{
+			switch (format)
+			{
+			case ImageFormat::RGB8:  return GL_RGB;
+			case ImageFormat::RGBA8: return GL_RGBA;
+			}
+
+			OG_CORE_ASSERT(false);
+			return 0;
+		}
+
+		static GLenum HazelImageFormatToGLInternalFormat(ImageFormat format)
+		{
+			switch (format)
+			{
+			case ImageFormat::RGB8:  return GL_RGB8;
+			case ImageFormat::RGBA8: return GL_RGBA8;
+			}
+
+			OG_CORE_ASSERT(false);
+			return 0;
+		}
+	}
+
+	OpenGLTexture2D::OpenGLTexture2D(const TextureSpecification& specification)
+		: o_Specification(specification), o_Width(o_Specification.Width), o_Height(o_Specification.Height)
 	{
 		HZ_PROFILE_FUNCTION();
 

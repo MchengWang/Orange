@@ -14,10 +14,12 @@
 
 namespace Orange {
 
+	static Ref<Font> o_Font;
+
 	EditorLayer::EditorLayer()
 		: Layer("EditorLayer"), o_CameraController(1280.0f / 720.0f), o_SquareColor({ 0.2f, 0.3f, 0.8f, 1.0f })
 	{
-		Font font("assets/fonts/opensans/OpenSans-Regular.ttf");
+		o_Font = Font::GetDefault();
 	}
 
 	void EditorLayer::OnAttach()
@@ -249,6 +251,9 @@ namespace Orange {
 
 		ImGui::Begin("Settings");
 		ImGui::Checkbox("Show physics colliders", &o_ShowPhysicsColliders);
+
+		ImGui::Image((ImTextureID)o_Font->GetAtlasTexture()->GetRendererID(), { 512,512 }, { 0, 1 }, { 1, 0 });
+
 		ImGui::End();
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
@@ -568,8 +573,9 @@ namespace Orange {
 					glm::vec3 translation = tc.Translation + glm::vec3(bc2d.Offset, 0.001f);
 					glm::vec3 scale = tc.Scale * glm::vec3(bc2d.Size * 2.0f, 1.0f);
 
-					glm::mat4 transform = glm::translate(glm::mat4(1.0f), translation)
+					glm::mat4 transform = glm::translate(glm::mat4(1.0f), tc.Translation)
 						* glm::rotate(glm::mat4(1.0f), tc.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f))
+						* glm::translate(glm::mat4(1.0f), glm::vec3(bc2d.Offset, 0.001f))
 						* glm::scale(glm::mat4(1.0f), scale);
 
 					Renderer2D::DrawRect(transform, glm::vec4(0, 1, 0, 1));
