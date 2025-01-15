@@ -371,6 +371,7 @@ namespace Orange {
 
 			SerializeEntity(out, entity);
 		}
+
 		out << YAML::EndSeq;
 		out << YAML::EndMap;
 
@@ -393,7 +394,7 @@ namespace Orange {
 		}
 		catch (YAML::ParserException e)
 		{
-			OG_CORE_ERROR("Failed to load .Orange file '{0}'\n     {1}", filepath, e.what());
+			OG_CORE_ERROR("Failed to load .orange file '{0}'\n     {1}", filepath, e.what());
 			return false;
 		}
 
@@ -459,44 +460,46 @@ namespace Orange {
 					if (scriptFields)
 					{
 						Ref<ScriptClass> entityClass = ScriptEngine::GetEntityClass(sc.ClassName);
-						OG_CORE_ASSERT(entityClass);
-						const auto& fields = entityClass->GetFields();
-						auto& entityFields = ScriptEngine::GetScriptFieldMap(deserializedEntity);
-
-						for (auto scriptField : scriptFields)
+						if (entityClass)
 						{
-							std::string name = scriptField["Name"].as<std::string>();
-							std::string typeString = scriptField["Type"].as<std::string>();
-							ScriptFieldType type = Utils::ScriptFieldTypeFromString(typeString);
+							const auto& fields = entityClass->GetFields();
+							auto& entityFields = ScriptEngine::GetScriptFieldMap(deserializedEntity);
 
-							ScriptFieldInstance& fieldInstance = entityFields[name];
-
-							// TODO(Yan): turn this assert into Orangefruit log warning
-							OG_CORE_ASSERT(fields.find(name) != fields.end());
-
-							if (fields.find(name) == fields.end())
-								continue;
-
-							fieldInstance.Field = fields.at(name);
-
-							switch (type)
+							for (auto scriptField : scriptFields)
 							{
-								READ_SCRIPT_FIELD(Float, float);
-								READ_SCRIPT_FIELD(Double, double);
-								READ_SCRIPT_FIELD(Bool, bool);
-								READ_SCRIPT_FIELD(Char, char);
-								READ_SCRIPT_FIELD(Byte, int8_t);
-								READ_SCRIPT_FIELD(Short, int16_t);
-								READ_SCRIPT_FIELD(Int, int32_t);
-								READ_SCRIPT_FIELD(Long, int64_t);
-								READ_SCRIPT_FIELD(UByte, uint8_t);
-								READ_SCRIPT_FIELD(UShort, uint16_t);
-								READ_SCRIPT_FIELD(UInt, uint32_t);
-								READ_SCRIPT_FIELD(ULong, uint64_t);
-								READ_SCRIPT_FIELD(Vector2, glm::vec2);
-								READ_SCRIPT_FIELD(Vector3, glm::vec3);
-								READ_SCRIPT_FIELD(Vector4, glm::vec4);
-								READ_SCRIPT_FIELD(Entity, UUID);
+								std::string name = scriptField["Name"].as<std::string>();
+								std::string typeString = scriptField["Type"].as<std::string>();
+								ScriptFieldType type = Utils::ScriptFieldTypeFromString(typeString);
+
+								ScriptFieldInstance& fieldInstance = entityFields[name];
+
+								// TODO(Yan): turn this assert into Orangenut log warning
+								OG_CORE_ASSERT(fields.find(name) != fields.end());
+
+								if (fields.find(name) == fields.end())
+									continue;
+
+								fieldInstance.Field = fields.at(name);
+
+								switch (type)
+								{
+									READ_SCRIPT_FIELD(Float, float);
+									READ_SCRIPT_FIELD(Double, double);
+									READ_SCRIPT_FIELD(Bool, bool);
+									READ_SCRIPT_FIELD(Char, char);
+									READ_SCRIPT_FIELD(Byte, int8_t);
+									READ_SCRIPT_FIELD(Short, int16_t);
+									READ_SCRIPT_FIELD(Int, int32_t);
+									READ_SCRIPT_FIELD(Long, int64_t);
+									READ_SCRIPT_FIELD(UByte, uint8_t);
+									READ_SCRIPT_FIELD(UShort, uint16_t);
+									READ_SCRIPT_FIELD(UInt, uint32_t);
+									READ_SCRIPT_FIELD(ULong, uint64_t);
+									READ_SCRIPT_FIELD(Vector2, glm::vec2);
+									READ_SCRIPT_FIELD(Vector3, glm::vec3);
+									READ_SCRIPT_FIELD(Vector4, glm::vec4);
+									READ_SCRIPT_FIELD(Entity, UUID);
+								}
 							}
 						}
 					}
@@ -567,6 +570,5 @@ namespace Orange {
 		OG_CORE_ASSERT(false);
 		return false;
 	}
-
 
 }

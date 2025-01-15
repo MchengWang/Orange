@@ -1,4 +1,3 @@
-#include "ogpch.h"
 #include "Scene.h"
 #include "Entity.h"
 
@@ -8,6 +7,8 @@
 #include "Orange/Renderer/Renderer2D.h"
 
 #include <glm/glm.hpp>
+
+#include "Entity.h"
 
 // Box2D
 #include "box2d/b2_world.h"
@@ -40,26 +41,42 @@ namespace Orange {
 		delete o_PhysicsWorld;
 	}
 
-	template<typename Component>
+	template<typename... Component>
 	static void CopyComponent(entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
 	{
-		auto view = src.view<Component>();
-		for (auto e : view)
-		{
-			UUID uuid = src.get<IDComponent>(e).ID;
-			OG_CORE_ASSERT(enttMap.find(uuid) != enttMap.end());
-			entt::entity dstEnttID = enttMap.at(uuid);
+		([&]()
+			{
+				auto view = src.view<Component>();
+				for (auto srcEntity : view)
+				{
+					entt::entity dstEntity = enttMap.at(src.get<IDComponent>(srcEntity).ID);
 
-			auto& component = src.get<Component>(e);
-			dst.emplace_or_replace<Component>(dstEnttID, component);
-		}
+					auto& srcComponent = src.get<Component>(srcEntity);
+					dst.emplace_or_replace<Component>(dstEntity, srcComponent);
+				}
+			}(), ...);
 	}
 
-	template<typename Component>
+	template<typename... Component>
+	static void CopyComponent(ComponentGroup<Component...>, entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
+	{
+		CopyComponent<Component...>(dst, src, enttMap);
+	}
+
+	template<typename... Component>
 	static void CopyComponentIfExists(Entity dst, Entity src)
 	{
-		if (src.HasComponent<Component>())
-			dst.AddOrReplaceComponent<Component>(src.GetComponent<Component>());
+		([&]()
+			{
+				if (src.HasComponent<Component>())
+					dst.AddOrReplaceComponent<Component>(src.GetComponent<Component>());
+			}(), ...);
+	}
+
+	template<typename... Component>
+	static void CopyComponentIfExists(ComponentGroup<Component...>, Entity dst, Entity src)
+	{
+		CopyComponentIfExists<Component...>(dst, src);
 	}
 
 	Ref<Scene> Scene::Copy(Ref<Scene> other)
@@ -84,14 +101,7 @@ namespace Orange {
 		}
 
 		// Copy components (except IDComponent and TagComponent)
-		CopyComponent<TransformComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
-		CopyComponent<SpriteRendererComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
-		CopyComponent<CircleRendererComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
-		CopyComponent<CameraComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
-		CopyComponent<NativeScriptComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
-		CopyComponent<Rigidbody2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
-		CopyComponent<BoxCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
-		CopyComponent<CircleCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent(AllComponents{}, dstSceneRegistry, srcSceneRegistry, enttMap);
 
 		return newScene;
 	}
@@ -129,10 +139,9 @@ namespace Orange {
 		// Scripting
 		{
 			ScriptEngine::OnRuntimeStart(this);
-
 			// Instantiate all script entities
+
 			auto view = o_Registry.view<ScriptComponent>();
-			
 			for (auto e : view)
 			{
 				Entity entity = { e, this };
@@ -162,49 +171,53 @@ namespace Orange {
 
 	void Scene::OnUpdateRuntime(Timestep ts)
 	{
-		// Update scripts
+		if (!o_IsPaused || o_StepFrames-- > 0)
 		{
-			// C# Entity OnUpdate
-			auto view = o_Registry.view<ScriptComponent>();
-			for (auto e : view)
+			// Update scripts
 			{
-				Entity entity = { e, this };
-				ScriptEngine::OnUpdateEntity(entity, ts);
+				// C# Entity OnUpdate
+				auto view = o_Registry.view<ScriptComponent>();
+				for (auto e : view)
+				{
+					Entity entity = { e, this };
+					ScriptEngine::OnUpdateEntity(entity, ts);
+				}
+
+				o_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+					{
+						// TODO: Move to Scene::OnScenePlay
+						if (!nsc.Instance)
+						{
+							nsc.Instance = nsc.InstantiateScript();
+							nsc.Instance->o_Entity = Entity{ entity, this };
+							nsc.Instance->OnCreate();
+						}
+
+						nsc.Instance->OnUpdate(ts);
+					});
 			}
 
-			o_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-				{
-					// TODO: Move to Scene::OnScenePlay
-					if (!nsc.Instance)
-					{
-						nsc.Instance = nsc.InstantiateScript();
-						nsc.Instance->o_Entity = Entity{ entity, this };
-						nsc.Instance->OnCreate();
-					}
-
-					nsc.Instance->OnUpdate(ts);
-				});
-		}
-
-		// Physics
-		{
-			const int32_t velocityIterations = 6;
-			const int32_t positionIterations = 2;
-			o_PhysicsWorld->Step(ts, velocityIterations, positionIterations);
-
-			// Retrieve transform from Box2D
-			auto view = o_Registry.view<Rigidbody2DComponent>();
-			for (auto e : view)
+			// Physics
 			{
-				Entity entity = { e, this };
-				auto& transform = entity.GetComponent<TransformComponent>();
-				auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
+				const int32_t velocityIterations = 6;
+				const int32_t positionIterations = 2;
+				o_PhysicsWorld->Step(ts, velocityIterations, positionIterations);
 
-				b2Body* body = (b2Body*)rb2d.RuntimeBody;
-				const auto& position = body->GetPosition();
-				transform.Translation.x = position.x;
-				transform.Translation.y = position.y;
-				transform.Rotation.z = body->GetAngle();
+				// Retrieve transform from Box2D
+				auto view = o_Registry.view<Rigidbody2DComponent>();
+				for (auto e : view)
+				{
+					Entity entity = { e, this };
+					auto& transform = entity.GetComponent<TransformComponent>();
+					auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
+
+					b2Body* body = (b2Body*)rb2d.RuntimeBody;
+
+					const auto& position = body->GetPosition();
+					transform.Translation.x = position.x;
+					transform.Translation.y = position.y;
+					transform.Rotation.z = body->GetAngle();
+				}
 			}
 		}
 
@@ -259,25 +272,28 @@ namespace Orange {
 
 	void Scene::OnUpdateSimulation(Timestep ts, EditorCamera& camera)
 	{
-		// Physics
+		if (!o_IsPaused || o_StepFrames-- > 0)
 		{
-			const int32_t velocityIterations = 6;
-			const int32_t positionIterations = 2;
-			o_PhysicsWorld->Step(ts, velocityIterations, positionIterations);
-
-			// Retrieve transform from Box2D
-			auto view = o_Registry.view<Rigidbody2DComponent>();
-			for (auto e : view)
+			// Physics
 			{
-				Entity entity = { e, this };
-				auto& transform = entity.GetComponent<TransformComponent>();
-				auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
+				const int32_t velocityIterations = 6;
+				const int32_t positionIterations = 2;
+				o_PhysicsWorld->Step(ts, velocityIterations, positionIterations);
 
-				b2Body* body = (b2Body*)rb2d.RuntimeBody;
-				const auto& position = body->GetPosition();
-				transform.Translation.x = position.x;
-				transform.Translation.y = position.y;
-				transform.Rotation.z = body->GetAngle();
+				// Retrieve transform from Box2D
+				auto view = o_Registry.view<Rigidbody2DComponent>();
+				for (auto e : view)
+				{
+					Entity entity = { e, this };
+					auto& transform = entity.GetComponent<TransformComponent>();
+					auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
+
+					b2Body* body = (b2Body*)rb2d.RuntimeBody;
+					const auto& position = body->GetPosition();
+					transform.Translation.x = position.x;
+					transform.Translation.y = position.y;
+					transform.Rotation.z = body->GetAngle();
+				}
 			}
 		}
 
@@ -309,21 +325,6 @@ namespace Orange {
 		}
 	}
 
-	void Scene::DuplicateEntity(Entity entity)
-	{
-		std::string name = entity.GetName();
-		Entity newEntity = CreateEntity(name);
-
-		CopyComponentIfExists<TransformComponent>(newEntity, entity);
-		CopyComponentIfExists<SpriteRendererComponent>(newEntity, entity);
-		CopyComponentIfExists<CircleRendererComponent>(newEntity, entity);
-		CopyComponentIfExists<CameraComponent>(newEntity, entity);
-		CopyComponentIfExists<NativeScriptComponent>(newEntity, entity);
-		CopyComponentIfExists<Rigidbody2DComponent>(newEntity, entity);
-		CopyComponentIfExists<BoxCollider2DComponent>(newEntity, entity);
-		CopyComponentIfExists<CircleCollider2DComponent>(newEntity, entity);
-	}
-
 	Entity Scene::GetPrimaryCameraEntity()
 	{
 		auto view = o_Registry.view<CameraComponent>();
@@ -334,6 +335,17 @@ namespace Orange {
 				return Entity{ entity, this };
 		}
 		return {};
+	}
+
+	void Scene::Step(int frames)
+	{
+		o_StepFrames = frames;
+	}
+
+	void Scene::DuplicateEntity(Entity entity)
+	{
+		Entity newEntity = CreateEntity(entity.GetName());
+		CopyComponentIfExists(AllComponents{}, newEntity, entity);
 	}
 
 	Entity Scene::FindEntityByName(std::string_view name)
@@ -509,4 +521,5 @@ namespace Orange {
 	void Scene::OnComponentAdded<CircleCollider2DComponent>(Entity entity, CircleCollider2DComponent& component)
 	{
 	}
+
 }

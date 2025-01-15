@@ -39,6 +39,7 @@ namespace Orange
 		void OnScenePlay();
 		void OnSceneSimulate();
 		void OnSceneStop();
+		void OnScenePause();
 
 		void OnDuplicateEntity();
 
@@ -91,7 +92,7 @@ namespace Orange
 		ContentBrowerPanel o_ContentBrowserPanel;
 
 		// Editor resources
-		Ref<Texture2D> o_IconPlay, o_IconSimulate, o_IconStop;
+		Ref<Texture2D> o_IconPlay, o_IconPause, o_IconStep, o_IconSimulate, o_IconStop;
 	};
 
 }

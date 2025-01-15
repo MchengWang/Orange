@@ -11,7 +11,6 @@
 
 #include "ImGuizmo.h"
 
-
 namespace Orange {
 
 	extern const std::filesystem::path g_AssetPath;
@@ -27,7 +26,9 @@ namespace Orange {
 
 		o_CheckerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
 		o_IconPlay = Texture2D::Create("Resources/Icons/PlayButton.png");
+		o_IconPause = Texture2D::Create("Resources/Icons/PauseButton.png");
 		o_IconSimulate = Texture2D::Create("Resources/Icons/SimulateButton.png");
+		o_IconStep = Texture2D::Create("Resources/Icons/StepButton.png");
 		o_IconStop = Texture2D::Create("Resources/Icons/StopButton.png");
 
 		FramebufferSpecification fbSpec;
@@ -47,7 +48,6 @@ namespace Orange {
 		}
 
 		o_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
-
 		Renderer2D::SetLineWidth(4.0f);
 	}
 
@@ -346,10 +346,16 @@ namespace Orange {
 			tintColor.w = 0.5f;
 
 		float size = ImGui::GetWindowHeight() - 4.0f;
+		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
+
+		bool hasPlayButton = o_SceneState == SceneState::Edit || o_SceneState == SceneState::Play;
+		bool hasSimulateButton = o_SceneState == SceneState::Edit || o_SceneState == SceneState::Simulate;
+		bool hasPauseButton = o_SceneState != SceneState::Edit;
+
+		if (hasPlayButton)
 		{
 			Ref<Texture2D> icon = (o_SceneState == SceneState::Edit || o_SceneState == SceneState::Simulate) ? o_IconPlay : o_IconStop;
-			ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
-			if (ImGui::ImageButton((ImTextureID)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
+			if (ImGui::ImageButton((ImTextureID)(uint64_t)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
 			{
 				if (o_SceneState == SceneState::Edit || o_SceneState == SceneState::Simulate)
 					OnScenePlay();
@@ -357,15 +363,45 @@ namespace Orange {
 					OnSceneStop();
 			}
 		}
-		ImGui::SameLine();
+
+		if (hasSimulateButton)
 		{
-			Ref<Texture2D> icon = (o_SceneState == SceneState::Edit || o_SceneState == SceneState::Play) ? o_IconSimulate : o_IconStop;		//ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
-			if (ImGui::ImageButton((ImTextureID)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
+			if (hasPlayButton)
+				ImGui::SameLine();
+
+			Ref<Texture2D> icon = (o_SceneState == SceneState::Edit || o_SceneState == SceneState::Play) ? o_IconSimulate : o_IconStop;
+			if (ImGui::ImageButton((ImTextureID)(uint64_t)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
 			{
 				if (o_SceneState == SceneState::Edit || o_SceneState == SceneState::Play)
 					OnSceneSimulate();
 				else if (o_SceneState == SceneState::Simulate)
 					OnSceneStop();
+			}
+		}
+		if (hasPauseButton)
+		{
+			bool isPaused = o_ActiveScene->IsPaused();
+			ImGui::SameLine();
+			{
+				Ref<Texture2D> icon = o_IconPause;
+				if (ImGui::ImageButton((ImTextureID)(uint64_t)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
+				{
+					o_ActiveScene->SetPaused(!isPaused);
+				}
+			}
+
+			// Step button
+			if (isPaused)
+			{
+				ImGui::SameLine();
+				{
+					Ref<Texture2D> icon = o_IconStep;
+					bool isPaused = o_ActiveScene->IsPaused();
+					if (ImGui::ImageButton((ImTextureID)(uint64_t)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
+					{
+						o_ActiveScene->Step();
+					}
+				}
 			}
 		}
 		ImGui::PopStyleVar(2);
@@ -376,7 +412,6 @@ namespace Orange {
 	void EditorLayer::OnEvent(Event& e)
 	{
 		o_CameraController.OnEvent(e);
-		
 		if (o_SceneState == SceneState::Edit)
 		{
 			o_EditorCamera.OnEvent(e);
@@ -466,7 +501,7 @@ namespace Orange {
 				}
 				break;
 			}
-		}
+		}	
 
 		return false;
 	}
@@ -646,6 +681,14 @@ namespace Orange {
 		o_ActiveScene = o_EditorScene;
 
 		o_SceneHierarchyPanel.SetContext(o_ActiveScene);
+	}
+
+	void EditorLayer::OnScenePause()
+	{
+		if (o_SceneState == SceneState::Edit)
+			return;
+
+		o_ActiveScene->SetPaused(true);
 	}
 
 	void EditorLayer::OnDuplicateEntity()

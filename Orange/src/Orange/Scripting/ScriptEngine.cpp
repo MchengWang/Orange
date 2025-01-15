@@ -7,11 +7,15 @@
 #include "mono/metadata/assembly.h"
 #include "mono/metadata/object.h"
 #include "mono/metadata/tabledefs.h"
+#include "mono/metadata/mono-debug.h"
+#include "mono/metadata/threads.h"
 
 #include "FileWatch.h"
 
 #include "Orange/Core/Application.h"
 #include "Orange/Core/Timer.h"
+#include "Orange/Core/Buffer.h"
+#include "Orange/Core/FileSystem.h"
 
 
 namespace Orange {
@@ -36,44 +40,13 @@ namespace Orange {
 	};
 
 	namespace Utils {
-
-		// TODO: move to FileSystem class
-		static char* ReadBytes(const std::filesystem::path& filepath, uint32_t* outSize)
+		static MonoAssembly* LoadMonoAssembly(const std::filesystem::path& assemblyPath, bool loadPDB = false)
 		{
-			std::ifstream stream(filepath, std::ios::binary | std::ios::ate);
-
-			if (!stream)
-			{
-				// Failed to open the file
-				return nullptr;
-			}
-
-			std::streampos end = stream.tellg();
-			stream.seekg(0, std::ios::beg);
-			uint64_t size = end - stream.tellg();
-
-			if (size == 0)
-			{
-				// File is empty
-				return nullptr;
-			}
-
-			char* buffer = new char[size];
-			stream.read((char*)buffer, size);
-			stream.close();
-
-			*outSize = (uint32_t)size;
-			return buffer;
-		}
-
-		static MonoAssembly* LoadMonoAssembly(const std::filesystem::path& assemblyPath)
-		{
-			uint32_t fileSize = 0;
-			char* fileData = ReadBytes(assemblyPath, &fileSize);
+			ScopedBuffer fileData = FileSystem::ReadFileBinary(assemblyPath);
 
 			// NOTE: We can't use this image for anything other than loading the assembly because this image doesn't have a reference to the assembly
 			MonoImageOpenStatus status;
-			MonoImage* image = mono_image_open_from_data_full(fileData, fileSize, 1, &status, 0);
+			MonoImage* image = mono_image_open_from_data_full(fileData.As<char>(), fileData.Size(), 1, &status, 0);
 
 			if (status != MONO_IMAGE_OK)
 			{
@@ -82,12 +55,22 @@ namespace Orange {
 				return nullptr;
 			}
 
+			if (loadPDB)
+			{
+				std::filesystem::path pdbPath = assemblyPath;
+				pdbPath.replace_extension(".pdb");
+
+				if (std::filesystem::exists(pdbPath))
+				{
+					ScopedBuffer pdbFileData = FileSystem::ReadFileBinary(pdbPath);
+					mono_debug_open_image_from_memory(image, pdbFileData.As<const mono_byte>(), pdbFileData.Size());
+					OG_CORE_INFO("Loaded PDB {}", pdbPath);
+				}
+			}
+
 			std::string pathString = assemblyPath.string();
 			MonoAssembly* assembly = mono_assembly_load_from_full(image, pathString.c_str(), &status, 0);
 			mono_image_close(image);
-
-			// Don't forget to free the file data
-			delete[] fileData;
 
 			return assembly;
 		}
@@ -149,6 +132,8 @@ namespace Orange {
 		Scope<filewatch::FileWatch<std::string>> AppAssemblyFileWatcher;
 		bool AssemblyReloadPending = false;
 
+		bool EnableDebugging = true;
+
 		// Runtime
 		Scene* SceneContext = nullptr;
 	};
@@ -175,8 +160,20 @@ namespace Orange {
 		InitMono();
 		ScriptGlue::RegisterFunctions();
 
-		LoadAssembly("Resources/Scripts/Orange-scriptCore.dll");
-		LoadAppAssembly("SandboxProject/Assets/Scripts/Binaries/Sandbox.dll");
+		bool status = LoadAssembly("Resources/Scripts/Hazel-ScriptCore.dll");
+		if (!status)
+		{
+			OG_CORE_ERROR("[ScriptEngine] Could not load Hazel-ScriptCore assembly.");
+			return;
+		}
+
+		status = LoadAppAssembly("SandboxProject/Assets/Scripts/Binaries/Sandbox.dll");
+		if (!status)
+		{
+			OG_CORE_ERROR("[ScriptEngine] Could not load app assembly.");
+			return;
+		}
+
 		LoadAssemblyClasses();
 
 
@@ -184,37 +181,6 @@ namespace Orange {
 
 		// Retrieve and instantiate class 
 		sed_Data->EntityClass = ScriptClass("Orange", "Entity", true);
-#if 0
-		MonoObject* instance = sed_Data->EntityClass.Instantiate();
-
-		// Call method
-		MonoMethod* printMessageFunc = sed_Data->EntityClass.GetMethod("PrintMessage", 0);
-		sed_Data->EntityClass.InvokeMethod(instance, printMessageFunc);
-
-		// Call method with param
-		MonoMethod* printIntFunc = sed_Data->EntityClass.GetMethod("PrintInt", 1);
-
-		int value = 5;
-		void* param = &value;
-
-		sed_Data->EntityClass.InvokeMethod(instance, printIntFunc, &param);
-
-		MonoMethod* printIntsFunc = sed_Data->EntityClass.GetMethod("PrintInts", 2);
-		int value2 = 508;
-		void* params[2] =
-		{
-			&value,
-			&value2
-		};
-		sed_Data->EntityClass.InvokeMethod(instance, printIntsFunc, params);
-
-		MonoString* monoString = mono_string_new(sed_Data->AppDomain, "Hello World from C++!");
-		MonoMethod* printCustomMessageFunc = sed_Data->EntityClass.GetMethod("PrintCustomMessage", 1);
-		void* stringParam = monoString;
-		sed_Data->EntityClass.InvokeMethod(instance, printCustomMessageFunc, &stringParam);
-
-		OG_CORE_ASSERT(false);
-#endif
 	}
 
 	void ScriptEngine::Shutdown()
@@ -228,11 +194,25 @@ namespace Orange {
 	{
 		mono_set_assemblies_path("mono/lib");
 
+		if (sed_Data->EnableDebugging)
+		{
+			const char* argv[2] = {
+				"--debugger-agent=transport=dt_socket,address=127.0.0.1:2550,server=y,suspend=n,loglevel=3,logfile=MonoDebugger.log",
+				"--soft-breakpoints"
+			};
+			mono_jit_parse_options(2, (char**)argv);
+			mono_debug_init(MONO_DEBUG_FORMAT_MONO);
+		}
+
 		MonoDomain* rootDomain = mono_jit_init("OrangeJITRuntime");
 		OG_CORE_ASSERT(rootDomain);
 
 		// Store the root domain pointer
 		sed_Data->RootDomain = rootDomain;
+
+		if (sed_Data->EnableDebugging)
+			mono_debug_domain_create(sed_Data->RootDomain);
+		mono_thread_set_main(mono_thread_current());
 	}
 
 	void ScriptEngine::ShutdownMono()
@@ -247,7 +227,7 @@ namespace Orange {
 		sed_Data->RootDomain = nullptr;
 	}
 
-	void ScriptEngine::LoadAssembly(const std::filesystem::path& filepath)
+	bool ScriptEngine::LoadAssembly(const std::filesystem::path& filepath)
 	{
 		// Create an App Domain
 		sed_Data->AppDomain = mono_domain_create_appdomain("OrangeScriptRuntime", nullptr);
@@ -255,23 +235,31 @@ namespace Orange {
 
 		// Move this maybe
 		sed_Data->CoreAssemblyFilepath = filepath;
-		sed_Data->CoreAssembly = Utils::LoadMonoAssembly(filepath);
+		sed_Data->CoreAssembly = Utils::LoadMonoAssembly(filepath, sed_Data->EnableDebugging);
+
+		if (sed_Data->CoreAssembly == nullptr)
+			return false;
+
 		sed_Data->CoreAssemblyImage = mono_assembly_get_image(sed_Data->CoreAssembly);
 		// Utils::PrintAssemblyTypes(sed_Data->CoreAssembly);
+		return true;
 	}
 
-	void ScriptEngine::LoadAppAssembly(const std::filesystem::path& filepath)
+	bool ScriptEngine::LoadAppAssembly(const std::filesystem::path& filepath)
 	{
 		// Move this maybe
 		sed_Data->AppAssemblyFilepath = filepath;
-		sed_Data->AppAssembly = Utils::LoadMonoAssembly(filepath);
-		auto assemb = sed_Data->AppAssembly;
+		sed_Data->AppAssembly = Utils::LoadMonoAssembly(filepath, sed_Data->EnableDebugging);
+		
+		if (sed_Data->AppAssembly == nullptr)
+			return false;
+
 		sed_Data->AppAssemblyImage = mono_assembly_get_image(sed_Data->AppAssembly);
-		auto assembi = sed_Data->AppAssemblyImage;
-		// Utils::PrintAssemblyTypes(sed_Data->AppAssembly);
 
 		sed_Data->AppAssemblyFileWatcher = CreateScope<filewatch::FileWatch<std::string>>(filepath.string(), OnAppAssemblyFileSystemEvent);
 		sed_Data->AssemblyReloadPending = false;
+
+		return true;
 	}
 
 	void ScriptEngine::ReloadAssembly()
@@ -325,9 +313,16 @@ namespace Orange {
 	void ScriptEngine::OnUpdateEntity(Entity entity, Timestep ts)
 	{
 		UUID entityUUID = entity.GetUUID();
-		OG_CORE_ASSERT(sed_Data->EntityInstances.find(entityUUID) != sed_Data->EntityInstances.end());
-		Ref<ScriptInstance> instance = sed_Data->EntityInstances[entityUUID];
-		instance->InvokeOnUpdate((float)ts);
+
+		if (sed_Data->EntityInstances.find(entityUUID) != sed_Data->EntityInstances.end())
+		{
+			Ref<ScriptInstance> instance = sed_Data->EntityInstances[entityUUID];
+			instance->InvokeOnUpdate((float)ts);
+		}
+		else
+		{
+			OG_CORE_ERROR("Could not find ScriptInstance for entity {}", entityUUID);
+		}
 	}
 	
 	Scene* ScriptEngine::GetSceneContext()
@@ -463,7 +458,8 @@ namespace Orange {
 
 	MonoObject* ScriptClass::InvokeMethod(MonoObject* instance, MonoMethod* method, void** params)
 	{
-		return mono_runtime_invoke(method, instance, params, nullptr);
+		MonoObject* exception = nullptr;
+		return mono_runtime_invoke(method, instance, params, &exception);
 	}
 
 	ScriptInstance::ScriptInstance(Ref<ScriptClass> scriptClass, Entity entity)

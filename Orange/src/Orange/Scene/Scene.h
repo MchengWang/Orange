@@ -45,6 +45,12 @@ namespace Orange
 
 		bool IsRunning() const { return o_IsRunning; }
 
+		bool IsPaused() const { return o_IsPaused; }
+
+		void SetPaused(bool paused) { o_IsPaused = paused; }
+		
+		void Step(int frames = 1);
+
 		template <typename... Components>
 		auto GetAllEntitiesWith()
 		{
@@ -64,6 +70,9 @@ namespace Orange
 		entt::registry o_Registry;
 		uint32_t o_ViewportWidth = 0, o_ViewportHeight = 0;
 		bool o_IsRunning = false;
+		bool o_IsPaused = false;
+		int o_StepFrames = 0;
+
 
 		b2World* o_PhysicsWorld = nullptr;
 
