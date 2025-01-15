@@ -48,7 +48,7 @@ namespace Orange {
 		msdfgen::FontHandle* font = msdfgen::loadFont(ft, fileString.c_str());
 		if (!font)
 		{
-			OG_CORE_ERROR("Failed to load font: {}", fileString);
+			OG_CORE_ERROR("无法加载字体: {}", fileString);
 			return;
 		}
 
@@ -73,7 +73,7 @@ namespace Orange {
 		double fontScale = 1.0;
 		o_Data->FontGeometry = msdf_atlas::FontGeometry(&o_Data->Glyphs);
 		int glyphsLoaded = o_Data->FontGeometry.loadCharset(font, fontScale, charset);
-		OG_CORE_INFO("Loaded {} glyphs from font (out of {})", glyphsLoaded, charset.size());
+		OG_CORE_INFO("从字体加载 {} 字形（从 {} 中加载）", glyphsLoaded, charset.size());
 
 
 		double emSize = 40.0;
@@ -151,5 +151,6 @@ namespace Orange {
 		if (!DefaultFont)
 			DefaultFont = CreateRef<Font>("assets/fonts/opensans/OpenSans-Regular.ttf");
 
-
+		return DefaultFont;
+	}
 }

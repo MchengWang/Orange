@@ -64,7 +64,7 @@ namespace Orange {
 				{
 					ScopedBuffer pdbFileData = FileSystem::ReadFileBinary(pdbPath);
 					mono_debug_open_image_from_memory(image, pdbFileData.As<const mono_byte>(), pdbFileData.Size());
-					OG_CORE_INFO("Loaded PDB {}", pdbPath);
+					OG_CORE_INFO("Loaded PDB {}", pdbPath.string());
 				}
 			}
 

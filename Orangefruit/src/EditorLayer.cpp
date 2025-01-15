@@ -33,6 +33,7 @@ namespace Orange {
 		o_IconStep = Texture2D::Create("Resources/Icons/StepButton.png");
 		o_IconStop = Texture2D::Create("Resources/Icons/StopButton.png");
 
+
 		FramebufferSpecification fbSpec;
 		fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGET, FramebufferTextureFormat::Depth };
 		fbSpec.Width = 1280;
