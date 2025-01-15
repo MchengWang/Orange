@@ -8,6 +8,12 @@
 #include "mono/metadata/object.h"
 #include "mono/metadata/tabledefs.h"
 
+#include "FileWatch.h"
+
+#include "Orange/Core/Application.h"
+#include "Orange/Core/Timer.h"
+
+
 namespace Orange {
 
 	static std::unordered_map<std::string, ScriptFieldType> s_ScriptFieldTypeMap =
@@ -118,30 +124,6 @@ namespace Orange {
 			return it->second;
 		}
 
-		const char* ScriptFieldTypeToString(ScriptFieldType type)
-		{
-			switch (type)
-			{
-				case ScriptFieldType::Float:   return "Float";
-				case ScriptFieldType::Double:  return "Double";
-				case ScriptFieldType::Bool:    return "Bool";
-				case ScriptFieldType::Char:    return "Char";
-				case ScriptFieldType::Byte:    return "Byte";
-				case ScriptFieldType::Short:   return "Short";
-				case ScriptFieldType::Int:     return "Int";
-				case ScriptFieldType::Long:    return "Long";
-				case ScriptFieldType::UByte:   return "UByte";
-				case ScriptFieldType::UShort:  return "UShort";
-				case ScriptFieldType::UInt:    return "UInt";
-				case ScriptFieldType::ULong:   return "ULong";
-				case ScriptFieldType::Vector2: return "Vector2";
-				case ScriptFieldType::Vector3: return "Vector3";
-				case ScriptFieldType::Vector4: return "Vector4";
-				case ScriptFieldType::Entity:  return "Entity";
-			}
-			return "<Invalid>";
-		}
-
 	}
 
 	struct ScriptEngineData
@@ -155,22 +137,43 @@ namespace Orange {
 		MonoAssembly* AppAssembly = nullptr;
 		MonoImage* AppAssemblyImage = nullptr;
 
+		std::filesystem::path CoreAssemblyFilepath;
+		std::filesystem::path AppAssemblyFilepath;
+
 		ScriptClass EntityClass;
 
 		std::unordered_map<std::string, Ref<ScriptClass>> EntityClasses;
 		std::unordered_map<UUID, Ref<ScriptInstance>> EntityInstances;
 		std::unordered_map<UUID, ScriptFieldMap> EntityScriptFields;
+
+		Scope<filewatch::FileWatch<std::string>> AppAssemblyFileWatcher;
+		bool AssemblyReloadPending = false;
+
 		// Runtime
 		Scene* SceneContext = nullptr;
 	};
 
 	static ScriptEngineData* sed_Data = nullptr;
 
+	static void OnAppAssemblyFileSystemEvent(const std::string& path, const filewatch::Event change_type)
+	{
+		if (!sed_Data->AssemblyReloadPending && change_type == filewatch::Event::modified)
+		{
+			sed_Data->AssemblyReloadPending = true;
+			Application::Get().SubmitToMainThread([]()
+				{
+					sed_Data->AppAssemblyFileWatcher.reset();
+					ScriptEngine::ReloadAssembly();
+				});
+		}
+	}
+
 	void ScriptEngine::Init()
 	{
 		sed_Data = new ScriptEngineData();
 
 		InitMono();
+		ScriptGlue::RegisterFunctions();
 
 		LoadAssembly("Resources/Scripts/Orange-scriptCore.dll");
 		LoadAppAssembly("SandboxProject/Assets/Scripts/Binaries/Sandbox.dll");
@@ -178,7 +181,6 @@ namespace Orange {
 
 
 		ScriptGlue::RegisterComponents();
-		ScriptGlue::RegisterFunctions();
 
 		// Retrieve and instantiate class 
 		sed_Data->EntityClass = ScriptClass("Orange", "Entity", true);
@@ -236,11 +238,12 @@ namespace Orange {
 	void ScriptEngine::ShutdownMono()
 	{
 		// NOTE(Yan): mono is a little confusing to shutdown, so maybe come back to this
+		mono_domain_set(mono_get_root_domain(), false);
 
-		// mono_domain_unload(sed_Data->AppDomain);
+		mono_domain_unload(sed_Data->AppDomain);
 		sed_Data->AppDomain = nullptr;
 
-		// mono_jit_cleanup(sed_Data->RootDomain);
+		mono_jit_cleanup(sed_Data->RootDomain);
 		sed_Data->RootDomain = nullptr;
 	}
 
@@ -251,6 +254,7 @@ namespace Orange {
 		mono_domain_set(sed_Data->AppDomain, true);
 
 		// Move this maybe
+		sed_Data->CoreAssemblyFilepath = filepath;
 		sed_Data->CoreAssembly = Utils::LoadMonoAssembly(filepath);
 		sed_Data->CoreAssemblyImage = mono_assembly_get_image(sed_Data->CoreAssembly);
 		// Utils::PrintAssemblyTypes(sed_Data->CoreAssembly);
@@ -259,11 +263,31 @@ namespace Orange {
 	void ScriptEngine::LoadAppAssembly(const std::filesystem::path& filepath)
 	{
 		// Move this maybe
+		sed_Data->AppAssemblyFilepath = filepath;
 		sed_Data->AppAssembly = Utils::LoadMonoAssembly(filepath);
 		auto assemb = sed_Data->AppAssembly;
 		sed_Data->AppAssemblyImage = mono_assembly_get_image(sed_Data->AppAssembly);
 		auto assembi = sed_Data->AppAssemblyImage;
 		// Utils::PrintAssemblyTypes(sed_Data->AppAssembly);
+
+		sed_Data->AppAssemblyFileWatcher = CreateScope<filewatch::FileWatch<std::string>>(filepath.string(), OnAppAssemblyFileSystemEvent);
+		sed_Data->AssemblyReloadPending = false;
+	}
+
+	void ScriptEngine::ReloadAssembly()
+	{
+		mono_domain_set(mono_get_root_domain(), false);
+
+		mono_domain_unload(sed_Data->AppDomain);
+
+		LoadAssembly(sed_Data->CoreAssemblyFilepath);
+		LoadAppAssembly(sed_Data->AppAssemblyFilepath);
+		LoadAssemblyClasses();
+
+		ScriptGlue::RegisterComponents();
+
+		// Retrieve and instantiate class
+		sed_Data->EntityClass = ScriptClass("Orange", "Entity", true);
 	}
 
 	void ScriptEngine::OnRuntimeStart(Scene* scene)
@@ -371,8 +395,10 @@ namespace Orange {
 				continue;
 
 			bool isEntity = mono_class_is_subclass_of(monoClass, entityClass, false);
+
 			if (isEntity)
 				continue;
+
 			Ref<ScriptClass> scriptClass = CreateRef<ScriptClass>(nameSpace, className);
 			sed_Data->EntityClasses[fullName] = scriptClass;
 
@@ -404,6 +430,12 @@ namespace Orange {
 	MonoImage* ScriptEngine::GetCoreAssemblyImage()
 	{
 		return sed_Data->CoreAssemblyImage;
+	}
+
+	MonoObject* ScriptEngine::GetManagedInstance(UUID uuid)
+	{
+		OG_CORE_ASSERT(sed_Data->EntityInstances.find(uuid) != sed_Data->EntityInstances.end());
+		return sed_Data->EntityInstances.at(uuid)->GetManagedObject();
 	}
 
 	MonoObject* ScriptEngine::InstantiateClass(MonoClass* monoClass)

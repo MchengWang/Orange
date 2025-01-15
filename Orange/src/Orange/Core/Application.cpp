@@ -67,6 +67,13 @@ namespace Orange
 		o_Running = false;
 	}
 
+	void Application::SubmitToMainThread(const std::function<void()>& function)
+	{
+		std::scoped_lock<std::mutex> lock(o_MainThreadQueueMutex);
+
+		o_MainThreadQueue.emplace_back(function);
+	}
+
 	void Application::OnEvent(Event& e)
 	{
 		HZ_PROFILE_FUNCTION();
@@ -94,6 +101,8 @@ namespace Orange
 			float time = Time::GetTime();
 			Timestep timestep = time - o_LastFrameTime;
 			o_LastFrameTime = time;
+
+			ExecuteMainThreadQueue();
 
 			if (!o_Minimized) // 当窗口不是最小化的时候，进行图层更新
 			{
@@ -138,4 +147,15 @@ namespace Orange
 
 		return false;
 	}
+
+	void Application::ExecuteMainThreadQueue()
+	{
+		std::scoped_lock<std::mutex> lock(o_MainThreadQueueMutex);
+
+		for (auto& func : o_MainThreadQueue)
+			func();
+		
+		o_MainThreadQueue.clear();
+	}
+
 }

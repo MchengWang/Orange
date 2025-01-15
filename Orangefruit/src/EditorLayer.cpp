@@ -2,6 +2,7 @@
 #include "Orange/Scene/SceneSerializer.h"
 #include "Orange/Utils/PlatformUtils.h"
 #include "Orange/Math/Math.h"
+#include "Orange/Scripting/ScriptEngine.h"
 
 #include <imgui/imgui.h>
 
@@ -42,8 +43,7 @@ namespace Orange {
 		if (commandLineArgs.Count > 1)
 		{
 			auto sceneFilePath = commandLineArgs[1];
-			SceneSerializer serializer(o_ActiveScene);
-			serializer.Deserialize(sceneFilePath);
+			OpenScene(sceneFilePath);
 		}
 
 		o_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
@@ -60,6 +60,8 @@ namespace Orange {
 	{
 		HZ_PROFILE_FUNCTION();
 
+		o_ActiveScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
+
 		// Resize
 		if (FramebufferSpecification spec = o_Framebuffer->GetSpecification();
 			o_ViewportSize.x > 0.0f && o_ViewportSize.y > 0.0f && // zero sized framebuffer is invalid
@@ -68,7 +70,6 @@ namespace Orange {
 			o_Framebuffer->Resize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
 			o_CameraController.OnResize(o_ViewportSize.x, o_ViewportSize.y);
 			o_EditorCamera.SetViewportSize(o_ViewportSize.x, o_ViewportSize.y);
-			o_ActiveScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
 		}
 
 		// Render
@@ -198,7 +199,17 @@ namespace Orange {
 				if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))
 					SaveSceneAs();
 
-				if (ImGui::MenuItem("Exit")) Application::Get().Close();
+				if (ImGui::MenuItem("Exit"))
+					Application::Get().Close();
+
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Script"))
+			{
+				if (ImGui::MenuItem("Reload assembly", "Ctrl+R"))
+					ScriptEngine::ReloadAssembly();
+
 				ImGui::EndMenu();
 			}
 
@@ -238,7 +249,7 @@ namespace Orange {
 
 		o_ViewportFocused = ImGui::IsWindowFocused();
 		o_ViewportHovered = ImGui::IsWindowHovered();
-		Application::Get().GetImGuiLayer()->BlockEvents(!o_ViewportFocused && !o_ViewportHovered);
+		Application::Get().GetImGuiLayer()->BlockEvents(!o_ViewportHovered);
 
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		o_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
@@ -444,8 +455,15 @@ namespace Orange {
 			}
 			case Key::R:
 			{
-				if (!ImGuizmo::IsUsing())
-					o_GizmoType = ImGuizmo::OPERATION::SCALE;
+				if (control)
+				{
+					ScriptEngine::ReloadAssembly();
+				}
+				else
+				{
+					if (!ImGuizmo::IsUsing())
+						o_GizmoType = ImGuizmo::OPERATION::SCALE;
+				}
 				break;
 			}
 		}
@@ -529,7 +547,6 @@ namespace Orange {
 	void EditorLayer::NewScene()
 	{
 		o_ActiveScene = CreateRef<Scene>();
-		o_ActiveScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
 		o_SceneHierarchyPanel.SetContext(o_ActiveScene);
 
 		o_EditorScenePath = std::filesystem::path();
@@ -558,7 +575,6 @@ namespace Orange {
 		if (serializer.Deserialize(path.string()))
 		{
 			o_EditorScene = newScene;
-			o_EditorScene->OnViewportResize((uint32_t)o_ViewportSize.x, (uint32_t)o_ViewportSize.y);
 			o_SceneHierarchyPanel.SetContext(o_EditorScene);
 
 			o_ActiveScene = o_EditorScene;

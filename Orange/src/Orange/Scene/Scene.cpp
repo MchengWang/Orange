@@ -293,6 +293,9 @@ namespace Orange {
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
 	{
+		if (o_ViewportWidth == width && o_ViewportHeight == height)
+			return;
+
 		o_ViewportWidth = width;
 		o_ViewportHeight = height;
 
@@ -328,6 +331,18 @@ namespace Orange {
 		{
 			const auto& camera = view.get<CameraComponent>(entity);
 			if (camera.Primary)
+				return Entity{ entity, this };
+		}
+		return {};
+	}
+
+	Entity Scene::FindEntityByName(std::string_view name)
+	{
+		auto view = o_Registry.view<TagComponent>();
+		for (auto entity : view)
+		{
+			const TagComponent& tc = view.get<TagComponent>(entity);
+			if (tc.Tag == name)
 				return Entity{ entity, this };
 		}
 		return {};

@@ -3,13 +3,14 @@
 
 #include "Entity.h"
 #include "Components.h"
+#include "Orange/Scripting/ScriptEngine.h"
+#include "Orange/Core/UUID.h"
 
 #include <fstream>
 
 #include <yaml-cpp/yaml.h>
 
-namespace YAML
-{
+namespace YAML {
 
 	template<>
 	struct convert<glm::vec2>
@@ -22,17 +23,19 @@ namespace YAML
 			node.SetStyle(EmitterStyle::Flow);
 			return node;
 		}
+
 		static bool decode(const Node& node, glm::vec2& rhs)
 		{
 			if (!node.IsSequence() || node.size() != 2)
 				return false;
+
 			rhs.x = node[0].as<float>();
 			rhs.y = node[1].as<float>();
 			return true;
 		}
 	};
 
-	template <>
+	template<>
 	struct convert<glm::vec3>
 	{
 		static Node encode(const glm::vec3& rhs)
@@ -49,6 +52,7 @@ namespace YAML
 		{
 			if (!node.IsSequence() || node.size() != 3)
 				return false;
+
 			rhs.x = node[0].as<float>();
 			rhs.y = node[1].as<float>();
 			rhs.z = node[2].as<float>();
@@ -56,8 +60,7 @@ namespace YAML
 		}
 	};
 
-
-	template <>
+	template<>
 	struct convert<glm::vec4>
 	{
 		static Node encode(const glm::vec4& rhs)
@@ -75,6 +78,7 @@ namespace YAML
 		{
 			if (!node.IsSequence() || node.size() != 4)
 				return false;
+
 			rhs.x = node[0].as<float>();
 			rhs.y = node[1].as<float>();
 			rhs.z = node[2].as<float>();
@@ -82,10 +86,40 @@ namespace YAML
 			return true;
 		}
 	};
+
+	template<>
+	struct convert<Orange::UUID>
+	{
+		static Node encode(const Orange::UUID& uuid)
+		{
+			Node node;
+			node.push_back((uint64_t)uuid);
+			return node;
+		}
+
+		static bool decode(const Node& node, Orange::UUID& uuid)
+		{
+			uuid = node.as<uint64_t>();
+			return true;
+		}
+	};
+
 }
 
-namespace Orange
-{
+namespace Orange {
+
+#define WRITE_SCRIPT_FIELD(FieldType, Type)           \
+			case ScriptFieldType::FieldType:          \
+				out << scriptField.GetValue<Type>();  \
+				break
+
+#define READ_SCRIPT_FIELD(FieldType, Type)             \
+	case ScriptFieldType::FieldType:                   \
+	{                                                  \
+		Type data = scriptField["Data"].as<Type>();    \
+		fieldInstance.SetValue(data);                  \
+		break;                                         \
+	}
 
 	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec2& v)
 	{
@@ -116,7 +150,8 @@ namespace Orange
 		case Rigidbody2DComponent::BodyType::Dynamic:   return "Dynamic";
 		case Rigidbody2DComponent::BodyType::Kinematic: return "Kinematic";
 		}
-		OG_CORE_ASSERT(false, "未知的实体类型！");
+
+		OG_CORE_ASSERT(false, "Unknown body type");
 		return {};
 	}
 
@@ -126,25 +161,26 @@ namespace Orange
 		if (bodyTypeString == "Dynamic")   return Rigidbody2DComponent::BodyType::Dynamic;
 		if (bodyTypeString == "Kinematic") return Rigidbody2DComponent::BodyType::Kinematic;
 
-		OG_CORE_ASSERT(false, "未知的实体类型！");
+		OG_CORE_ASSERT(false, "Unknown body type");
 		return Rigidbody2DComponent::BodyType::Static;
 	}
 
 	SceneSerializer::SceneSerializer(const Ref<Scene>& scene)
-		:o_Scene(scene)
+		: o_Scene(scene)
 	{
 	}
 
 	static void SerializeEntity(YAML::Emitter& out, Entity entity)
 	{
 		OG_CORE_ASSERT(entity.HasComponent<IDComponent>());
+
 		out << YAML::BeginMap; // Entity
-		out << YAML::Key << "Entity" << YAML::Value << entity.GetUUID(); // TODO: Entity ID goes here
+		out << YAML::Key << "Entity" << YAML::Value << entity.GetUUID();
 
 		if (entity.HasComponent<TagComponent>())
 		{
 			out << YAML::Key << "TagComponent";
-			out << YAML::BeginMap; // TagComponent;
+			out << YAML::BeginMap; // TagComponent
 
 			auto& tag = entity.GetComponent<TagComponent>().Tag;
 			out << YAML::Key << "Tag" << YAML::Value << tag;
@@ -156,10 +192,12 @@ namespace Orange
 		{
 			out << YAML::Key << "TransformComponent";
 			out << YAML::BeginMap; // TransformComponent
+
 			auto& tc = entity.GetComponent<TransformComponent>();
 			out << YAML::Key << "Translation" << YAML::Value << tc.Translation;
 			out << YAML::Key << "Rotation" << YAML::Value << tc.Rotation;
 			out << YAML::Key << "Scale" << YAML::Value << tc.Scale;
+
 			out << YAML::EndMap; // TransformComponent
 		}
 
@@ -167,8 +205,10 @@ namespace Orange
 		{
 			out << YAML::Key << "CameraComponent";
 			out << YAML::BeginMap; // CameraComponent
+
 			auto& cameraComponent = entity.GetComponent<CameraComponent>();
 			auto& camera = cameraComponent.Camera;
+
 			out << YAML::Key << "Camera" << YAML::Value;
 			out << YAML::BeginMap; // Camera
 			out << YAML::Key << "ProjectionType" << YAML::Value << (int)camera.GetProjectionType();
@@ -179,8 +219,10 @@ namespace Orange
 			out << YAML::Key << "OrthographicNear" << YAML::Value << camera.GetOrthographicNearClip();
 			out << YAML::Key << "OrthographicFar" << YAML::Value << camera.GetOrthographicFarClip();
 			out << YAML::EndMap; // Camera
+
 			out << YAML::Key << "Primary" << YAML::Value << cameraComponent.Primary;
 			out << YAML::Key << "FixedAspectRatio" << YAML::Value << cameraComponent.FixedAspectRatio;
+
 			out << YAML::EndMap; // CameraComponent
 		}
 
@@ -191,6 +233,51 @@ namespace Orange
 			out << YAML::Key << "ScriptComponent";
 			out << YAML::BeginMap; // ScriptComponent
 			out << YAML::Key << "ClassName" << YAML::Value << scriptComponent.ClassName;
+
+			// Fields
+			Ref<ScriptClass> entityClass = ScriptEngine::GetEntityClass(scriptComponent.ClassName);
+			const auto& fields = entityClass->GetFields();
+			if (fields.size() > 0)
+			{
+				out << YAML::Key << "ScriptFields" << YAML::Value;
+				auto& entityFields = ScriptEngine::GetScriptFieldMap(entity);
+				out << YAML::BeginSeq;
+				for (const auto& [name, field] : fields)
+				{
+					if (entityFields.find(name) == entityFields.end())
+						continue;
+
+					out << YAML::BeginMap; // ScriptField
+					out << YAML::Key << "Name" << YAML::Value << name;
+					out << YAML::Key << "Type" << YAML::Value << Utils::ScriptFieldTypeToString(field.Type);
+
+					out << YAML::Key << "Data" << YAML::Value;
+					ScriptFieldInstance& scriptField = entityFields.at(name);
+
+					switch (field.Type)
+					{
+						WRITE_SCRIPT_FIELD(Float, float);
+						WRITE_SCRIPT_FIELD(Double, double);
+						WRITE_SCRIPT_FIELD(Bool, bool);
+						WRITE_SCRIPT_FIELD(Char, char);
+						WRITE_SCRIPT_FIELD(Byte, int8_t);
+						WRITE_SCRIPT_FIELD(Short, int16_t);
+						WRITE_SCRIPT_FIELD(Int, int32_t);
+						WRITE_SCRIPT_FIELD(Long, int64_t);
+						WRITE_SCRIPT_FIELD(UByte, uint8_t);
+						WRITE_SCRIPT_FIELD(UShort, uint16_t);
+						WRITE_SCRIPT_FIELD(UInt, uint32_t);
+						WRITE_SCRIPT_FIELD(ULong, uint64_t);
+						WRITE_SCRIPT_FIELD(Vector2, glm::vec2);
+						WRITE_SCRIPT_FIELD(Vector3, glm::vec3);
+						WRITE_SCRIPT_FIELD(Vector4, glm::vec4);
+						WRITE_SCRIPT_FIELD(Entity, UUID);
+					}
+					out << YAML::EndMap; // ScriptFields
+				}
+				out << YAML::EndSeq;
+			}
+
 			out << YAML::EndMap; // ScriptComponent
 		}
 
@@ -198,11 +285,12 @@ namespace Orange
 		{
 			out << YAML::Key << "SpriteRendererComponent";
 			out << YAML::BeginMap; // SpriteRendererComponent
+
 			auto& spriteRendererComponent = entity.GetComponent<SpriteRendererComponent>();
 			out << YAML::Key << "Color" << YAML::Value << spriteRendererComponent.Color;
-
 			if (spriteRendererComponent.Texture)
 				out << YAML::Key << "TexturePath" << YAML::Value << spriteRendererComponent.Texture->GetPath();
+
 			out << YAML::Key << "TilingFactor" << YAML::Value << spriteRendererComponent.TilingFactor;
 
 			out << YAML::EndMap; // SpriteRendererComponent
@@ -212,10 +300,12 @@ namespace Orange
 		{
 			out << YAML::Key << "CircleRendererComponent";
 			out << YAML::BeginMap; // CircleRendererComponent
+
 			auto& circleRendererComponent = entity.GetComponent<CircleRendererComponent>();
 			out << YAML::Key << "Color" << YAML::Value << circleRendererComponent.Color;
 			out << YAML::Key << "Thickness" << YAML::Value << circleRendererComponent.Thickness;
 			out << YAML::Key << "Fade" << YAML::Value << circleRendererComponent.Fade;
+
 			out << YAML::EndMap; // CircleRendererComponent
 		}
 
@@ -251,6 +341,7 @@ namespace Orange
 		{
 			out << YAML::Key << "CircleCollider2DComponent";
 			out << YAML::BeginMap; // CircleCollider2DComponent
+
 			auto& cc2dComponent = entity.GetComponent<CircleCollider2DComponent>();
 			out << YAML::Key << "Offset" << YAML::Value << cc2dComponent.Offset;
 			out << YAML::Key << "Radius" << YAML::Value << cc2dComponent.Radius;
@@ -258,6 +349,7 @@ namespace Orange
 			out << YAML::Key << "Friction" << YAML::Value << cc2dComponent.Friction;
 			out << YAML::Key << "Restitution" << YAML::Value << cc2dComponent.Restitution;
 			out << YAML::Key << "RestitutionThreshold" << YAML::Value << cc2dComponent.RestitutionThreshold;
+
 			out << YAML::EndMap; // CircleCollider2DComponent
 		}
 
@@ -270,18 +362,18 @@ namespace Orange
 		out << YAML::BeginMap;
 		out << YAML::Key << "Scene" << YAML::Value << "Untitled";
 		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
-		
-		auto d = o_Scene->o_Registry.view<entt::entity>();
-		for (auto& entityID : d)
+
+		for (auto& entityID : o_Scene->o_Registry.view<entt::entity>())
 		{
 			Entity entity = { entityID, o_Scene.get() };
 			if (!entity)
 				return;
+
 			SerializeEntity(out, entity);
 		}
-
 		out << YAML::EndSeq;
 		out << YAML::EndMap;
+
 		std::ofstream fout(filepath);
 		fout << out.c_str();
 	}
@@ -299,27 +391,32 @@ namespace Orange
 		{
 			data = YAML::LoadFile(filepath);
 		}
-		catch (const std::exception& e)
+		catch (YAML::ParserException e)
 		{
-			OG_CORE_ERROR("Failed to load .orange file '{0}'\n     {1}", filepath, e.what());
+			OG_CORE_ERROR("Failed to load .Orange file '{0}'\n     {1}", filepath, e.what());
 			return false;
 		}
 
 		if (!data["Scene"])
 			return false;
+
 		std::string sceneName = data["Scene"].as<std::string>();
 		OG_CORE_TRACE("Deserializing scene '{0}'", sceneName);
+
 		auto entities = data["Entities"];
 		if (entities)
 		{
 			for (auto entity : entities)
 			{
 				uint64_t uuid = entity["Entity"].as<uint64_t>();
+
 				std::string name;
 				auto tagComponent = entity["TagComponent"];
 				if (tagComponent)
 					name = tagComponent["Tag"].as<std::string>();
+
 				OG_CORE_TRACE("Deserialized entity with ID = {0}, name = {1}", uuid, name);
+
 				Entity deserializedEntity = o_Scene->CreateEntityWithUUID(uuid, name);
 
 				auto transformComponent = entity["TransformComponent"];
@@ -336,14 +433,18 @@ namespace Orange
 				if (cameraComponent)
 				{
 					auto& cc = deserializedEntity.AddComponent<CameraComponent>();
+
 					auto& cameraProps = cameraComponent["Camera"];
 					cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
+
 					cc.Camera.SetPerspectiveVerticalFOV(cameraProps["PerspectiveFOV"].as<float>());
 					cc.Camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
 					cc.Camera.SetPerspectiveFarClip(cameraProps["PerspectiveFar"].as<float>());
+
 					cc.Camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
 					cc.Camera.SetOrthographicNearClip(cameraProps["OrthographicNear"].as<float>());
 					cc.Camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
+
 					cc.Primary = cameraComponent["Primary"].as<bool>();
 					cc.FixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();
 				}
@@ -353,6 +454,53 @@ namespace Orange
 				{
 					auto& sc = deserializedEntity.AddComponent<ScriptComponent>();
 					sc.ClassName = scriptComponent["ClassName"].as<std::string>();
+
+					auto scriptFields = scriptComponent["ScriptFields"];
+					if (scriptFields)
+					{
+						Ref<ScriptClass> entityClass = ScriptEngine::GetEntityClass(sc.ClassName);
+						OG_CORE_ASSERT(entityClass);
+						const auto& fields = entityClass->GetFields();
+						auto& entityFields = ScriptEngine::GetScriptFieldMap(deserializedEntity);
+
+						for (auto scriptField : scriptFields)
+						{
+							std::string name = scriptField["Name"].as<std::string>();
+							std::string typeString = scriptField["Type"].as<std::string>();
+							ScriptFieldType type = Utils::ScriptFieldTypeFromString(typeString);
+
+							ScriptFieldInstance& fieldInstance = entityFields[name];
+
+							// TODO(Yan): turn this assert into Orangefruit log warning
+							OG_CORE_ASSERT(fields.find(name) != fields.end());
+
+							if (fields.find(name) == fields.end())
+								continue;
+
+							fieldInstance.Field = fields.at(name);
+
+							switch (type)
+							{
+								READ_SCRIPT_FIELD(Float, float);
+								READ_SCRIPT_FIELD(Double, double);
+								READ_SCRIPT_FIELD(Bool, bool);
+								READ_SCRIPT_FIELD(Char, char);
+								READ_SCRIPT_FIELD(Byte, int8_t);
+								READ_SCRIPT_FIELD(Short, int16_t);
+								READ_SCRIPT_FIELD(Int, int32_t);
+								READ_SCRIPT_FIELD(Long, int64_t);
+								READ_SCRIPT_FIELD(UByte, uint8_t);
+								READ_SCRIPT_FIELD(UShort, uint16_t);
+								READ_SCRIPT_FIELD(UInt, uint32_t);
+								READ_SCRIPT_FIELD(ULong, uint64_t);
+								READ_SCRIPT_FIELD(Vector2, glm::vec2);
+								READ_SCRIPT_FIELD(Vector3, glm::vec3);
+								READ_SCRIPT_FIELD(Vector4, glm::vec4);
+								READ_SCRIPT_FIELD(Entity, UUID);
+							}
+						}
+					}
+
 				}
 
 				auto spriteRendererComponent = entity["SpriteRendererComponent"];
@@ -360,6 +508,11 @@ namespace Orange
 				{
 					auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();
 					src.Color = spriteRendererComponent["Color"].as<glm::vec4>();
+					if (spriteRendererComponent["TexturePath"])
+						src.Texture = Texture2D::Create(spriteRendererComponent["TexturePath"].as<std::string>());
+
+					if (spriteRendererComponent["TilingFactor"])
+						src.TilingFactor = spriteRendererComponent["TilingFactor"].as<float>();
 				}
 
 				auto circleRendererComponent = entity["CircleRendererComponent"];
@@ -404,6 +557,7 @@ namespace Orange
 				}
 			}
 		}
+
 		return true;
 	}
 
@@ -413,5 +567,6 @@ namespace Orange
 		OG_CORE_ASSERT(false);
 		return false;
 	}
+
 
 }

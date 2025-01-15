@@ -36,5 +36,18 @@ namespace Orange
 			return component;
 		}
 
+		public Entity FindEntityByName(string name)
+		{
+			ulong entityID = InternalCalls.Entity_FindEntityByName(name);
+			if (entityID == 0)
+				return null;
+			return new Entity(entityID);
+		}
+		public T As<T>() where T : Entity, new()
+		{
+			object instance = InternalCalls.GetScriptInstance(ID);
+			return instance as T;
+		}
+
 	}
 }

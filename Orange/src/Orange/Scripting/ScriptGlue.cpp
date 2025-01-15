@@ -43,6 +43,11 @@ namespace Orange
 		return glm::dot(*parameter, *parameter);
 	}
 
+	static MonoObject* GetScriptInstance(UUID entityID)
+	{
+		return ScriptEngine::GetManagedInstance(entityID);
+	}
+
 	static bool Entity_HasComponent(UUID entityID, MonoReflectionType* componentType)
 	{
 		Scene* scene = ScriptEngine::GetSceneContext();
@@ -128,6 +133,7 @@ namespace Orange
 
 	void ScriptGlue::RegisterComponents()
 	{
+		o_EntityHasComponentFuncs.clear();
 		RegisterComponent(AllComponents{});
 	}
 

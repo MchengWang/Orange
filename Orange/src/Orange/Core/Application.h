@@ -58,10 +58,14 @@ namespace Orange
 
 		const ApplicationSpecification& GetSpecification() const { return o_Specification; }
 
+		void SubmitToMainThread(const std::function<void()>& function);
+
 	private:
 		void Run();
 		bool OnWindowClose(WindowCloseEvent& event); // 窗口关闭事件
 		bool OnWindowResized(WindowResizeEvent& event); // 窗口尺寸修改事件
+
+		void ExecuteMainThreadQueue();
 
 	private:
 		ApplicationSpecification o_Specification;
@@ -71,6 +75,9 @@ namespace Orange
 		bool o_Minimized = false; // 设置窗口最小化标志
 		LayerStack o_LayerStack;
 		float o_LastFrameTime = 0.0f;
+
+		std::vector<std::function<void()>> o_MainThreadQueue;
+		std::mutex o_MainThreadQueueMutex;
 
 	private:
 		static Application* o_Instance;
